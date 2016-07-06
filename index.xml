@@ -1,21 +1,53 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>My New Hugo Site</title>
+    <title>木秀于南</title>
     <link>http://yjn93.github.io/</link>
-    <description>Recent content on My New Hugo Site</description>
+    <description>Recent content on 木秀于南</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 07 Jun 2016 20:47:33 -0400</lastBuildDate>
+    <copyright>© 2016 Jianan Yue. All right reserved.</copyright>
+    <lastBuildDate>Wed, 06 Jul 2016 00:09:51 -0400</lastBuildDate>
     <atom:link href="http://yjn93.github.io/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
-      <title>Accueil</title>
-      <link>http://yjn93.github.io/posts/Accueil/</link>
-      <pubDate>Tue, 07 Jun 2016 20:47:33 -0400</pubDate>
+      <title>Cheat sheet</title>
+      <link>http://yjn93.github.io/dev/cheat-sheet/</link>
+      <pubDate>Wed, 06 Jul 2016 00:09:51 -0400</pubDate>
       
-      <guid>http://yjn93.github.io/posts/Accueil/</guid>
-      <description>&lt;p&gt;Bienvenue a my blog!&lt;/p&gt;
+      <guid>http://yjn93.github.io/dev/cheat-sheet/</guid>
+      <description>
+
+&lt;h2 id=&#34;vim-reference:973531de47c0d1a1c68391da818ea75f&#34;&gt;Vim Reference&lt;/h2&gt;
+
+&lt;p&gt;&lt;a href = &#34;https://www.fprintf.net/vimCheatSheet.html&#34;&gt;Vim Cheat Sheet &lt;/a&gt;&lt;br&gt;
+&lt;a href = &#34;http://www.radford.edu/~mhtay/CPSC120/VIM_Editor_Commands.htm&#34;&gt;Vim Editer Command&lt;/a&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>About</title>
+      <link>http://yjn93.github.io/about/</link>
+      <pubDate>Tue, 05 Jul 2016 22:28:14 -0400</pubDate>
+      
+      <guid>http://yjn93.github.io/about/</guid>
+      <description>
+
+&lt;h2 id=&#34;timeline:6083a88ee3411b0d17ce02d738f69d47&#34;&gt;Timeline&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;2011 Undergrads.CS@Nanjing University&lt;/li&gt;
+&lt;li&gt;2015 Master.CS@McGill University&lt;/li&gt;
+&lt;li&gt;2016 Summer Intern@Morgan Stanley&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;principles:6083a88ee3411b0d17ce02d738f69d47&#34;&gt;Principles&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Keep everything (code and life) simple and clear&lt;/li&gt;
+&lt;li&gt;Caring and considerate, love and peace&lt;/li&gt;
+&lt;li&gt;Step out of the comfort zone&lt;/li&gt;
+&lt;/ul&gt;
 </description>
     </item>
     

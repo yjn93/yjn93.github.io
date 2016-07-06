@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Vim on 木秀于南</title>
+    <link>http://yjn93.github.io/tags/vim/</link>
+    <description>Recent content in Vim on 木秀于南</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <copyright>© 2016 Jianan Yue. All right reserved.</copyright>
+    <lastBuildDate>Wed, 06 Jul 2016 00:09:51 -0400</lastBuildDate>
+    <atom:link href="http://yjn93.github.io/tags/vim/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Cheat sheet</title>
+      <link>http://yjn93.github.io/dev/cheat-sheet/</link>
+      <pubDate>Wed, 06 Jul 2016 00:09:51 -0400</pubDate>
+      
+      <guid>http://yjn93.github.io/dev/cheat-sheet/</guid>
+      <description>
+
+&lt;h2 id=&#34;vim-reference:973531de47c0d1a1c68391da818ea75f&#34;&gt;Vim Reference&lt;/h2&gt;
+
+&lt;p&gt;&lt;a href = &#34;https://www.fprintf.net/vimCheatSheet.html&#34;&gt;Vim Cheat Sheet &lt;/a&gt;&lt;br&gt;
+&lt;a href = &#34;http://www.radford.edu/~mhtay/CPSC120/VIM_Editor_Commands.htm&#34;&gt;Vim Editer Command&lt;/a&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

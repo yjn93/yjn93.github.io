@@ -54,7 +54,7 @@ html {
  */
 
 .sidebar {
-  text-align: center;
+  text-align: right;
   padding: 2rem 1rem;
   color: rgba(255,255,255,.5);
   background-color: #202020;
@@ -65,8 +65,7 @@ html {
     top: 0;
     left: 0;
     bottom: 0;
-    width: 18rem;
-    text-align: left;
+    width: 15rem;
   }
 }
 
@@ -79,14 +78,16 @@ html {
 .sidebar-about h1 {
   color: #fff;
   margin-top: 0;
+  vertical-align: top;
   font-family: "Abril Fatface", serif;
-  font-size: 3.25rem;
+  font-size: 3rem;
 }
 
 /* Sidebar nav */
 .sidebar-nav {
-  padding-left: 0;
+  padding-right: 0;
   list-style: none;
+  font-size: 1.5rem;
 }
 .sidebar-nav-item {
   display: block;
@@ -109,12 +110,17 @@ a.sidebar-nav-item:focus {
   .sidebar-sticky {
     position: absolute;
     right:  1rem;
-    bottom: 1rem;
+    top: 1rem;
     left:   1rem;
   }
 }
 
-
+.copyright {
+	font-size: .5rem;
+	position: absolute;
+	right: 1rem;
+	bottom: 1rem;
+}
 /* Container
  *
  * Align the contents of the site above the proper threshold with some margin-fu

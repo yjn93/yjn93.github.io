@@ -1,21 +1,23 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Development on My New Hugo Site</title>
+    <title>Development on 木秀于南</title>
     <link>http://yjn93.github.io/categories/development/</link>
-    <description>Recent content in Development on My New Hugo Site</description>
+    <description>Recent content in Development on 木秀于南</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Tue, 07 Jun 2016 20:47:33 -0400</lastBuildDate>
     <atom:link href="http://yjn93.github.io/categories/development/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
-      <title>Accueil</title>
+      <title>Vim Command Cheatsheet</title>
       <link>http://yjn93.github.io/posts/Accueil/</link>
       <pubDate>Tue, 07 Jun 2016 20:47:33 -0400</pubDate>
       
       <guid>http://yjn93.github.io/posts/Accueil/</guid>
       <description>&lt;p&gt;Bienvenue a my blog!&lt;/p&gt;
+
+&lt;p&gt;just make a try~:wq&lt;/p&gt;
 </description>
     </item>
     
