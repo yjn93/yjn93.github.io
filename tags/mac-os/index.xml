@@ -20,8 +20,10 @@
 
 &lt;h2 id=&#34;vim-reference:973531de47c0d1a1c68391da818ea75f&#34;&gt;Vim Reference&lt;/h2&gt;
 
-&lt;p&gt;&lt;a href = &#34;https://www.fprintf.net/vimCheatSheet.html&#34;&gt;Vim Cheat Sheet &lt;/a&gt;&lt;br&gt;
-&lt;a href = &#34;http://www.radford.edu/~mhtay/CPSC120/VIM_Editor_Commands.htm&#34;&gt;Vim Editer Command&lt;/a&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://www.fprintf.net/vimCheatSheet.html&#34;&gt;Vim Cheat Sheet&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.radford.edu/~mhtay/CPSC120/VIM_Editor_Commands.htm&#34;&gt;Vim Editer Command&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
 </description>
     </item>
     
