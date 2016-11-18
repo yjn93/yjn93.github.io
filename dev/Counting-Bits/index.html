@@ -1,0 +1,138 @@
+	<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-us" lang="en-us">
+<head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="generator" content="Hugo 0.15" />
+
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+  <title> Counting Bits &middot; 木秀于南 </title>
+
+  
+  <link rel="stylesheet" href="http://yjn93.github.io/css/poole.css">
+  <link rel="stylesheet" href="http://yjn93.github.io/css/syntax.css">
+  <link rel="stylesheet" href="http://yjn93.github.io/css/hyde.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700|Abril+Fatface">
+
+  
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/apple-touch-icon-144-precomposed.png">
+  <link rel="shortcut icon" href="/favicon.png">
+
+  
+  <link href="" rel="alternate" type="application/rss+xml" title="木秀于南" />
+</head>
+
+	<body class="">
+		<div class="sidebar">
+    <div class="sidebar-about">
+      <a href="http://yjn93.github.io/"><h1>木秀于南</h1></a>
+      <p class="lead">
+	   Jianan Yue  
+      </p>
+    </div>
+
+	        <ul class ="sidebar-nav">
+             <li>
+                <a href="/">Home</a>
+            </li>
+            <li>
+                <a href="/blog/">Blog</a>
+            </li>
+            <li>
+            	<a href="/dev/">Dev</a>
+            </li>
+            <li>
+            	<a href="/gallery/">Gallery</a>
+            </li>
+            <li>
+				<a href="/about">About</a>
+            </li>
+        </ul>
+
+
+	<p class = "copyright">
+		powered by <a href = "http://gohugo.io">Hugo</a>
+		<br>© 2016 Jianan Yue. All right reserved.
+	</p>
+</div>
+
+
+		<div class="content container">
+			<div class="post">
+			 	<h1>Counting Bits</h1>
+			  <span class="post-date">Sat, Nov 12, 2016</span>
+			      
+
+<h1 id="problem-description:022354bb3fdd3cdde4f44cb9f57b56b0">Problem description</h1>
+
+<ul>
+<li><a href="https://leetcode.com/problems/counting-bits/">LeetCode 338</a></li>
+</ul>
+
+<p>Given a non negative integer number num. For every numbers i in the range 0 ≤ i ≤ num calculate the number of 1&rsquo;s in their binary representation and return them as an array.</p>
+
+<h2 id="example:022354bb3fdd3cdde4f44cb9f57b56b0">Example:</h2>
+
+<p>For num = 5 you should return [0,1,1,2,1,2]</p>
+
+<h2 id="my-dp-solution:022354bb3fdd3cdde4f44cb9f57b56b0">My DP Solution</h2>
+
+<p>This problem can be solved by dynamic programming because the count of bits follow certains rules as the number grows:</p>
+
+<pre><code>		0	0
+		1	1
+		2	10
+		3	11
+</code></pre>
+
+<p>The number 2 is adding another bit 1 in front of number 0; the number 3 is adding another bit 1 at the beginning of number 1. So my solution is to track the previous size of numbers that can be represented by a fix number of bits. For example, we have 0, 1 initially, the size is 2. Then for 3, 4, we apply the formula:</p>
+
+<pre><code>dp[i] = dp[i-size] + 1
+dp[2] = dp[2 - 2] + 1 = dp[0] + 1 
+dp[3] = dp[3 - 2] + 1 = dp[1] + 1
+
+</code></pre>
+
+<p>Then, for number 4, we need more bits to represent it, so the previous size is updated to 4, and dp[4], dp[5], dp[6], dp[7] can be calculated by dp[0], dp[1], dp[2], dp[3]. My code is as following:</p>
+
+<pre><code>    public int[] countBits(int num) {
+        if(num == 0) return new int[]{0};
+        int[] dp = new int[num+1];
+        dp[0] = 0;
+        dp[1] = 1;
+        int size = 2;
+        for(int i = 2; i &lt;= num; i ++) {
+            if(i - size == size)
+                size = i;
+            dp[i] = 1 + dp[i-size];
+        }
+        return dp;
+    }
+
+</code></pre>
+
+<h2 id="another-dp-solution-combining-bit-manipulation:022354bb3fdd3cdde4f44cb9f57b56b0">Another DP solution combining Bit Manipulation</h2>
+
+<p>Instead of adding the bit 1 infront of the previous cycle, this brilliant solution think it as deleting the last bit to obtain the number of bits without last bit, then add another counting for last bit if the last bit is 1.</p>
+
+<p>4-line:</p>
+
+<pre><code>    public int[] countBits(int num) {
+        int[] dp = new int[num+1];
+        for(int i = 1; i &lt;= num; i ++) 
+            dp[i] = dp[i&gt;&gt;1] + (i&amp;1);
+        return dp;
+    }
+</code></pre>
+
+<p>Notice the priority for &amp; operator is lower than +, so we need to use () for (i&amp;1).</p>
+
+			</div>
+
+			
+		</div>
+
+  </body>
+</html>

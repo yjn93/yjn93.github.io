@@ -7,8 +7,308 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>© 2016 Jianan Yue. All right reserved.</copyright>
-    <lastBuildDate>Wed, 06 Jul 2016 00:09:51 -0400</lastBuildDate>
+    <lastBuildDate>Fri, 18 Nov 2016 09:54:11 -0500</lastBuildDate>
     <atom:link href="http://yjn93.github.io/dev/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Buy and Sell Stocks</title>
+      <link>http://yjn93.github.io/dev/Buy_and_Sell_Stocks/</link>
+      <pubDate>Fri, 18 Nov 2016 09:54:11 -0500</pubDate>
+      
+      <guid>http://yjn93.github.io/dev/Buy_and_Sell_Stocks/</guid>
+      <description>
+
+&lt;h1 id=&#34;one-transaction:bc34b67cdae43a991edbce9949a535fb&#34;&gt;One transaction&lt;/h1&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://leetcode.com/problems/best-time-to-buy-and-sell-stock/&#34;&gt;LeetCode 121&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;solution:bc34b67cdae43a991edbce9949a535fb&#34;&gt;Solution&lt;/h2&gt;
+
+&lt;h3 id=&#34;my-approach:bc34b67cdae43a991edbce9949a535fb&#34;&gt;My approach&lt;/h3&gt;
+
+&lt;p&gt;Track the min value, update the maxProfit.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;    public int maxProfit(int[] prices) {
+        int min = Integer.MAX_VALUE;
+        int max = 0;
+        for(int price: prices) {
+            min = Math.min(min, price);
+            max = Math.max(max, price-min);
+        }
+        return max;
+    }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;kadane-s-algorithm-solution:bc34b67cdae43a991edbce9949a535fb&#34;&gt;Kadane&amp;rsquo;s Algorithm Solution&lt;/h3&gt;
+
+&lt;p&gt;Kadane&amp;rsquo;s Algorithm is used to solve Maximum Subarray problem
+Here, the logic is to calculate the difference (maxCur += prices[i] - prices[i-1]) of the original array, and find a contiguous subarray giving maximum profit. If the difference falls below 0, reset it to zero.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;    public int maxProfit(int[] prices) {
+        int curMax = 0;
+        int max = 0;
+        for(int i = 1; i &amp;lt; prices.length; i ++) {
+            curMax = Math.max(0, curMax+prices[i]-prices[i-1]);
+            max = Math.max(max, curMax);
+        }
+        return max;
+    }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;maximum-subarray-problem:bc34b67cdae43a991edbce9949a535fb&#34;&gt;Maximum Subarray Problem&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://leetcode.com/problems/maximum-subarray/&#34;&gt;LeetCode 53&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;example:bc34b67cdae43a991edbce9949a535fb&#34;&gt;Example&lt;/h3&gt;
+
+&lt;p&gt;given the array [-2,1,-3,4,-1,2,1,-5,4], the contiguous subarray [4,-1,2,1] has the largest sum = 6.&lt;/p&gt;
+
+&lt;h3 id=&#34;solution-1:bc34b67cdae43a991edbce9949a535fb&#34;&gt;Solution&lt;/h3&gt;
+
+&lt;p&gt;Using Kadane&amp;rsquo;s algorithm, which consists of a scan through the array values, computing at each position the maximum (positive sum) subarray ending at that position. This subarray is either empty (in which case its sum is zero) or consists of one more element than the maximum subarray ending at the previous position.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;    public int maxSubArray(int[] nums) {
+        int max = Integer.MIN_VALUE;
+        int leftMax = 0;
+        for(int num: nums) {
+            max = Math.max(max, leftMax+num);
+            leftMax = Math.max(0, leftMax+num);
+        }
+        return max;
+    }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;notice:bc34b67cdae43a991edbce9949a535fb&#34;&gt;Notice&lt;/h3&gt;
+
+&lt;p&gt;The corner case: all elements are negative.&lt;/p&gt;
+
+&lt;h1 id=&#34;many-transactions:bc34b67cdae43a991edbce9949a535fb&#34;&gt;Many transactions&lt;/h1&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://leetcode.com/problems/best-time-to-buy-and-sell-stock-ii/&#34;&gt;LeetCode 122&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;peak-and-valley-approach:bc34b67cdae43a991edbce9949a535fb&#34;&gt;Peak and Valley approach&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;    public int maxProfit(int[] prices) {
+        int result = 0;
+        int idx = 0;
+        while(idx &amp;lt; prices.length-1) {
+            while(idx+1 &amp;lt; prices.length &amp;amp;&amp;amp; prices[idx+1] &amp;lt;= prices[idx])
+                idx ++;
+            int low = prices[idx];
+            while(idx+1 &amp;lt; prices.length &amp;amp;&amp;amp; prices[idx+1] &amp;gt;= prices[idx])
+                idx ++;
+            result += prices[idx]-low;
+            idx ++;
+        }
+        return result;
+    }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;simple-one-pass:bc34b67cdae43a991edbce9949a535fb&#34;&gt;Simple one pass&lt;/h2&gt;
+
+&lt;p&gt;we can directly keep on adding the difference between the consecutive numbers of the array if the second number is larger than the first one, and at the total sum we obtain will be the maximum profit.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;    public int maxProfit(int[] prices) {
+        int max = 0;
+        for(int i = 1; i &amp;lt; prices.length; i ++) {
+            if(prices[i] &amp;gt; prices[i-1])
+                max += prices[i]-prices[i-1];
+        }
+        return max;
+    }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h1 id=&#34;multiple-transactions-with-cooldown:bc34b67cdae43a991edbce9949a535fb&#34;&gt;Multiple transactions with cooldown&lt;/h1&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://leetcode.com/problems/best-time-to-buy-and-sell-stock-with-cooldown/&#34;&gt;LeetCode 309&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;example-1:bc34b67cdae43a991edbce9949a535fb&#34;&gt;Example&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;prices = [1, 2, 3, 0, 2]
+maxProfit = 3
+transactions = [buy, sell, cooldown, buy, sell]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;solution-2:bc34b67cdae43a991edbce9949a535fb&#34;&gt;Solution&lt;/h2&gt;
+
+&lt;p&gt;Dynamic programming: tracking the maxProfit for ending with sell and buy&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;buy[i] = max(sell[i-2]-price, buy[i-1])
+sell[i] = max(buy[i-1]+price, sell[i-1])
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Can reduce the space:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;preBuy = curBuy;
+curBuy = max(preSell-num, preBuy);
+preSell = curSell;
+curSell = max(preBuy+num, preSell);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Java code&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;    public int maxProfit(int[] prices) {
+        int preSell = 0, curSell = 0;
+		int curBuy = Integer.MIN_VALUE, preBuy;
+        for(int price: prices) {
+            preBuy = curBuy;
+            curBuy = Math.max(preSell - price, preBuy);
+            preSell = curSell;
+            curSell = Math.max(preBuy + price, preSell);
+        }
+        return curSell;
+    }
+
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Bit Manipulation</title>
+      <link>http://yjn93.github.io/dev/Bit-Manipulation/</link>
+      <pubDate>Sun, 13 Nov 2016 10:46:27 -0500</pubDate>
+      
+      <guid>http://yjn93.github.io/dev/Bit-Manipulation/</guid>
+      <description>
+
+&lt;h1 id=&#34;clever-tricks:3344d83625fb333615fef7b8a8bdad05&#34;&gt;Clever Tricks&lt;/h1&gt;
+
+&lt;h3 id=&#34;get-the-rightmost-set-bit:3344d83625fb333615fef7b8a8bdad05&#34;&gt;Get the rightmost set bit&lt;/h3&gt;
+
+&lt;pre&gt;&lt;code&gt;	num &amp;amp;= -num;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;set-the-rightmost-1-to-0:3344d83625fb333615fef7b8a8bdad05&#34;&gt;Set the rightmost 1 to 0&lt;/h3&gt;
+
+&lt;pre&gt;&lt;code&gt;	num &amp;amp;= (num-1)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;facts:3344d83625fb333615fef7b8a8bdad05&#34;&gt;Facts&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;~(num-1) == -num&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&#34;single-number-iii:3344d83625fb333615fef7b8a8bdad05&#34;&gt;Single Number III&lt;/h1&gt;
+
+&lt;h2 id=&#34;probolem-description:3344d83625fb333615fef7b8a8bdad05&#34;&gt;Probolem description&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://leetcode.com/problems/single-number-iii/&#34;&gt;LeetCode 260&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Given an array of numbers nums, in which exactly two elements appear only once and all the other elements appear exactly twice. Find the two elements that appear only once.&lt;/p&gt;
+
+&lt;h2 id=&#34;example:3344d83625fb333615fef7b8a8bdad05&#34;&gt;Example:&lt;/h2&gt;
+
+&lt;p&gt;Given nums = [1, 2, 1, 3, 2, 5], return [3, 5].&lt;/p&gt;
+
+&lt;h2 id=&#34;solution:3344d83625fb333615fef7b8a8bdad05&#34;&gt;Solution&lt;/h2&gt;
+
+&lt;p&gt;In the first pass of for loop, we XOR all elements in the array, and get the XOR of the two numbers we need to find.&lt;/p&gt;
+
+&lt;p&gt;The second pass is hard to come up with, we use the trick in the first session to get the rightmost set bit of the XOR of the two target number. We can divide all elements in two groups, and the target two numbers will fall into different groups.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;    public int[] singleNumber(int[] nums) {
+        int diff = 0;
+        for(int num: nums) {
+            diff ^= num;
+        }
+        diff &amp;amp;= -diff;
+        int[] result = {0,0};
+        for(int num: nums) {
+            if((num &amp;amp; diff) == 0)
+                result[0] ^= num;
+            else
+                result[1] ^= num;
+        }
+        return result;
+    }
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Counting Bits</title>
+      <link>http://yjn93.github.io/dev/Counting-Bits/</link>
+      <pubDate>Sat, 12 Nov 2016 15:10:24 -0500</pubDate>
+      
+      <guid>http://yjn93.github.io/dev/Counting-Bits/</guid>
+      <description>
+
+&lt;h1 id=&#34;problem-description:022354bb3fdd3cdde4f44cb9f57b56b0&#34;&gt;Problem description&lt;/h1&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://leetcode.com/problems/counting-bits/&#34;&gt;LeetCode 338&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Given a non negative integer number num. For every numbers i in the range 0 ≤ i ≤ num calculate the number of 1&amp;rsquo;s in their binary representation and return them as an array.&lt;/p&gt;
+
+&lt;h2 id=&#34;example:022354bb3fdd3cdde4f44cb9f57b56b0&#34;&gt;Example:&lt;/h2&gt;
+
+&lt;p&gt;For num = 5 you should return [0,1,1,2,1,2]&lt;/p&gt;
+
+&lt;h2 id=&#34;my-dp-solution:022354bb3fdd3cdde4f44cb9f57b56b0&#34;&gt;My DP Solution&lt;/h2&gt;
+
+&lt;p&gt;This problem can be solved by dynamic programming because the count of bits follow certains rules as the number grows:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;		0	0
+		1	1
+		2	10
+		3	11
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The number 2 is adding another bit 1 in front of number 0; the number 3 is adding another bit 1 at the beginning of number 1. So my solution is to track the previous size of numbers that can be represented by a fix number of bits. For example, we have 0, 1 initially, the size is 2. Then for 3, 4, we apply the formula:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;dp[i] = dp[i-size] + 1
+dp[2] = dp[2 - 2] + 1 = dp[0] + 1 
+dp[3] = dp[3 - 2] + 1 = dp[1] + 1
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Then, for number 4, we need more bits to represent it, so the previous size is updated to 4, and dp[4], dp[5], dp[6], dp[7] can be calculated by dp[0], dp[1], dp[2], dp[3]. My code is as following:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;    public int[] countBits(int num) {
+        if(num == 0) return new int[]{0};
+        int[] dp = new int[num+1];
+        dp[0] = 0;
+        dp[1] = 1;
+        int size = 2;
+        for(int i = 2; i &amp;lt;= num; i ++) {
+            if(i - size == size)
+                size = i;
+            dp[i] = 1 + dp[i-size];
+        }
+        return dp;
+    }
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;another-dp-solution-combining-bit-manipulation:022354bb3fdd3cdde4f44cb9f57b56b0&#34;&gt;Another DP solution combining Bit Manipulation&lt;/h2&gt;
+
+&lt;p&gt;Instead of adding the bit 1 infront of the previous cycle, this brilliant solution think it as deleting the last bit to obtain the number of bits without last bit, then add another counting for last bit if the last bit is 1.&lt;/p&gt;
+
+&lt;p&gt;4-line:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;    public int[] countBits(int num) {
+        int[] dp = new int[num+1];
+        for(int i = 1; i &amp;lt;= num; i ++) 
+            dp[i] = dp[i&amp;gt;&amp;gt;1] + (i&amp;amp;1);
+        return dp;
+    }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Notice the priority for &amp;amp; operator is lower than +, so we need to use () for (i&amp;amp;1).&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>Cheat sheet</title>
