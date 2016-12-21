@@ -38,8 +38,6 @@
 
 &lt;h1 id=&#34;single-number-iii:3344d83625fb333615fef7b8a8bdad05&#34;&gt;Single Number III&lt;/h1&gt;
 
-&lt;h2 id=&#34;probolem-description:3344d83625fb333615fef7b8a8bdad05&#34;&gt;Probolem description&lt;/h2&gt;
-
 &lt;ul&gt;
 &lt;li&gt;&lt;a href=&#34;https://leetcode.com/problems/single-number-iii/&#34;&gt;LeetCode 260&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
@@ -73,18 +71,39 @@
     }
 &lt;/code&gt;&lt;/pre&gt;
 
+&lt;h1 id=&#34;single-number-ii:3344d83625fb333615fef7b8a8bdad05&#34;&gt;Single Number II&lt;/h1&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://leetcode.com/problems/single-number-ii/&#34;&gt;LeetCode&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Given an array of integers, every element appears three times except for one. Find that single one.&lt;/p&gt;
+
+&lt;h2 id=&#34;solution-1:3344d83625fb333615fef7b8a8bdad05&#34;&gt;Solution&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;    public int singleNumber(int[] nums) {
+        int ones = 0, twos = 0;
+        for(int num: nums) {
+            ones = (ones ^ num) &amp;amp; ~twos;
+            twos = (twos ^ num) &amp;amp; ~ones;
+        }
+        return ones;
+    }
+&lt;/code&gt;&lt;/pre&gt;
+
 &lt;h1 id=&#34;missing-number:3344d83625fb333615fef7b8a8bdad05&#34;&gt;Missing Number&lt;/h1&gt;
 
 &lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://leetcode.com/problems/missing-number/&#34;&gt;LeetCode&lt;/a&gt;
-Given an array containing n distinct numbers taken from 0, 1, 2, &amp;hellip;, n, find the one that is missing from the array.&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://leetcode.com/problems/missing-number/&#34;&gt;LeetCode&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
+
+&lt;p&gt;Given an array containing n distinct numbers taken from 0, 1, 2, &amp;hellip;, n, find the one that is missing from the array.&lt;/p&gt;
 
 &lt;h2 id=&#34;example-1:3344d83625fb333615fef7b8a8bdad05&#34;&gt;Example&lt;/h2&gt;
 
 &lt;p&gt;Given nums = [0, 1, 3] return 2.&lt;/p&gt;
 
-&lt;h2 id=&#34;solution-1:3344d83625fb333615fef7b8a8bdad05&#34;&gt;Solution&lt;/h2&gt;
+&lt;h2 id=&#34;solution-2:3344d83625fb333615fef7b8a8bdad05&#34;&gt;Solution&lt;/h2&gt;
 
 &lt;pre&gt;&lt;code&gt;    public int missingNumber(int[] nums) {
         int result = nums.length;

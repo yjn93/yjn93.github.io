@@ -85,8 +85,6 @@
 
 <h1 id="single-number-iii:3344d83625fb333615fef7b8a8bdad05">Single Number III</h1>
 
-<h2 id="probolem-description:3344d83625fb333615fef7b8a8bdad05">Probolem description</h2>
-
 <ul>
 <li><a href="https://leetcode.com/problems/single-number-iii/">LeetCode 260</a></li>
 </ul>
@@ -120,18 +118,39 @@
     }
 </code></pre>
 
+<h1 id="single-number-ii:3344d83625fb333615fef7b8a8bdad05">Single Number II</h1>
+
+<ul>
+<li><a href="https://leetcode.com/problems/single-number-ii/">LeetCode</a></li>
+</ul>
+
+<p>Given an array of integers, every element appears three times except for one. Find that single one.</p>
+
+<h2 id="solution-1:3344d83625fb333615fef7b8a8bdad05">Solution</h2>
+
+<pre><code>    public int singleNumber(int[] nums) {
+        int ones = 0, twos = 0;
+        for(int num: nums) {
+            ones = (ones ^ num) &amp; ~twos;
+            twos = (twos ^ num) &amp; ~ones;
+        }
+        return ones;
+    }
+</code></pre>
+
 <h1 id="missing-number:3344d83625fb333615fef7b8a8bdad05">Missing Number</h1>
 
 <ul>
-<li><a href="https://leetcode.com/problems/missing-number/">LeetCode</a>
-Given an array containing n distinct numbers taken from 0, 1, 2, &hellip;, n, find the one that is missing from the array.</li>
+<li><a href="https://leetcode.com/problems/missing-number/">LeetCode</a></li>
 </ul>
+
+<p>Given an array containing n distinct numbers taken from 0, 1, 2, &hellip;, n, find the one that is missing from the array.</p>
 
 <h2 id="example-1:3344d83625fb333615fef7b8a8bdad05">Example</h2>
 
 <p>Given nums = [0, 1, 3] return 2.</p>
 
-<h2 id="solution-1:3344d83625fb333615fef7b8a8bdad05">Solution</h2>
+<h2 id="solution-2:3344d83625fb333615fef7b8a8bdad05">Solution</h2>
 
 <pre><code>    public int missingNumber(int[] nums) {
         int result = nums.length;
