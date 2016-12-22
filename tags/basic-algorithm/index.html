@@ -65,6 +65,19 @@
     
         <article class="post">
     <header>
+      <h2><a href="http://yjn93.github.io/dev/Knapsack/">Knapsack </a> </h2>
+      <div class="post-meta">Wed, Dec 21, 2016 </div>
+    </header>
+
+    Knapsack problem Given weights (wt[i]) and values (val[i]) of n items, put these items in a knapsack of capacity W to get the maximum total value in the knapsack. Basic dp K[i][v]=max{K[i-1][v],K[i-1][v-wt[i]]+val[i]} int knapSack(int W, int wt[], int val[], int n) { int i, w; int K[n+1][W+1]; // Build table K[][] in bottom up manner for (i = 0; i &lt;= n; i++) { for (w = 0; w &lt;= W; w++) { if (i==0 || w==0) K[i][w] = 0; else if (wt[i-1] &lt;= w) K[i][w] = max(val[i-1] + K[i-1][w-wt[i-1]], K[i-1][w]); else K[i][w] = K[i-1][w]; } } return K[n][W]; } Space optimization To make sure in ith loop, K[v-wt[i]] stores previous K[i-1][v-wt[i]], the inner for loop should index in decreasing order.
+    <footer>
+        <a href='http://yjn93.github.io/dev/Knapsack/'><nobr>Read more →</nobr></a>
+    </footer>
+</article>
+
+    
+        <article class="post">
+    <header>
       <h2><a href="http://yjn93.github.io/dev/QuickSort/">QuickSort </a> </h2>
       <div class="post-meta">Wed, Dec 21, 2016 </div>
     </header>

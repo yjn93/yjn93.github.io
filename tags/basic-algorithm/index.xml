@@ -7,8 +7,104 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>© 2016 Jianan Yue. All right reserved.</copyright>
-    <lastBuildDate>Wed, 21 Dec 2016 09:59:54 -0500</lastBuildDate>
+    <lastBuildDate>Wed, 21 Dec 2016 12:19:33 -0500</lastBuildDate>
     <atom:link href="http://yjn93.github.io/tags/basic-algorithm/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Knapsack</title>
+      <link>http://yjn93.github.io/dev/Knapsack/</link>
+      <pubDate>Wed, 21 Dec 2016 12:19:33 -0500</pubDate>
+      
+      <guid>http://yjn93.github.io/dev/Knapsack/</guid>
+      <description>
+
+&lt;h1 id=&#34;knapsack-problem:c06120d33a3798cdda1b16554d032ce1&#34;&gt;Knapsack problem&lt;/h1&gt;
+
+&lt;p&gt;Given weights (wt[i]) and values (val[i]) of n items, put these items in a knapsack of capacity W to get the maximum total value in the knapsack.&lt;/p&gt;
+
+&lt;h2 id=&#34;basic-dp:c06120d33a3798cdda1b16554d032ce1&#34;&gt;Basic dp&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;K[i][v]=max{K[i-1][v],K[i-1][v-wt[i]]+val[i]}
+
+int knapSack(int W, int wt[], int val[], int n)
+{
+   int i, w;
+   int K[n+1][W+1];
+ 
+   // Build table K[][] in bottom up manner
+   for (i = 0; i &amp;lt;= n; i++)
+   {
+       for (w = 0; w &amp;lt;= W; w++)
+       {
+           if (i==0 || w==0)
+               K[i][w] = 0;
+           else if (wt[i-1] &amp;lt;= w)
+                 K[i][w] = max(val[i-1] + K[i-1][w-wt[i-1]],  K[i-1][w]);
+           else
+                 K[i][w] = K[i-1][w];
+       }
+   }
+ 
+   return K[n][W];
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;space-optimization:c06120d33a3798cdda1b16554d032ce1&#34;&gt;Space optimization&lt;/h2&gt;
+
+&lt;p&gt;To make sure in ith loop, K[v-wt[i]] stores previous K[i-1][v-wt[i]], the inner for loop should index in decreasing order.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;for i = 1 .. N
+	for v = W .. 0
+		K[v]=max{K[v],K[v-wt[i]]+val[i]}
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h1 id=&#34;partition-equal-subset-sum:c06120d33a3798cdda1b16554d032ce1&#34;&gt;Partition Equal Subset Sum&lt;/h1&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://leetcode.com/problems/partition-equal-subset-sum/&#34;&gt;LeetCode 416&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Given a non-empty array containing only positive integers, find if the array can be partitioned into two subsets such that the sum of elements in both subsets is equal.&lt;/p&gt;
+
+&lt;h2 id=&#34;example:c06120d33a3798cdda1b16554d032ce1&#34;&gt;Example:&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;Input: [1, 5, 11, 5]
+
+Output: true
+
+Explanation: The array can be partitioned as [1, 5, 5] and [11].
+
+Input: [1, 2, 3, 5]
+
+Output: false
+
+Explanation: The array cannot be partitioned into equal sum subsets.
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;solution:c06120d33a3798cdda1b16554d032ce1&#34;&gt;Solution&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;    public boolean canPartition(int[] nums) {
+        int sum = 0;
+        for(int num: nums) {
+            sum += num;
+        }
+        if(sum % 2 != 0) return false;
+        sum /= 2;
+        boolean[] dp = new boolean[sum + 1];
+        dp[0] = true;
+        for(int i = 0; i &amp;lt; nums.length; i ++) {
+            for(int j = sum; j &amp;gt;= nums[i]; j --) {
+                dp[j] = dp[j] || dp[j - nums[i]];
+            }
+        }
+        
+        return dp[sum];
+    }
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
     
     <item>
       <title>QuickSort</title>

@@ -1,0 +1,126 @@
+	<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-us" lang="en-us">
+<head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="generator" content="Hugo 0.15" />
+
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+  <title> RotateMatrix &middot; 木秀于南 </title>
+
+  
+  <link rel="stylesheet" href="http://yjn93.github.io/css/poole.css">
+  <link rel="stylesheet" href="http://yjn93.github.io/css/syntax.css">
+  <link rel="stylesheet" href="http://yjn93.github.io/css/hyde.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700|Abril+Fatface">
+
+  
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/apple-touch-icon-144-precomposed.png">
+  <link rel="shortcut icon" href="/favicon.png">
+
+  
+  <link href="" rel="alternate" type="application/rss+xml" title="木秀于南" />
+</head>
+
+	<body class="">
+		<div class="sidebar">
+    <div class="sidebar-about">
+      <a href="http://yjn93.github.io/"><h1>木秀于南</h1></a>
+      <p class="lead">
+	   Jianan Yue  
+      </p>
+    </div>
+
+	        <ul class ="sidebar-nav">
+             <li>
+                <a href="/">Home</a>
+            </li>
+            <li>
+                <a href="/blog/">Blog</a>
+            </li>
+            <li>
+            	<a href="/dev/">Dev</a>
+            </li>
+            <li>
+            	<a href="/gallery/">Gallery</a>
+            </li>
+            <li>
+				<a href="/about">About</a>
+            </li>
+        </ul>
+
+
+	<p class = "copyright">
+		powered by <a href = "http://gohugo.io">Hugo</a>
+		<br>© 2016 Jianan Yue. All right reserved.
+	</p>
+</div>
+
+
+		<div class="content container">
+			<div class="post">
+			 	<h1>RotateMatrix</h1>
+			  <span class="post-date">Thu, Dec 22, 2016</span>
+			      
+
+<h1 id="rotate-image:18934d05988ea6297312db56d76fae0e">Rotate Image</h1>
+
+<p>You are given an n x n 2D matrix representing an image.</p>
+
+<p>Rotate the image by 90 degrees (clockwise).</p>
+
+<h2 id="trick:18934d05988ea6297312db56d76fae0e">Trick</h2>
+
+<p>I did the rotation in a dummy way. There is a trick:</p>
+
+<p>The idea was firstly transpose the matrix and then flip it symmetrically.</p>
+
+<h2 id="sample:18934d05988ea6297312db56d76fae0e">Sample</h2>
+
+<p>Transpose: swap(matrix[i][j], matrix[j][i])</p>
+
+<pre><code>1  2  3             
+4  5  6
+7  8  9
+</code></pre>
+
+<p>Then flip the matrix horizontally. (swap(matrix[i][j], matrix[i][matrix.length-1-j])</p>
+
+<pre><code>7  4  1
+8  5  2
+9  6  3
+
+</code></pre>
+
+<h2 id="solution:18934d05988ea6297312db56d76fae0e">Solution</h2>
+
+<pre><code>    public void rotate(int[][] matrix) {
+        if(matrix == null || matrix.length == 0 || matrix[0].length == 0)
+            return;
+        int len = matrix.length;
+        for(int i = 0; i &lt; len; i ++) {
+            for(int j = i + 1; j &lt; len; j ++) {
+                int temp = matrix[i][j];
+                matrix[i][j] = matrix[j][i];
+                matrix[j][i] = temp;
+            }
+        }
+        for(int i = 0; i &lt; len; i ++) {
+            for(int j = 0; j &lt; len/2; j ++) {
+                int temp = matrix[i][j];
+                matrix[i][j] = matrix[i][len - j - 1];
+                matrix[i][len - j - 1] = temp;
+            }
+        }
+    }
+</code></pre>
+
+			</div>
+
+			
+		</div>
+
+  </body>
+</html>
