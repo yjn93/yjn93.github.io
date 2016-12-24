@@ -7,8 +7,101 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>© 2016 Jianan Yue. All right reserved.</copyright>
-    <lastBuildDate>Fri, 23 Dec 2016 11:06:24 -0500</lastBuildDate>
+    <lastBuildDate>Sat, 24 Dec 2016 13:02:42 -0500</lastBuildDate>
     <atom:link href="http://yjn93.github.io/tags/leetcode/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>GuessNumber</title>
+      <link>http://yjn93.github.io/dev/GuessNumber/</link>
+      <pubDate>Sat, 24 Dec 2016 13:02:42 -0500</pubDate>
+      
+      <guid>http://yjn93.github.io/dev/GuessNumber/</guid>
+      <description>
+
+&lt;h1 id=&#34;guess-number-higher-or-lower-ii:d06f8d361b54867e9a90313f9c7e4037&#34;&gt;Guess Number Higher or Lower II&lt;/h1&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://leetcode.com/problems/guess-number-higher-or-lower-ii/&#34;&gt;LeetCode&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;We are playing the Guess Game. The game is as follows:&lt;/p&gt;
+
+&lt;p&gt;I pick a number from 1 to n. You have to guess which number I picked.&lt;/p&gt;
+
+&lt;p&gt;Every time you guess wrong, I&amp;rsquo;ll tell you whether the number I picked is higher or lower.&lt;/p&gt;
+
+&lt;p&gt;However, when you guess a particular number x, and you guess wrong, you pay $x. You win the game when you guess the number I picked.&lt;/p&gt;
+
+&lt;h2 id=&#34;example:d06f8d361b54867e9a90313f9c7e4037&#34;&gt;Example&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;n = 10, I pick 8.
+
+First round:  You guess 5, I tell you that it&#39;s higher. You pay $5.
+Second round: You guess 7, I tell you that it&#39;s higher. You pay $7.
+Third round:  You guess 9, I tell you that it&#39;s lower. You pay $9.
+
+Game over. 8 is the number I picked.
+
+You end up paying $5 + $7 + $9 = $21.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;solution:d06f8d361b54867e9a90313f9c7e4037&#34;&gt;Solution&lt;/h2&gt;
+
+&lt;p&gt;For each number x in range[i~j]&lt;/p&gt;
+
+&lt;p&gt;we do: result_when_pick_x = x + max{DP([i~x-1]), DP([x+1, j])}&lt;/p&gt;
+
+&lt;p&gt;&amp;ndash;&amp;gt; // the max means whenever you choose a number, the feedback is always bad and therefore leads you to a worse branch.&lt;/p&gt;
+
+&lt;p&gt;then we get DP([i~j]) = min{xi, &amp;hellip; ,xj}&lt;/p&gt;
+
+&lt;p&gt;&amp;ndash;&amp;gt; // this min makes sure that you are minimizing your cost.&lt;/p&gt;
+
+&lt;h3 id=&#34;recursive-dp:d06f8d361b54867e9a90313f9c7e4037&#34;&gt;Recursive DP&lt;/h3&gt;
+
+&lt;pre&gt;&lt;code&gt;    public int getMoneyAmount(int n) {
+        int[][] table = new int[n+1][n+1];
+        return dp(table, 1, n);
+    }
+    
+    public int dp(int[][] table, int start, int end) {
+        if(start &amp;gt;= end) return 0;
+        if(table[start][end] != 0) return table[start][end];
+        int result = Integer.MAX_VALUE;
+        for(int k = start; k &amp;lt;= end; k ++) {
+            result = Math.min(result, k + Math.max(dp(table, start, k-1), dp(table, k+1, end)));
+        }
+        table[start][end] = result;
+        return result;
+    }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;bottom-up-dp:d06f8d361b54867e9a90313f9c7e4037&#34;&gt;Bottom-up DP&lt;/h3&gt;
+
+&lt;p&gt;Fill the table&amp;rsquo;s every column. For each column, it represents the up limit of the range, and we should fill the column from (j-1, j) to (1, j).&lt;/p&gt;
+
+&lt;p&gt;Because for example, if i == 1, j == 5, when k = 3, we need table[4][5] be exist.&lt;/p&gt;
+
+&lt;p&gt;Also notice the base case is when i + 1 == j, we choose i over j.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;    public int getMoneyAmount(int n) {
+        int[][] table = new int[n+1][n+1];
+        for(int j = 2; j &amp;lt;= n; j ++) {
+            for(int i=j-1; i&amp;gt;0; i--) {
+                int globalMin = Integer.MAX_VALUE;
+                for(int k = i + 1; k &amp;lt; j; k ++) {
+                    int localMax = k + Math.max(table[i][k-1], table[k+1][j]);
+                    globalMin = Math.min(globalMin, localMax);
+                }
+                table[i][j] = i + 1 == j ? i : globalMin;
+            }
+        }
+        return table[1][n];
+    }
+
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
     
     <item>
       <title>TwoPointers</title>
