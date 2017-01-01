@@ -1,0 +1,121 @@
+	<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-us" lang="en-us">
+<head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="generator" content="Hugo 0.15" />
+
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+  <title> hIndex &middot; 木秀于南 </title>
+
+  
+  <link rel="stylesheet" href="http://yjn93.github.io/css/poole.css">
+  <link rel="stylesheet" href="http://yjn93.github.io/css/syntax.css">
+  <link rel="stylesheet" href="http://yjn93.github.io/css/hyde.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700|Abril+Fatface">
+
+  
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/apple-touch-icon-144-precomposed.png">
+  <link rel="shortcut icon" href="/favicon.png">
+
+  
+  <link href="" rel="alternate" type="application/rss+xml" title="木秀于南" />
+</head>
+
+	<body class="">
+		<div class="sidebar">
+    <div class="sidebar-about">
+      <a href="http://yjn93.github.io/"><h1>木秀于南</h1></a>
+      <p class="lead">
+	   Jianan Yue  
+      </p>
+    </div>
+
+	        <ul class ="sidebar-nav">
+             <li>
+                <a href="/">Home</a>
+            </li>
+            <li>
+                <a href="/blog/">Blog</a>
+            </li>
+            <li>
+            	<a href="/dev/">Dev</a>
+            </li>
+            <li>
+            	<a href="/gallery/">Gallery</a>
+            </li>
+            <li>
+				<a href="/about">About</a>
+            </li>
+        </ul>
+
+
+	<p class = "copyright">
+		powered by <a href = "http://gohugo.io">Hugo</a>
+		<br>© 2016 Jianan Yue. All right reserved.
+	</p>
+</div>
+
+
+		<div class="content container">
+			<div class="post">
+			 	<h1>hIndex</h1>
+			  <span class="post-date">Sat, Dec 24, 2016</span>
+			      
+
+<h1 id="h-index:37408efcd60dda986ed9231afcc7821f">H Index</h1>
+
+<ul>
+<li><a href="https://leetcode.com/problems/h-index/">LeetCode 274</a></li>
+</ul>
+
+<p>Given an array of citations (each citation is a non-negative integer) of a researcher, write a function to compute the researcher&rsquo;s h-index.</p>
+
+<p>&ldquo;A scientist has index h if h of his/her N papers have at least h citations each, and the other N − h papers have no more than h citations each.&rdquo;</p>
+
+<p>For example, given citations = [3, 0, 6, 1, 5], which means the researcher has 5 papers in total and each of them had received 3, 0, 6, 1, 5 citations respectively. Since the researcher has 3 papers with at least 3 citations each and the remaining two with no more than 3 citations each, his h-index is 3.</p>
+
+<h2 id="solution:37408efcd60dda986ed9231afcc7821f">Solution</h2>
+
+<p>Use bucket sort. Suppose we have len papers, then h-index cannot exceed len, so we can create len+1 buckets. Each bucket stores the number of papers that have the according citation. Then we iterate from the back to the front of the buckets, whenever the total count exceeds the index of the bucket, meaning that we have the index number of papers that have reference greater than or equal to the index. Which will be our h-index result. The reason to scan from the end of the array is that we are looking for the greatest h-index.</p>
+
+<pre><code>    public int hIndex(int[] citations) {
+
+        int len = citations.length;
+
+        int[] bucket = new int[len+1];
+
+        for(int c: citations) {
+
+            if(c &gt; len) bucket[len] ++;
+
+            else bucket[c] ++;
+
+        }
+
+        int index = 0;
+
+        for(int i = len; i &gt;= 0; i --) {
+
+            index += bucket[i];
+
+            if(index &gt;= i)
+
+                return i;
+
+        }
+
+        return 0;
+
+    }
+</code></pre>
+
+			</div>
+
+			
+		</div>
+
+  </body>
+</html>

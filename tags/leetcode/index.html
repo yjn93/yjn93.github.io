@@ -65,6 +65,45 @@
     
         <article class="post">
     <header>
+      <h2><a href="http://yjn93.github.io/dev/Permutations/">Permutations </a> </h2>
+      <div class="post-meta">Thu, Dec 29, 2016 </div>
+    </header>
+
+    Permutation LeetCode 46 Given a collection of distinct numbers, return all possible permutations. BackTracking by checking whether current list contains an element public List&lt;List&lt;Integer&gt;&gt; permute(int[] nums) { List&lt;List&lt;Integer&gt;&gt; result = new ArrayList&lt;List&lt;Integer&gt;&gt;(); helper(result, new ArrayList(), nums); return result; } public void helper(List&lt;List&lt;Integer&gt;&gt; result, List&lt;Integer&gt; cur, int[] nums) { if(cur.size() == nums.length) { result.add(new ArrayList(cur)); return; } for(int i = 0; i &lt; nums.length; i ++) { if(cur.contains(nums[i])) continue; cur.add(nums[i]); helper(result, cur, nums); cur.remove(cur.size()-1); } } BackTracking with swap Try to put every element in current position public List&lt;List&lt;Integer&gt;&gt; permute(int[] nums) { List&lt;List&lt;Integer&gt;&gt; result = new ArrayList&lt;List&lt;Integer&gt;&gt;(); helper(result, nums, 0); return result; } public void helper(List&lt;List&lt;Integer&gt;&gt; result, int[] nums, int start) { if(start == nums.length) { List&lt;Integer&gt; cur = new ArrayList(); for(int num: nums) cur.add(num); result.add(cur); return; } for(int i = start; i &lt; nums.length; i ++) { swap(nums, i, start); helper(result, nums, start+1); swap(nums, i, start); } } Permutation 2 LeetCode 47 Given a collection of numbers that might contain duplicates, return all possible unique permutations.
+    <footer>
+        <a href='http://yjn93.github.io/dev/Permutations/'><nobr>Read more →</nobr></a>
+    </footer>
+</article>
+
+    
+        <article class="post">
+    <header>
+      <h2><a href="http://yjn93.github.io/dev/hIndex/">hIndex </a> </h2>
+      <div class="post-meta">Sat, Dec 24, 2016 </div>
+    </header>
+
+    H Index LeetCode 274 Given an array of citations (each citation is a non-negative integer) of a researcher, write a function to compute the researcher&rsquo;s h-index. &ldquo;A scientist has index h if h of his/her N papers have at least h citations each, and the other N − h papers have no more than h citations each.&rdquo; For example, given citations = [3, 0, 6, 1, 5], which means the researcher has 5 papers in total and each of them had received 3, 0, 6, 1, 5 citations respectively.
+    <footer>
+        <a href='http://yjn93.github.io/dev/hIndex/'><nobr>Read more →</nobr></a>
+    </footer>
+</article>
+
+    
+        <article class="post">
+    <header>
+      <h2><a href="http://yjn93.github.io/dev/WiggleSequence/">Wiggle Subsequence </a> </h2>
+      <div class="post-meta">Sat, Dec 24, 2016 </div>
+    </header>
+
+    Wiggle Subsequence LeetCode 376 A sequence of numbers is called a wiggle sequence if the differences between successive numbers strictly alternate between positive and negative. The first difference (if one exists) may be either positive or negative. A sequence with fewer than two elements is trivially a wiggle sequence. Example Input: [1,7,4,9,2,5] Output: 6 The entire sequence is a wiggle sequence. Input: [1,17,5,10,13,15,10,5,16,8] Output: 7 There are several subsequences that achieve this length.
+    <footer>
+        <a href='http://yjn93.github.io/dev/WiggleSequence/'><nobr>Read more →</nobr></a>
+    </footer>
+</article>
+
+    
+        <article class="post">
+    <header>
       <h2><a href="http://yjn93.github.io/dev/GuessNumber/">GuessNumber </a> </h2>
       <div class="post-meta">Sat, Dec 24, 2016 </div>
     </header>

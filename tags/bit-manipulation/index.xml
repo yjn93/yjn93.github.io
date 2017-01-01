@@ -74,7 +74,7 @@
 &lt;h1 id=&#34;single-number-ii:3344d83625fb333615fef7b8a8bdad05&#34;&gt;Single Number II&lt;/h1&gt;
 
 &lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://leetcode.com/problems/single-number-ii/&#34;&gt;LeetCode&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://leetcode.com/problems/single-number-ii/&#34;&gt;LeetCode 137&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
 &lt;p&gt;Given an array of integers, every element appears three times except for one. Find that single one.&lt;/p&gt;
@@ -94,7 +94,7 @@
 &lt;h1 id=&#34;missing-number:3344d83625fb333615fef7b8a8bdad05&#34;&gt;Missing Number&lt;/h1&gt;
 
 &lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://leetcode.com/problems/missing-number/&#34;&gt;LeetCode&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://leetcode.com/problems/missing-number/&#34;&gt;LeetCode 268&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
 &lt;p&gt;Given an array containing n distinct numbers taken from 0, 1, 2, &amp;hellip;, n, find the one that is missing from the array.&lt;/p&gt;
@@ -112,6 +112,79 @@
             result ^= nums[i];
         }
         return result;
+    }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h1 id=&#34;integer-replacement:3344d83625fb333615fef7b8a8bdad05&#34;&gt;Integer Replacement&lt;/h1&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://leetcode.com/problems/integer-replacement/&#34;&gt;LeetCode 397&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Given a positive integer n and you can do operations as follow:&lt;/p&gt;
+
+&lt;p&gt;If n is even, replace n with n/2.&lt;/p&gt;
+
+&lt;p&gt;If n is odd, you can replace n with either n + 1 or n - 1.&lt;/p&gt;
+
+&lt;p&gt;What is the minimum number of replacements needed for n to become 1?&lt;/p&gt;
+
+&lt;h2 id=&#34;example-2:3344d83625fb333615fef7b8a8bdad05&#34;&gt;Example&lt;/h2&gt;
+
+&lt;p&gt;Input: 8&lt;/p&gt;
+
+&lt;p&gt;Output: 3&lt;/p&gt;
+
+&lt;p&gt;Explanation: 8 -&amp;gt; 4 -&amp;gt; 2 -&amp;gt; 1&lt;/p&gt;
+
+&lt;p&gt;Input: 7&lt;/p&gt;
+
+&lt;p&gt;Output: 4&lt;/p&gt;
+
+&lt;p&gt;Explanation: 7 -&amp;gt; 8 -&amp;gt; 4 -&amp;gt; 2 -&amp;gt; 1 or 7 -&amp;gt; 6 -&amp;gt; 3 -&amp;gt; 2 -&amp;gt; 1&lt;/p&gt;
+
+&lt;h2 id=&#34;solution-3:3344d83625fb333615fef7b8a8bdad05&#34;&gt;Solution&lt;/h2&gt;
+
+&lt;p&gt;Recursion will cause StackOverFlow. There are two ways for this problem. One uses iteration, one use bit manipulation.&lt;/p&gt;
+
+&lt;h3 id=&#34;iteration:3344d83625fb333615fef7b8a8bdad05&#34;&gt;Iteration&lt;/h3&gt;
+
+&lt;p&gt;When n is odd it can be written into the form n = 2k+1 (k is a non-negative integer.). That is, n+1 = 2k+2 and n-1 = 2k. Then, (n+1)/2 = k+1 and (n-1)/2 = k. So one of (n+1)/2 and (n-1)/2 is even, the other is odd. And the &amp;ldquo;best&amp;rdquo; case of this problem is to divide as much as possible. Because of that, always pick n+1 or n-1 based on if it can be divided by 4. The only special case of that is when n=3 you would like to pick n-1 rather than n+1.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;    public int integerReplacement(int n) {
+        if(n == Integer.MAX_VALUE) return 32;
+        int count = 0;
+        while(n != 1) {
+            if(n % 2 == 0) {
+                n /= 2;
+            } else {
+                if((n + 1) % 4 == 0 &amp;amp;&amp;amp; n != 3)
+                    n += 1;
+                else
+                    n -= 1;
+            }
+            count ++;
+        }
+        return count;
+    }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;bit-manipulation:3344d83625fb333615fef7b8a8bdad05&#34;&gt;Bit Manipulation&lt;/h3&gt;
+
+&lt;p&gt;We can use the same idea to do bit manipulation. When n is odd, we only need to check the last two bits of n. If the second least significant bit is 1, then increase n by 1, unless n is 3.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;    public int integerReplacement(int n) {
+        int count = 0;
+        while(n != 1) {
+            if(n % 2 == 0)
+                n &amp;gt;&amp;gt;&amp;gt;= 1;
+            else if(n == 3 || ((n &amp;gt;&amp;gt;&amp;gt; 1) &amp;amp; 1) == 0)
+                n --;
+            else 
+                n ++;
+            count ++;
+        }
+        return count;
     }
 &lt;/code&gt;&lt;/pre&gt;
 </description>

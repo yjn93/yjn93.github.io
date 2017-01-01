@@ -1,0 +1,123 @@
+	<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-us" lang="en-us">
+<head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="generator" content="Hugo 0.15" />
+
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+  <title> Wiggle Subsequence &middot; 木秀于南 </title>
+
+  
+  <link rel="stylesheet" href="http://yjn93.github.io/css/poole.css">
+  <link rel="stylesheet" href="http://yjn93.github.io/css/syntax.css">
+  <link rel="stylesheet" href="http://yjn93.github.io/css/hyde.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700|Abril+Fatface">
+
+  
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/apple-touch-icon-144-precomposed.png">
+  <link rel="shortcut icon" href="/favicon.png">
+
+  
+  <link href="" rel="alternate" type="application/rss+xml" title="木秀于南" />
+</head>
+
+	<body class="">
+		<div class="sidebar">
+    <div class="sidebar-about">
+      <a href="http://yjn93.github.io/"><h1>木秀于南</h1></a>
+      <p class="lead">
+	   Jianan Yue  
+      </p>
+    </div>
+
+	        <ul class ="sidebar-nav">
+             <li>
+                <a href="/">Home</a>
+            </li>
+            <li>
+                <a href="/blog/">Blog</a>
+            </li>
+            <li>
+            	<a href="/dev/">Dev</a>
+            </li>
+            <li>
+            	<a href="/gallery/">Gallery</a>
+            </li>
+            <li>
+				<a href="/about">About</a>
+            </li>
+        </ul>
+
+
+	<p class = "copyright">
+		powered by <a href = "http://gohugo.io">Hugo</a>
+		<br>© 2016 Jianan Yue. All right reserved.
+	</p>
+</div>
+
+
+		<div class="content container">
+			<div class="post">
+			 	<h1>Wiggle Subsequence</h1>
+			  <span class="post-date">Sat, Dec 24, 2016</span>
+			      
+
+<h1 id="wiggle-subsequence:5a249ba779613037888e50c3f36770e8">Wiggle Subsequence</h1>
+
+<ul>
+<li><a href="https://leetcode.com/problems/wiggle-subsequence/">LeetCode 376</a></li>
+</ul>
+
+<p>A sequence of numbers is called a wiggle sequence if the differences between successive numbers strictly alternate between positive and negative. The first difference (if one exists) may be either positive or negative. A sequence with fewer than two elements is trivially a wiggle sequence.</p>
+
+<h2 id="example:5a249ba779613037888e50c3f36770e8">Example</h2>
+
+<pre><code>Input: [1,7,4,9,2,5]
+Output: 6
+The entire sequence is a wiggle sequence.
+
+Input: [1,17,5,10,13,15,10,5,16,8]
+Output: 7
+There are several subsequences that achieve this length. One is [1,17,10,13,10,16,8].
+
+Input: [1,2,3,4,5,6,7,8,9]
+Output: 2
+</code></pre>
+
+<h2 id="solution:5a249ba779613037888e50c3f36770e8">Solution</h2>
+
+<p>Use two variable up and down to track current maximum length of subsequence that end with up and down respectively.</p>
+
+<pre><code>    public int wiggleMaxLength(int[] nums) {
+
+        if(nums.length &lt; 2) return nums.length;
+
+        int up = 1, down = 1;
+
+        for(int i = 1; i &lt; nums.length; i ++) {
+
+            if(nums[i] &gt; nums[i-1])
+
+                up = down + 1;
+
+            else if (nums[i] &lt; nums[i-1])
+
+                down = up + 1;
+
+        }
+
+        return Math.max(up, down);
+
+    }
+</code></pre>
+
+			</div>
+
+			
+		</div>
+
+  </body>
+</html>

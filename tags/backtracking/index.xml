@@ -7,8 +7,213 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>© 2016 Jianan Yue. All right reserved.</copyright>
-    <lastBuildDate>Sat, 26 Nov 2016 10:30:22 -0500</lastBuildDate>
+    <lastBuildDate>Thu, 29 Dec 2016 16:03:10 -0500</lastBuildDate>
     <atom:link href="http://yjn93.github.io/tags/backtracking/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Permutations</title>
+      <link>http://yjn93.github.io/dev/Permutations/</link>
+      <pubDate>Thu, 29 Dec 2016 16:03:10 -0500</pubDate>
+      
+      <guid>http://yjn93.github.io/dev/Permutations/</guid>
+      <description>
+
+&lt;h1 id=&#34;permutation:ae5fadc6fef33d3a20be0c4537ee7524&#34;&gt;Permutation&lt;/h1&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://leetcode.com/problems/permutations/&#34;&gt;LeetCode 46&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Given a collection of distinct numbers, return all possible permutations.&lt;/p&gt;
+
+&lt;h2 id=&#34;backtracking-by-checking-whether-current-list-contains-an-element:ae5fadc6fef33d3a20be0c4537ee7524&#34;&gt;BackTracking by checking whether current list contains an element&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;    public List&amp;lt;List&amp;lt;Integer&amp;gt;&amp;gt; permute(int[] nums) {
+        List&amp;lt;List&amp;lt;Integer&amp;gt;&amp;gt; result = new ArrayList&amp;lt;List&amp;lt;Integer&amp;gt;&amp;gt;();
+        helper(result, new ArrayList(), nums);
+        return result;
+    }
+
+    public void helper(List&amp;lt;List&amp;lt;Integer&amp;gt;&amp;gt; result, List&amp;lt;Integer&amp;gt; cur, int[] nums) {
+        if(cur.size() == nums.length) {
+            result.add(new ArrayList(cur));
+            return;
+        }
+        for(int i = 0; i &amp;lt; nums.length; i ++) {
+            if(cur.contains(nums[i])) continue;
+            cur.add(nums[i]);
+            helper(result, cur, nums);
+            cur.remove(cur.size()-1);
+        }
+    }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;backtracking-with-swap:ae5fadc6fef33d3a20be0c4537ee7524&#34;&gt;BackTracking with swap&lt;/h2&gt;
+
+&lt;p&gt;Try to put every element in current position&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;    public List&amp;lt;List&amp;lt;Integer&amp;gt;&amp;gt; permute(int[] nums) {
+        List&amp;lt;List&amp;lt;Integer&amp;gt;&amp;gt; result = new ArrayList&amp;lt;List&amp;lt;Integer&amp;gt;&amp;gt;();
+        helper(result, nums, 0);
+        return result;
+    }
+
+    public void helper(List&amp;lt;List&amp;lt;Integer&amp;gt;&amp;gt; result, int[] nums, int start) {
+        if(start == nums.length) {
+            List&amp;lt;Integer&amp;gt; cur = new ArrayList();
+            for(int num: nums)
+                cur.add(num);
+            result.add(cur);
+            return;
+        }
+        for(int i = start; i &amp;lt; nums.length; i ++) {
+            swap(nums, i, start);
+            helper(result, nums, start+1);
+            swap(nums, i, start);
+        }
+    }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h1 id=&#34;permutation-2:ae5fadc6fef33d3a20be0c4537ee7524&#34;&gt;Permutation 2&lt;/h1&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://leetcode.com/problems/permutations-ii/&#34;&gt;LeetCode 47&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Given a collection of numbers that might contain duplicates, return all possible unique permutations.&lt;/p&gt;
+
+&lt;h2 id=&#34;example:ae5fadc6fef33d3a20be0c4537ee7524&#34;&gt;Example&lt;/h2&gt;
+
+&lt;p&gt;[1,1,2] have the following unique permutations:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;[
+  [1,1,2],
+  [1,2,1],
+  [2,1,1]
+]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;backtracking-to-fulfill-current-list:ae5fadc6fef33d3a20be0c4537ee7524&#34;&gt;BackTracking to fulfill current list&lt;/h2&gt;
+
+&lt;p&gt;Use an extra boolean array &amp;ldquo; boolean[] used&amp;rdquo; to indicate whether the value is added to list.&lt;/p&gt;
+
+&lt;p&gt;Sort the array &amp;ldquo;int[] nums&amp;rdquo; to make sure we can skip the same value.&lt;/p&gt;
+
+&lt;p&gt;when a number has the same value with its previous, we can use this number only if his previous is used&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;    public List&amp;lt;List&amp;lt;Integer&amp;gt;&amp;gt; permuteUnique(int[] nums) {
+        Arrays.sort(nums);
+        List&amp;lt;List&amp;lt;Integer&amp;gt;&amp;gt; result = new ArrayList();
+        helper(result, new ArrayList(), nums, new boolean[nums.length]);
+        return result;
+    }
+
+    public void helper(List&amp;lt;List&amp;lt;Integer&amp;gt;&amp;gt; result, List&amp;lt;Integer&amp;gt; cur, int[] nums, boolean[] used) {
+        if(cur.size() == nums.length) {
+            result.add(new ArrayList(cur));
+            return;
+        }
+        for(int i = 0; i &amp;lt; nums.length; i ++) {
+            if(used[i]) continue;
+            if(i &amp;gt; 0 &amp;amp;&amp;amp; nums[i] == nums[i-1] &amp;amp;&amp;amp; !used[i-1]) continue;
+            used[i] = true;
+            cur.add(nums[i]);
+            helper(result, cur, nums, used);
+            cur.remove(cur.size()-1);
+            used[i] = false;
+        }
+    }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h1 id=&#34;next-permutation:ae5fadc6fef33d3a20be0c4537ee7524&#34;&gt;Next Permutation&lt;/h1&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://leetcode.com/problems/next-permutation/&#34;&gt;LeetCode 31&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Implement next permutation, which rearranges numbers into the lexicographically next greater permutation of numbers.&lt;/p&gt;
+
+&lt;p&gt;If such arrangement is not possible, it must rearrange it as the lowest possible order (ie, sorted in ascending order).&lt;/p&gt;
+
+&lt;h2 id=&#34;solution:ae5fadc6fef33d3a20be0c4537ee7524&#34;&gt;Solution&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;    public void nextPermutation(int[] nums) {
+        int len = nums.length;
+        if(len &amp;lt; 2) return;
+        int index = len - 1;
+        while(index &amp;gt; 0 &amp;amp;&amp;amp; nums[index] &amp;lt;= nums[index-1]) {
+                index --;
+        }
+        if(index == 0) {
+            reverse(nums, 0, len-1);
+            return;
+        }
+        index --;
+        int i = len-1;
+        for(; i &amp;gt; 0; i --){
+            if(nums[i] &amp;gt; nums[index])
+                break;
+        }
+        swap(nums, index, i);
+        reverse(nums, index+1, len-1);
+    }
+
+    public void reverse(int[] nums, int start, int end) {
+        if(start &amp;gt;= end)
+            return;
+        for(int i = start; i &amp;lt;= (end+start)/2; i ++) {
+            swap(nums, i, start+end-i);
+        }
+    }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h1 id=&#34;permutation-sequence:ae5fadc6fef33d3a20be0c4537ee7524&#34;&gt;Permutation Sequence&lt;/h1&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://leetcode.com/problems/permutation-sequence/&#34;&gt;LeetCode 60&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;The set [1,2,3,…,n] contains a total of n! unique permutations.&lt;/p&gt;
+
+&lt;p&gt;By listing and labeling all of the permutations in order,
+We get the following sequence (ie, for n = 3):&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;1. &amp;quot;123&amp;quot;
+2. &amp;quot;132&amp;quot;
+3. &amp;quot;213&amp;quot;
+4. &amp;quot;231&amp;quot;
+5. &amp;quot;312&amp;quot;
+6. &amp;quot;321&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Given n and k, return the kth permutation sequence.&lt;/p&gt;
+
+&lt;h2 id=&#34;solution-1:ae5fadc6fef33d3a20be0c4537ee7524&#34;&gt;Solution&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;    public String getPermutation(int n, int k) {
+        int[] factorial = new int[n+1];
+        factorial[0] = 1;
+        int sum = 1;
+        List&amp;lt;Integer&amp;gt; nums = new ArrayList();
+        for(int i = 1; i &amp;lt;= n; i ++) {
+            sum *= i;
+            factorial[i] = sum;
+            nums.add(i);
+        }
+        
+        k --;
+        StringBuilder sb = new StringBuilder();
+        for(int i = 1; i &amp;lt;= n; i ++) {
+            int index = k/factorial[n-i];
+            sb.append(nums.get(index));
+            nums.remove(index);
+            k -= index*factorial[n-i];
+        }
+        return sb.toString();
+    }
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
     
     <item>
       <title>Combination Sum</title>

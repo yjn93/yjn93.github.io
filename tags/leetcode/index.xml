@@ -7,8 +7,329 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>© 2016 Jianan Yue. All right reserved.</copyright>
-    <lastBuildDate>Sat, 24 Dec 2016 13:02:42 -0500</lastBuildDate>
+    <lastBuildDate>Thu, 29 Dec 2016 16:03:10 -0500</lastBuildDate>
     <atom:link href="http://yjn93.github.io/tags/leetcode/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Permutations</title>
+      <link>http://yjn93.github.io/dev/Permutations/</link>
+      <pubDate>Thu, 29 Dec 2016 16:03:10 -0500</pubDate>
+      
+      <guid>http://yjn93.github.io/dev/Permutations/</guid>
+      <description>
+
+&lt;h1 id=&#34;permutation:ae5fadc6fef33d3a20be0c4537ee7524&#34;&gt;Permutation&lt;/h1&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://leetcode.com/problems/permutations/&#34;&gt;LeetCode 46&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Given a collection of distinct numbers, return all possible permutations.&lt;/p&gt;
+
+&lt;h2 id=&#34;backtracking-by-checking-whether-current-list-contains-an-element:ae5fadc6fef33d3a20be0c4537ee7524&#34;&gt;BackTracking by checking whether current list contains an element&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;    public List&amp;lt;List&amp;lt;Integer&amp;gt;&amp;gt; permute(int[] nums) {
+        List&amp;lt;List&amp;lt;Integer&amp;gt;&amp;gt; result = new ArrayList&amp;lt;List&amp;lt;Integer&amp;gt;&amp;gt;();
+        helper(result, new ArrayList(), nums);
+        return result;
+    }
+
+    public void helper(List&amp;lt;List&amp;lt;Integer&amp;gt;&amp;gt; result, List&amp;lt;Integer&amp;gt; cur, int[] nums) {
+        if(cur.size() == nums.length) {
+            result.add(new ArrayList(cur));
+            return;
+        }
+        for(int i = 0; i &amp;lt; nums.length; i ++) {
+            if(cur.contains(nums[i])) continue;
+            cur.add(nums[i]);
+            helper(result, cur, nums);
+            cur.remove(cur.size()-1);
+        }
+    }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;backtracking-with-swap:ae5fadc6fef33d3a20be0c4537ee7524&#34;&gt;BackTracking with swap&lt;/h2&gt;
+
+&lt;p&gt;Try to put every element in current position&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;    public List&amp;lt;List&amp;lt;Integer&amp;gt;&amp;gt; permute(int[] nums) {
+        List&amp;lt;List&amp;lt;Integer&amp;gt;&amp;gt; result = new ArrayList&amp;lt;List&amp;lt;Integer&amp;gt;&amp;gt;();
+        helper(result, nums, 0);
+        return result;
+    }
+
+    public void helper(List&amp;lt;List&amp;lt;Integer&amp;gt;&amp;gt; result, int[] nums, int start) {
+        if(start == nums.length) {
+            List&amp;lt;Integer&amp;gt; cur = new ArrayList();
+            for(int num: nums)
+                cur.add(num);
+            result.add(cur);
+            return;
+        }
+        for(int i = start; i &amp;lt; nums.length; i ++) {
+            swap(nums, i, start);
+            helper(result, nums, start+1);
+            swap(nums, i, start);
+        }
+    }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h1 id=&#34;permutation-2:ae5fadc6fef33d3a20be0c4537ee7524&#34;&gt;Permutation 2&lt;/h1&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://leetcode.com/problems/permutations-ii/&#34;&gt;LeetCode 47&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Given a collection of numbers that might contain duplicates, return all possible unique permutations.&lt;/p&gt;
+
+&lt;h2 id=&#34;example:ae5fadc6fef33d3a20be0c4537ee7524&#34;&gt;Example&lt;/h2&gt;
+
+&lt;p&gt;[1,1,2] have the following unique permutations:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;[
+  [1,1,2],
+  [1,2,1],
+  [2,1,1]
+]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;backtracking-to-fulfill-current-list:ae5fadc6fef33d3a20be0c4537ee7524&#34;&gt;BackTracking to fulfill current list&lt;/h2&gt;
+
+&lt;p&gt;Use an extra boolean array &amp;ldquo; boolean[] used&amp;rdquo; to indicate whether the value is added to list.&lt;/p&gt;
+
+&lt;p&gt;Sort the array &amp;ldquo;int[] nums&amp;rdquo; to make sure we can skip the same value.&lt;/p&gt;
+
+&lt;p&gt;when a number has the same value with its previous, we can use this number only if his previous is used&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;    public List&amp;lt;List&amp;lt;Integer&amp;gt;&amp;gt; permuteUnique(int[] nums) {
+        Arrays.sort(nums);
+        List&amp;lt;List&amp;lt;Integer&amp;gt;&amp;gt; result = new ArrayList();
+        helper(result, new ArrayList(), nums, new boolean[nums.length]);
+        return result;
+    }
+
+    public void helper(List&amp;lt;List&amp;lt;Integer&amp;gt;&amp;gt; result, List&amp;lt;Integer&amp;gt; cur, int[] nums, boolean[] used) {
+        if(cur.size() == nums.length) {
+            result.add(new ArrayList(cur));
+            return;
+        }
+        for(int i = 0; i &amp;lt; nums.length; i ++) {
+            if(used[i]) continue;
+            if(i &amp;gt; 0 &amp;amp;&amp;amp; nums[i] == nums[i-1] &amp;amp;&amp;amp; !used[i-1]) continue;
+            used[i] = true;
+            cur.add(nums[i]);
+            helper(result, cur, nums, used);
+            cur.remove(cur.size()-1);
+            used[i] = false;
+        }
+    }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h1 id=&#34;next-permutation:ae5fadc6fef33d3a20be0c4537ee7524&#34;&gt;Next Permutation&lt;/h1&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://leetcode.com/problems/next-permutation/&#34;&gt;LeetCode 31&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Implement next permutation, which rearranges numbers into the lexicographically next greater permutation of numbers.&lt;/p&gt;
+
+&lt;p&gt;If such arrangement is not possible, it must rearrange it as the lowest possible order (ie, sorted in ascending order).&lt;/p&gt;
+
+&lt;h2 id=&#34;solution:ae5fadc6fef33d3a20be0c4537ee7524&#34;&gt;Solution&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;    public void nextPermutation(int[] nums) {
+        int len = nums.length;
+        if(len &amp;lt; 2) return;
+        int index = len - 1;
+        while(index &amp;gt; 0 &amp;amp;&amp;amp; nums[index] &amp;lt;= nums[index-1]) {
+                index --;
+        }
+        if(index == 0) {
+            reverse(nums, 0, len-1);
+            return;
+        }
+        index --;
+        int i = len-1;
+        for(; i &amp;gt; 0; i --){
+            if(nums[i] &amp;gt; nums[index])
+                break;
+        }
+        swap(nums, index, i);
+        reverse(nums, index+1, len-1);
+    }
+
+    public void reverse(int[] nums, int start, int end) {
+        if(start &amp;gt;= end)
+            return;
+        for(int i = start; i &amp;lt;= (end+start)/2; i ++) {
+            swap(nums, i, start+end-i);
+        }
+    }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h1 id=&#34;permutation-sequence:ae5fadc6fef33d3a20be0c4537ee7524&#34;&gt;Permutation Sequence&lt;/h1&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://leetcode.com/problems/permutation-sequence/&#34;&gt;LeetCode 60&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;The set [1,2,3,…,n] contains a total of n! unique permutations.&lt;/p&gt;
+
+&lt;p&gt;By listing and labeling all of the permutations in order,
+We get the following sequence (ie, for n = 3):&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;1. &amp;quot;123&amp;quot;
+2. &amp;quot;132&amp;quot;
+3. &amp;quot;213&amp;quot;
+4. &amp;quot;231&amp;quot;
+5. &amp;quot;312&amp;quot;
+6. &amp;quot;321&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Given n and k, return the kth permutation sequence.&lt;/p&gt;
+
+&lt;h2 id=&#34;solution-1:ae5fadc6fef33d3a20be0c4537ee7524&#34;&gt;Solution&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;    public String getPermutation(int n, int k) {
+        int[] factorial = new int[n+1];
+        factorial[0] = 1;
+        int sum = 1;
+        List&amp;lt;Integer&amp;gt; nums = new ArrayList();
+        for(int i = 1; i &amp;lt;= n; i ++) {
+            sum *= i;
+            factorial[i] = sum;
+            nums.add(i);
+        }
+        
+        k --;
+        StringBuilder sb = new StringBuilder();
+        for(int i = 1; i &amp;lt;= n; i ++) {
+            int index = k/factorial[n-i];
+            sb.append(nums.get(index));
+            nums.remove(index);
+            k -= index*factorial[n-i];
+        }
+        return sb.toString();
+    }
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>hIndex</title>
+      <link>http://yjn93.github.io/dev/hIndex/</link>
+      <pubDate>Sat, 24 Dec 2016 21:26:42 -0500</pubDate>
+      
+      <guid>http://yjn93.github.io/dev/hIndex/</guid>
+      <description>
+
+&lt;h1 id=&#34;h-index:37408efcd60dda986ed9231afcc7821f&#34;&gt;H Index&lt;/h1&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://leetcode.com/problems/h-index/&#34;&gt;LeetCode 274&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Given an array of citations (each citation is a non-negative integer) of a researcher, write a function to compute the researcher&amp;rsquo;s h-index.&lt;/p&gt;
+
+&lt;p&gt;&amp;ldquo;A scientist has index h if h of his/her N papers have at least h citations each, and the other N − h papers have no more than h citations each.&amp;rdquo;&lt;/p&gt;
+
+&lt;p&gt;For example, given citations = [3, 0, 6, 1, 5], which means the researcher has 5 papers in total and each of them had received 3, 0, 6, 1, 5 citations respectively. Since the researcher has 3 papers with at least 3 citations each and the remaining two with no more than 3 citations each, his h-index is 3.&lt;/p&gt;
+
+&lt;h2 id=&#34;solution:37408efcd60dda986ed9231afcc7821f&#34;&gt;Solution&lt;/h2&gt;
+
+&lt;p&gt;Use bucket sort. Suppose we have len papers, then h-index cannot exceed len, so we can create len+1 buckets. Each bucket stores the number of papers that have the according citation. Then we iterate from the back to the front of the buckets, whenever the total count exceeds the index of the bucket, meaning that we have the index number of papers that have reference greater than or equal to the index. Which will be our h-index result. The reason to scan from the end of the array is that we are looking for the greatest h-index.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;    public int hIndex(int[] citations) {
+
+        int len = citations.length;
+
+        int[] bucket = new int[len+1];
+
+        for(int c: citations) {
+
+            if(c &amp;gt; len) bucket[len] ++;
+
+            else bucket[c] ++;
+
+        }
+
+        int index = 0;
+
+        for(int i = len; i &amp;gt;= 0; i --) {
+
+            index += bucket[i];
+
+            if(index &amp;gt;= i)
+
+                return i;
+
+        }
+
+        return 0;
+
+    }
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Wiggle Subsequence</title>
+      <link>http://yjn93.github.io/dev/WiggleSequence/</link>
+      <pubDate>Sat, 24 Dec 2016 19:38:38 -0500</pubDate>
+      
+      <guid>http://yjn93.github.io/dev/WiggleSequence/</guid>
+      <description>
+
+&lt;h1 id=&#34;wiggle-subsequence:5a249ba779613037888e50c3f36770e8&#34;&gt;Wiggle Subsequence&lt;/h1&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://leetcode.com/problems/wiggle-subsequence/&#34;&gt;LeetCode 376&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;A sequence of numbers is called a wiggle sequence if the differences between successive numbers strictly alternate between positive and negative. The first difference (if one exists) may be either positive or negative. A sequence with fewer than two elements is trivially a wiggle sequence.&lt;/p&gt;
+
+&lt;h2 id=&#34;example:5a249ba779613037888e50c3f36770e8&#34;&gt;Example&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;Input: [1,7,4,9,2,5]
+Output: 6
+The entire sequence is a wiggle sequence.
+
+Input: [1,17,5,10,13,15,10,5,16,8]
+Output: 7
+There are several subsequences that achieve this length. One is [1,17,10,13,10,16,8].
+
+Input: [1,2,3,4,5,6,7,8,9]
+Output: 2
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;solution:5a249ba779613037888e50c3f36770e8&#34;&gt;Solution&lt;/h2&gt;
+
+&lt;p&gt;Use two variable up and down to track current maximum length of subsequence that end with up and down respectively.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;    public int wiggleMaxLength(int[] nums) {
+
+        if(nums.length &amp;lt; 2) return nums.length;
+
+        int up = 1, down = 1;
+
+        for(int i = 1; i &amp;lt; nums.length; i ++) {
+
+            if(nums[i] &amp;gt; nums[i-1])
+
+                up = down + 1;
+
+            else if (nums[i] &amp;lt; nums[i-1])
+
+                down = up + 1;
+
+        }
+
+        return Math.max(up, down);
+
+    }
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
     
     <item>
       <title>GuessNumber</title>
@@ -764,7 +1085,7 @@ curSell = max(preBuy+num, preSell);
 &lt;h1 id=&#34;single-number-ii:3344d83625fb333615fef7b8a8bdad05&#34;&gt;Single Number II&lt;/h1&gt;
 
 &lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://leetcode.com/problems/single-number-ii/&#34;&gt;LeetCode&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://leetcode.com/problems/single-number-ii/&#34;&gt;LeetCode 137&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
 &lt;p&gt;Given an array of integers, every element appears three times except for one. Find that single one.&lt;/p&gt;
@@ -784,7 +1105,7 @@ curSell = max(preBuy+num, preSell);
 &lt;h1 id=&#34;missing-number:3344d83625fb333615fef7b8a8bdad05&#34;&gt;Missing Number&lt;/h1&gt;
 
 &lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://leetcode.com/problems/missing-number/&#34;&gt;LeetCode&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://leetcode.com/problems/missing-number/&#34;&gt;LeetCode 268&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
 &lt;p&gt;Given an array containing n distinct numbers taken from 0, 1, 2, &amp;hellip;, n, find the one that is missing from the array.&lt;/p&gt;
@@ -802,6 +1123,79 @@ curSell = max(preBuy+num, preSell);
             result ^= nums[i];
         }
         return result;
+    }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h1 id=&#34;integer-replacement:3344d83625fb333615fef7b8a8bdad05&#34;&gt;Integer Replacement&lt;/h1&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://leetcode.com/problems/integer-replacement/&#34;&gt;LeetCode 397&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Given a positive integer n and you can do operations as follow:&lt;/p&gt;
+
+&lt;p&gt;If n is even, replace n with n/2.&lt;/p&gt;
+
+&lt;p&gt;If n is odd, you can replace n with either n + 1 or n - 1.&lt;/p&gt;
+
+&lt;p&gt;What is the minimum number of replacements needed for n to become 1?&lt;/p&gt;
+
+&lt;h2 id=&#34;example-2:3344d83625fb333615fef7b8a8bdad05&#34;&gt;Example&lt;/h2&gt;
+
+&lt;p&gt;Input: 8&lt;/p&gt;
+
+&lt;p&gt;Output: 3&lt;/p&gt;
+
+&lt;p&gt;Explanation: 8 -&amp;gt; 4 -&amp;gt; 2 -&amp;gt; 1&lt;/p&gt;
+
+&lt;p&gt;Input: 7&lt;/p&gt;
+
+&lt;p&gt;Output: 4&lt;/p&gt;
+
+&lt;p&gt;Explanation: 7 -&amp;gt; 8 -&amp;gt; 4 -&amp;gt; 2 -&amp;gt; 1 or 7 -&amp;gt; 6 -&amp;gt; 3 -&amp;gt; 2 -&amp;gt; 1&lt;/p&gt;
+
+&lt;h2 id=&#34;solution-3:3344d83625fb333615fef7b8a8bdad05&#34;&gt;Solution&lt;/h2&gt;
+
+&lt;p&gt;Recursion will cause StackOverFlow. There are two ways for this problem. One uses iteration, one use bit manipulation.&lt;/p&gt;
+
+&lt;h3 id=&#34;iteration:3344d83625fb333615fef7b8a8bdad05&#34;&gt;Iteration&lt;/h3&gt;
+
+&lt;p&gt;When n is odd it can be written into the form n = 2k+1 (k is a non-negative integer.). That is, n+1 = 2k+2 and n-1 = 2k. Then, (n+1)/2 = k+1 and (n-1)/2 = k. So one of (n+1)/2 and (n-1)/2 is even, the other is odd. And the &amp;ldquo;best&amp;rdquo; case of this problem is to divide as much as possible. Because of that, always pick n+1 or n-1 based on if it can be divided by 4. The only special case of that is when n=3 you would like to pick n-1 rather than n+1.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;    public int integerReplacement(int n) {
+        if(n == Integer.MAX_VALUE) return 32;
+        int count = 0;
+        while(n != 1) {
+            if(n % 2 == 0) {
+                n /= 2;
+            } else {
+                if((n + 1) % 4 == 0 &amp;amp;&amp;amp; n != 3)
+                    n += 1;
+                else
+                    n -= 1;
+            }
+            count ++;
+        }
+        return count;
+    }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;bit-manipulation:3344d83625fb333615fef7b8a8bdad05&#34;&gt;Bit Manipulation&lt;/h3&gt;
+
+&lt;p&gt;We can use the same idea to do bit manipulation. When n is odd, we only need to check the last two bits of n. If the second least significant bit is 1, then increase n by 1, unless n is 3.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;    public int integerReplacement(int n) {
+        int count = 0;
+        while(n != 1) {
+            if(n % 2 == 0)
+                n &amp;gt;&amp;gt;&amp;gt;= 1;
+            else if(n == 3 || ((n &amp;gt;&amp;gt;&amp;gt; 1) &amp;amp; 1) == 0)
+                n --;
+            else 
+                n ++;
+            count ++;
+        }
+        return count;
     }
 &lt;/code&gt;&lt;/pre&gt;
 </description>
