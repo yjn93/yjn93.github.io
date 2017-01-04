@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Treemap on 木秀于南</title>
+    <link>http://yjn93.github.io/tags/treemap/</link>
+    <description>Recent content in Treemap on 木秀于南</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <copyright>© 2016 Jianan Yue. All right reserved.</copyright>
+    <lastBuildDate>Mon, 02 Jan 2017 11:02:39 -0500</lastBuildDate>
+    <atom:link href="http://yjn93.github.io/tags/treemap/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Contains Duplicate</title>
+      <link>http://yjn93.github.io/dev/ContainsDuplicate/</link>
+      <pubDate>Mon, 02 Jan 2017 11:02:39 -0500</pubDate>
+      
+      <guid>http://yjn93.github.io/dev/ContainsDuplicate/</guid>
+      <description>
+
+&lt;h1 id=&#34;contains-duplicate:a93a8fc10573dbdad791c81926e700b8&#34;&gt;Contains Duplicate&lt;/h1&gt;
+
+&lt;p&gt;Given an array of integers, find if the array contains any duplicates.&lt;/p&gt;
+
+&lt;p&gt;This is the basic problem. The solution is to use a set.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;    public boolean containsDuplicate(int[] nums) {
+        Set&amp;lt;Integer&amp;gt; set = new HashSet();
+        for(int num: nums) {
+            if(!set.add(num))
+                return true;
+        }
+        return false;
+    }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h1 id=&#34;contains-duplicate-within-a-window:a93a8fc10573dbdad791c81926e700b8&#34;&gt;Contains Duplicate within a window&lt;/h1&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://leetcode.com/problems/contains-duplicate-ii/&#34;&gt;LeetCode 219&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Given an array of integers and an integer k, find out whether there are two distinct indices i and j in the array such that nums[i] = nums[j] and the difference between i and j is at most k.&lt;/p&gt;
+
+&lt;h2 id=&#34;solution:a93a8fc10573dbdad791c81926e700b8&#34;&gt;Solution&lt;/h2&gt;
+
+&lt;p&gt;We can use a set or a hashmap. We only need to maintain the window size in for loop.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;    public boolean containsNearbyDuplicate(int[] nums, int k) {
+        Set&amp;lt;Integer&amp;gt; set = new HashSet();
+        for(int i = 0; i &amp;lt; nums.length; i ++) {
+            if(!set.add(nums[i]))
+                return true;
+            if(i &amp;gt;= k)
+                set.remove(nums[i-k]);
+        }
+        return false;
+    }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h1 id=&#34;contains-duplicate-in-a-range-within-a-window:a93a8fc10573dbdad791c81926e700b8&#34;&gt;Contains Duplicate in a range within a window&lt;/h1&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://leetcode.com/problems/contains-duplicate-iii/&#34;&gt;LeetCode 220&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Given an array of integers, find out whether there are two distinct indices i and j in the array such that the difference between nums[i] and nums[j] is at most t and the difference between i and j is at most k.&lt;/p&gt;
+
+&lt;h2 id=&#34;treemap-solution:a93a8fc10573dbdad791c81926e700b8&#34;&gt;TreeMap solution&lt;/h2&gt;
+
+&lt;p&gt;Instead of strict duplicate, there is now a constraint on the range of the values of the elements to be considered duplicates, it reminds us of doing a range check which is implemented in tree data structure and would take O(LogN) if a balanced tree structure is used.&lt;/p&gt;
+
+&lt;p&gt;We can use Java TreeSet class. The floor and ceiling method can return the greatest and smallest element within a range in the set.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;    public boolean containsNearbyAlmostDuplicate(int[] nums, int k, int t) {
+        TreeSet&amp;lt;Integer&amp;gt; set = new TreeSet();
+        for(int i = 0; i &amp;lt; nums.length; i ++) {
+            Integer floor = set.floor(nums[i] + t);
+            Integer ceiling = set.ceiling(nums[i] - t);
+            if((floor != null &amp;amp;&amp;amp; floor &amp;gt;= nums[i]) || (ceiling != null &amp;amp;&amp;amp; ceiling &amp;lt;= nums[i]))
+                return true;
+            set.add(nums[i]);
+            if(i &amp;gt;= k)
+                set.remove(nums[i-k]);
+        }
+        return false;
+    }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;bucket-solution:a93a8fc10573dbdad791c81926e700b8&#34;&gt;Bucket solution&lt;/h2&gt;
+
+&lt;p&gt;This solution is doing constant time complexity.&lt;/p&gt;
+
+&lt;p&gt;Notice: to avoid overflow, we need to use Long type.&lt;/p&gt;
+
+&lt;p&gt;Another complication is that negative ints are allowed. A simple num / t just shrinks everything towards 0. Therefore, we can just reposition every element to start from Integer.MIN_VALUE.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;    public boolean containsNearbyAlmostDuplicate(int[] nums, int k, int t) {
+        if(k &amp;lt; 1 || t &amp;lt; 0) return false;
+        Map&amp;lt;Long, Long&amp;gt; map = new HashMap();
+        for(int i = 0; i &amp;lt; nums.length; i ++) {
+            long newNum = (long)nums[i] - Integer.MIN_VALUE;
+            long bucket = newNum/((long)t + 1);
+            
+            if(map.containsKey(bucket) || 
+                map.containsKey(bucket-1) &amp;amp;&amp;amp; newNum - map.get(bucket-1) &amp;lt;= t ||
+                map.containsKey(bucket+1) &amp;amp;&amp;amp; map.get(bucket+1) - newNum &amp;lt;= t)
+                return true;
+            map.put(bucket, newNum);
+            if(i &amp;gt;= k) {
+                long lastBucket = ((long)nums[i-k] - Integer.MIN_VALUE)/((long)t + 1);
+                map.remove(lastBucket);
+            }
+        }
+        return false;
+    }
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

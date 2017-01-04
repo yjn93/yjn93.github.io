@@ -1,0 +1,172 @@
+	<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-us" lang="en-us">
+<head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="generator" content="Hugo 0.15" />
+
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+  <title> Contains Duplicate &middot; 木秀于南 </title>
+
+  
+  <link rel="stylesheet" href="http://yjn93.github.io/css/poole.css">
+  <link rel="stylesheet" href="http://yjn93.github.io/css/syntax.css">
+  <link rel="stylesheet" href="http://yjn93.github.io/css/hyde.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700|Abril+Fatface">
+
+  
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/apple-touch-icon-144-precomposed.png">
+  <link rel="shortcut icon" href="/favicon.png">
+
+  
+  <link href="" rel="alternate" type="application/rss+xml" title="木秀于南" />
+</head>
+
+	<body class="">
+		<div class="sidebar">
+    <div class="sidebar-about">
+      <a href="http://yjn93.github.io/"><h1>木秀于南</h1></a>
+      <p class="lead">
+	   Jianan Yue  
+      </p>
+    </div>
+
+	        <ul class ="sidebar-nav">
+             <li>
+                <a href="/">Home</a>
+            </li>
+            <li>
+                <a href="/blog/">Blog</a>
+            </li>
+            <li>
+            	<a href="/dev/">Dev</a>
+            </li>
+            <li>
+            	<a href="/gallery/">Gallery</a>
+            </li>
+            <li>
+				<a href="/about">About</a>
+            </li>
+        </ul>
+
+
+	<p class = "copyright">
+		powered by <a href = "http://gohugo.io">Hugo</a>
+		<br>© 2016 Jianan Yue. All right reserved.
+	</p>
+</div>
+
+
+		<div class="content container">
+			<div class="post">
+			 	<h1>Contains Duplicate</h1>
+			  <span class="post-date">Mon, Jan 2, 2017</span>
+			      
+
+<h1 id="contains-duplicate:a93a8fc10573dbdad791c81926e700b8">Contains Duplicate</h1>
+
+<p>Given an array of integers, find if the array contains any duplicates.</p>
+
+<p>This is the basic problem. The solution is to use a set.</p>
+
+<pre><code>    public boolean containsDuplicate(int[] nums) {
+        Set&lt;Integer&gt; set = new HashSet();
+        for(int num: nums) {
+            if(!set.add(num))
+                return true;
+        }
+        return false;
+    }
+</code></pre>
+
+<h1 id="contains-duplicate-within-a-window:a93a8fc10573dbdad791c81926e700b8">Contains Duplicate within a window</h1>
+
+<ul>
+<li><a href="https://leetcode.com/problems/contains-duplicate-ii/">LeetCode 219</a></li>
+</ul>
+
+<p>Given an array of integers and an integer k, find out whether there are two distinct indices i and j in the array such that nums[i] = nums[j] and the difference between i and j is at most k.</p>
+
+<h2 id="solution:a93a8fc10573dbdad791c81926e700b8">Solution</h2>
+
+<p>We can use a set or a hashmap. We only need to maintain the window size in for loop.</p>
+
+<pre><code>    public boolean containsNearbyDuplicate(int[] nums, int k) {
+        Set&lt;Integer&gt; set = new HashSet();
+        for(int i = 0; i &lt; nums.length; i ++) {
+            if(!set.add(nums[i]))
+                return true;
+            if(i &gt;= k)
+                set.remove(nums[i-k]);
+        }
+        return false;
+    }
+</code></pre>
+
+<h1 id="contains-duplicate-in-a-range-within-a-window:a93a8fc10573dbdad791c81926e700b8">Contains Duplicate in a range within a window</h1>
+
+<ul>
+<li><a href="https://leetcode.com/problems/contains-duplicate-iii/">LeetCode 220</a></li>
+</ul>
+
+<p>Given an array of integers, find out whether there are two distinct indices i and j in the array such that the difference between nums[i] and nums[j] is at most t and the difference between i and j is at most k.</p>
+
+<h2 id="treemap-solution:a93a8fc10573dbdad791c81926e700b8">TreeMap solution</h2>
+
+<p>Instead of strict duplicate, there is now a constraint on the range of the values of the elements to be considered duplicates, it reminds us of doing a range check which is implemented in tree data structure and would take O(LogN) if a balanced tree structure is used.</p>
+
+<p>We can use Java TreeSet class. The floor and ceiling method can return the greatest and smallest element within a range in the set.</p>
+
+<pre><code>    public boolean containsNearbyAlmostDuplicate(int[] nums, int k, int t) {
+        TreeSet&lt;Integer&gt; set = new TreeSet();
+        for(int i = 0; i &lt; nums.length; i ++) {
+            Integer floor = set.floor(nums[i] + t);
+            Integer ceiling = set.ceiling(nums[i] - t);
+            if((floor != null &amp;&amp; floor &gt;= nums[i]) || (ceiling != null &amp;&amp; ceiling &lt;= nums[i]))
+                return true;
+            set.add(nums[i]);
+            if(i &gt;= k)
+                set.remove(nums[i-k]);
+        }
+        return false;
+    }
+</code></pre>
+
+<h2 id="bucket-solution:a93a8fc10573dbdad791c81926e700b8">Bucket solution</h2>
+
+<p>This solution is doing constant time complexity.</p>
+
+<p>Notice: to avoid overflow, we need to use Long type.</p>
+
+<p>Another complication is that negative ints are allowed. A simple num / t just shrinks everything towards 0. Therefore, we can just reposition every element to start from Integer.MIN_VALUE.</p>
+
+<pre><code>    public boolean containsNearbyAlmostDuplicate(int[] nums, int k, int t) {
+        if(k &lt; 1 || t &lt; 0) return false;
+        Map&lt;Long, Long&gt; map = new HashMap();
+        for(int i = 0; i &lt; nums.length; i ++) {
+            long newNum = (long)nums[i] - Integer.MIN_VALUE;
+            long bucket = newNum/((long)t + 1);
+            
+            if(map.containsKey(bucket) || 
+                map.containsKey(bucket-1) &amp;&amp; newNum - map.get(bucket-1) &lt;= t ||
+                map.containsKey(bucket+1) &amp;&amp; map.get(bucket+1) - newNum &lt;= t)
+                return true;
+            map.put(bucket, newNum);
+            if(i &gt;= k) {
+                long lastBucket = ((long)nums[i-k] - Integer.MIN_VALUE)/((long)t + 1);
+                map.remove(lastBucket);
+            }
+        }
+        return false;
+    }
+</code></pre>
+
+			</div>
+
+			
+		</div>
+
+  </body>
+</html>

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-us" lang="en-us">
+<head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="generator" content="Hugo 0.15" />
+
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+  <title> Union Find &middot; 木秀于南 </title>
+
+  
+  <link rel="stylesheet" href="http://yjn93.github.io/css/poole.css">
+  <link rel="stylesheet" href="http://yjn93.github.io/css/syntax.css">
+  <link rel="stylesheet" href="http://yjn93.github.io/css/hyde.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700|Abril+Fatface">
+
+  
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/apple-touch-icon-144-precomposed.png">
+  <link rel="shortcut icon" href="/favicon.png">
+
+  
+  <link href="http://yjn93.github.io/tags/union-find/index.xml" rel="alternate" type="application/rss+xml" title="木秀于南" />
+</head>
+
+<body class="">
+<div class="sidebar">
+    <div class="sidebar-about">
+      <a href="http://yjn93.github.io/"><h1>木秀于南</h1></a>
+      <p class="lead">
+	   Jianan Yue  
+      </p>
+    </div>
+
+	        <ul class ="sidebar-nav">
+             <li>
+                <a href="/">Home</a>
+            </li>
+            <li>
+                <a href="/blog/">Blog</a>
+            </li>
+            <li>
+            	<a href="/dev/">Dev</a>
+            </li>
+            <li>
+            	<a href="/gallery/">Gallery</a>
+            </li>
+            <li>
+				<a href="/about">About</a>
+            </li>
+        </ul>
+
+
+	<p class = "copyright">
+		powered by <a href = "http://gohugo.io">Hugo</a>
+		<br>© 2016 Jianan Yue. All right reserved.
+	</p>
+</div>
+
+
+<section id="main">
+  <div>
+   <h1 id="title">Union Find</h1>
+    
+        <article class="post">
+    <header>
+      <h2><a href="http://yjn93.github.io/dev/UnionFind/">Union Find for board connection </a> </h2>
+      <div class="post-meta">Tue, Jan 3, 2017 </div>
+    </header>
+
+    Union Find This data structure can be used to solve dynamic connectivity problem. Usually, if we care about the path between two connected node, we need to use dfs. However, for checking the connectivity itself, union find can work. Also, dfs is suitable for static graph while union find is better for changing graph. Initialization int[] unionSet; // Initialize the union root of every element to be itself. unionSet[i] = i; // Sometime use another array to record the size of the union for the purpose of weighted union int[] size = new int[unionSet.length]; Weighted Union private void union(int p, int q) { int rootP = find(p); int rootQ = find(q); if(size[rootP] &lt; size[rootQ]) { unionSet[rootP] = rootQ; size[rootQ] += size[rootP]; } else { unionSet[rootQ] = rootP; size[rootP] += size[rootQ]; } } Find with path compression Two ways: recursion and loop // recursion: set the height of the union to be 1 private int find(int p) { if(unionSet[p] == p) return p; unionSet[p] = find(unionSet[p]); return unionSet[p]; } // loop: set the parent of a node to be its grandparent private int find(int p) { while(unionSet[p] != p){ unionSet[p] = unionSet[unionSet[p]]; p = unionSet[p]; } return p; } Surrounded Regions LeetCode 130 Given a 2D board containing &lsquo;X&rsquo; and &lsquo;O&rsquo; (the letter O), capture all regions surrounded by &lsquo;X&rsquo;.
+    <footer>
+        <a href='http://yjn93.github.io/dev/UnionFind/'><nobr>Read more →</nobr></a>
+    </footer>
+</article>
+
+    
+  </div>
+</section>
+
+

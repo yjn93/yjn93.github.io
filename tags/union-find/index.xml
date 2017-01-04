@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Union Find on 木秀于南</title>
+    <link>http://yjn93.github.io/tags/union-find/</link>
+    <description>Recent content in Union Find on 木秀于南</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <copyright>© 2016 Jianan Yue. All right reserved.</copyright>
+    <lastBuildDate>Tue, 03 Jan 2017 00:05:36 -0500</lastBuildDate>
+    <atom:link href="http://yjn93.github.io/tags/union-find/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Union Find for board connection</title>
+      <link>http://yjn93.github.io/dev/UnionFind/</link>
+      <pubDate>Tue, 03 Jan 2017 00:05:36 -0500</pubDate>
+      
+      <guid>http://yjn93.github.io/dev/UnionFind/</guid>
+      <description>
+
+&lt;h1 id=&#34;union-find:7b5dfc6ca8814f1e54ab64455253b7f0&#34;&gt;Union Find&lt;/h1&gt;
+
+&lt;p&gt;This data structure can be used to solve dynamic connectivity problem. Usually, if we care about the path between two connected node, we need to use dfs. However, for checking the connectivity itself, union find can work. Also, dfs is suitable for static graph while union find is better for changing graph.&lt;/p&gt;
+
+&lt;h2 id=&#34;initialization:7b5dfc6ca8814f1e54ab64455253b7f0&#34;&gt;Initialization&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;int[] unionSet;
+// Initialize the union root of every element to be itself.
+unionSet[i] = i;
+
+// Sometime use another array to record the size of the union for the purpose of weighted union
+int[] size = new int[unionSet.length];
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;weighted-union:7b5dfc6ca8814f1e54ab64455253b7f0&#34;&gt;Weighted Union&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;    private void union(int p, int q) {
+        int rootP = find(p);
+        int rootQ = find(q);
+		if(size[rootP] &amp;lt; size[rootQ]) {
+        	unionSet[rootP] = rootQ;
+			size[rootQ] += size[rootP];
+		} else {
+			unionSet[rootQ] = rootP;
+			size[rootP] += size[rootQ];
+		}
+    }
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;find-with-path-compression:7b5dfc6ca8814f1e54ab64455253b7f0&#34;&gt;Find with path compression&lt;/h2&gt;
+
+&lt;p&gt;Two ways: recursion and loop&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;// recursion: set the height of the union to be 1
+    private int find(int p) {
+        if(unionSet[p] == p)
+            return p;
+        unionSet[p] = find(unionSet[p]);
+        return unionSet[p];
+    }
+
+// loop: set the parent of a node to be its grandparent
+    private int find(int p) {
+        while(unionSet[p] != p){
+           	unionSet[p] = unionSet[unionSet[p]];
+			p = unionSet[p];
+		}
+        return p;
+    }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h1 id=&#34;surrounded-regions:7b5dfc6ca8814f1e54ab64455253b7f0&#34;&gt;Surrounded Regions&lt;/h1&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://leetcode.com/problems/surrounded-regions/&#34;&gt;LeetCode 130&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Given a 2D board containing &amp;lsquo;X&amp;rsquo; and &amp;lsquo;O&amp;rsquo; (the letter O), capture all regions surrounded by &amp;lsquo;X&amp;rsquo;.&lt;/p&gt;
+
+&lt;p&gt;A region is captured by flipping all &amp;lsquo;O&amp;rsquo;s into &amp;lsquo;X&amp;rsquo;s in that surrounded region.&lt;/p&gt;
+
+&lt;h2 id=&#34;example:7b5dfc6ca8814f1e54ab64455253b7f0&#34;&gt;Example&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;X X X X
+X O O X
+X X O X
+X O X X
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;After running your function, the board should be:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;X X X X
+X X X X
+X X X X
+X O X X
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;solution-with-union-find:7b5dfc6ca8814f1e54ab64455253b7f0&#34;&gt;Solution with union find&lt;/h2&gt;
+
+&lt;p&gt;There is another solution which first use dfs from the edges to turn every edgeO to &amp;lsquo;1&amp;rsquo;, then turn every not-transfered &amp;lsquo;O&amp;rsquo; to &amp;lsquo;X&amp;rsquo;, then turn all &amp;lsquo;1&amp;rsquo; back to &amp;lsquo;O&amp;rsquo;. Here, we give the union find solution.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;public class Solution {
+    int[] unionSet;
+    boolean[] hasEdgeO;
+    
+    public void solve(char[][] board) {
+        if(board == null || board.length == 0 || board[0].length == 0)
+            return;
+        int m = board.length, n = board[0].length;
+        unionSet = new int[m * n];
+        hasEdgeO = new boolean[unionSet.length];
+        for(int i = 0; i &amp;lt; m; i ++) {
+            for(int j = 0; j &amp;lt; n; j ++) {
+                int index = i * n + j;
+                unionSet[index] = index;
+                if(board[i][j] == &#39;X&#39;) continue;
+                if(i == 0 || j == 0 || i == m-1 || j == n-1)
+                    hasEdgeO[index] = true;
+                if(i &amp;gt; 0 &amp;amp;&amp;amp; board[i-1][j] == &#39;O&#39;)
+                    union(index, index-n);
+                if(j &amp;gt; 0 &amp;amp;&amp;amp; board[i][j-1] == &#39;O&#39;)
+                    union(index, index-1);
+            }
+        }
+        for(int i = 1; i &amp;lt; m; i ++) {
+            for(int j = 1; j &amp;lt; n; j ++) {
+                if(board[i][j] == &#39;O&#39; &amp;amp;&amp;amp; !hasEdgeO[find(i * n + j)])
+                    board[i][j] = &#39;X&#39;;
+            }   
+        }
+    }
+    
+    private int find(int p) {
+        if(unionSet[p] == p)
+            return p;
+        unionSet[p] = find(unionSet[p]);
+        return unionSet[p];
+    }
+    
+    private void union(int p, int q) {
+        int rootP = find(p);
+        int rootQ = find(q);
+        unionSet[rootP] = rootQ;
+        hasEdgeO[rootQ] = hasEdgeO[rootP] || hasEdgeO[rootQ];
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,204 @@
+	<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-us" lang="en-us">
+<head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="generator" content="Hugo 0.15" />
+
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+  <title> Union Find for board connection &middot; 木秀于南 </title>
+
+  
+  <link rel="stylesheet" href="http://yjn93.github.io/css/poole.css">
+  <link rel="stylesheet" href="http://yjn93.github.io/css/syntax.css">
+  <link rel="stylesheet" href="http://yjn93.github.io/css/hyde.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700|Abril+Fatface">
+
+  
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/apple-touch-icon-144-precomposed.png">
+  <link rel="shortcut icon" href="/favicon.png">
+
+  
+  <link href="" rel="alternate" type="application/rss+xml" title="木秀于南" />
+</head>
+
+	<body class="">
+		<div class="sidebar">
+    <div class="sidebar-about">
+      <a href="http://yjn93.github.io/"><h1>木秀于南</h1></a>
+      <p class="lead">
+	   Jianan Yue  
+      </p>
+    </div>
+
+	        <ul class ="sidebar-nav">
+             <li>
+                <a href="/">Home</a>
+            </li>
+            <li>
+                <a href="/blog/">Blog</a>
+            </li>
+            <li>
+            	<a href="/dev/">Dev</a>
+            </li>
+            <li>
+            	<a href="/gallery/">Gallery</a>
+            </li>
+            <li>
+				<a href="/about">About</a>
+            </li>
+        </ul>
+
+
+	<p class = "copyright">
+		powered by <a href = "http://gohugo.io">Hugo</a>
+		<br>© 2016 Jianan Yue. All right reserved.
+	</p>
+</div>
+
+
+		<div class="content container">
+			<div class="post">
+			 	<h1>Union Find for board connection</h1>
+			  <span class="post-date">Tue, Jan 3, 2017</span>
+			      
+
+<h1 id="union-find:7b5dfc6ca8814f1e54ab64455253b7f0">Union Find</h1>
+
+<p>This data structure can be used to solve dynamic connectivity problem. Usually, if we care about the path between two connected node, we need to use dfs. However, for checking the connectivity itself, union find can work. Also, dfs is suitable for static graph while union find is better for changing graph.</p>
+
+<h2 id="initialization:7b5dfc6ca8814f1e54ab64455253b7f0">Initialization</h2>
+
+<pre><code>int[] unionSet;
+// Initialize the union root of every element to be itself.
+unionSet[i] = i;
+
+// Sometime use another array to record the size of the union for the purpose of weighted union
+int[] size = new int[unionSet.length];
+
+</code></pre>
+
+<h2 id="weighted-union:7b5dfc6ca8814f1e54ab64455253b7f0">Weighted Union</h2>
+
+<pre><code>    private void union(int p, int q) {
+        int rootP = find(p);
+        int rootQ = find(q);
+		if(size[rootP] &lt; size[rootQ]) {
+        	unionSet[rootP] = rootQ;
+			size[rootQ] += size[rootP];
+		} else {
+			unionSet[rootQ] = rootP;
+			size[rootP] += size[rootQ];
+		}
+    }
+
+</code></pre>
+
+<h2 id="find-with-path-compression:7b5dfc6ca8814f1e54ab64455253b7f0">Find with path compression</h2>
+
+<p>Two ways: recursion and loop</p>
+
+<pre><code>// recursion: set the height of the union to be 1
+    private int find(int p) {
+        if(unionSet[p] == p)
+            return p;
+        unionSet[p] = find(unionSet[p]);
+        return unionSet[p];
+    }
+
+// loop: set the parent of a node to be its grandparent
+    private int find(int p) {
+        while(unionSet[p] != p){
+           	unionSet[p] = unionSet[unionSet[p]];
+			p = unionSet[p];
+		}
+        return p;
+    }
+</code></pre>
+
+<h1 id="surrounded-regions:7b5dfc6ca8814f1e54ab64455253b7f0">Surrounded Regions</h1>
+
+<ul>
+<li><a href="https://leetcode.com/problems/surrounded-regions/">LeetCode 130</a></li>
+</ul>
+
+<p>Given a 2D board containing &lsquo;X&rsquo; and &lsquo;O&rsquo; (the letter O), capture all regions surrounded by &lsquo;X&rsquo;.</p>
+
+<p>A region is captured by flipping all &lsquo;O&rsquo;s into &lsquo;X&rsquo;s in that surrounded region.</p>
+
+<h2 id="example:7b5dfc6ca8814f1e54ab64455253b7f0">Example</h2>
+
+<pre><code>X X X X
+X O O X
+X X O X
+X O X X
+</code></pre>
+
+<p>After running your function, the board should be:</p>
+
+<pre><code>X X X X
+X X X X
+X X X X
+X O X X
+</code></pre>
+
+<h2 id="solution-with-union-find:7b5dfc6ca8814f1e54ab64455253b7f0">Solution with union find</h2>
+
+<p>There is another solution which first use dfs from the edges to turn every edgeO to &lsquo;1&rsquo;, then turn every not-transfered &lsquo;O&rsquo; to &lsquo;X&rsquo;, then turn all &lsquo;1&rsquo; back to &lsquo;O&rsquo;. Here, we give the union find solution.</p>
+
+<pre><code>public class Solution {
+    int[] unionSet;
+    boolean[] hasEdgeO;
+    
+    public void solve(char[][] board) {
+        if(board == null || board.length == 0 || board[0].length == 0)
+            return;
+        int m = board.length, n = board[0].length;
+        unionSet = new int[m * n];
+        hasEdgeO = new boolean[unionSet.length];
+        for(int i = 0; i &lt; m; i ++) {
+            for(int j = 0; j &lt; n; j ++) {
+                int index = i * n + j;
+                unionSet[index] = index;
+                if(board[i][j] == 'X') continue;
+                if(i == 0 || j == 0 || i == m-1 || j == n-1)
+                    hasEdgeO[index] = true;
+                if(i &gt; 0 &amp;&amp; board[i-1][j] == 'O')
+                    union(index, index-n);
+                if(j &gt; 0 &amp;&amp; board[i][j-1] == 'O')
+                    union(index, index-1);
+            }
+        }
+        for(int i = 1; i &lt; m; i ++) {
+            for(int j = 1; j &lt; n; j ++) {
+                if(board[i][j] == 'O' &amp;&amp; !hasEdgeO[find(i * n + j)])
+                    board[i][j] = 'X';
+            }   
+        }
+    }
+    
+    private int find(int p) {
+        if(unionSet[p] == p)
+            return p;
+        unionSet[p] = find(unionSet[p]);
+        return unionSet[p];
+    }
+    
+    private void union(int p, int q) {
+        int rootP = find(p);
+        int rootQ = find(q);
+        unionSet[rootP] = rootQ;
+        hasEdgeO[rootQ] = hasEdgeO[rootP] || hasEdgeO[rootQ];
+    }
+}
+</code></pre>
+
+			</div>
+
+			
+		</div>
+
+  </body>
+</html>
