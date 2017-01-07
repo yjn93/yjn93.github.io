@@ -1,0 +1,275 @@
+	<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-us" lang="en-us">
+<head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="generator" content="Hugo 0.15" />
+
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+  <title> LeetCodeLocked &middot; 木秀于南 </title>
+
+  
+  <link rel="stylesheet" href="http://yjn93.github.io/css/poole.css">
+  <link rel="stylesheet" href="http://yjn93.github.io/css/syntax.css">
+  <link rel="stylesheet" href="http://yjn93.github.io/css/hyde.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700|Abril+Fatface">
+
+  
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/apple-touch-icon-144-precomposed.png">
+  <link rel="shortcut icon" href="/favicon.png">
+
+  
+  <link href="" rel="alternate" type="application/rss+xml" title="木秀于南" />
+</head>
+
+	<body class="">
+		<div class="sidebar">
+    <div class="sidebar-about">
+      <a href="http://yjn93.github.io/"><h1>木秀于南</h1></a>
+      <p class="lead">
+	   Jianan Yue  
+      </p>
+    </div>
+
+	        <ul class ="sidebar-nav">
+             <li>
+                <a href="/">Home</a>
+            </li>
+            <li>
+                <a href="/blog/">Blog</a>
+            </li>
+            <li>
+            	<a href="/dev/">Dev</a>
+            </li>
+            <li>
+            	<a href="/gallery/">Gallery</a>
+            </li>
+            <li>
+				<a href="/about">About</a>
+            </li>
+        </ul>
+
+
+	<p class = "copyright">
+		powered by <a href = "http://gohugo.io">Hugo</a>
+		<br>© 2016 Jianan Yue. All right reserved.
+	</p>
+</div>
+
+
+		<div class="content container">
+			<div class="post">
+			 	<h1>LeetCodeLocked</h1>
+			  <span class="post-date">Thu, Jan 5, 2017</span>
+			      
+
+<h1 id="range-addition:391bf8c2ccd1748d42853cd47f55ff11">Range Addition</h1>
+
+<p>Assume you have an array of length n initialized with all 0&rsquo;s and are given k update operations.</p>
+
+<p>Each operation is represented as a triplet: [startIndex, endIndex, inc] which increments each element of subarray A[startIndex &hellip; endIndex] /(startIndex and endIndex inclusive) with inc.</p>
+
+<p>Return the modified array after all k operations were executed.</p>
+
+<h2 id="example:391bf8c2ccd1748d42853cd47f55ff11">Example</h2>
+
+<pre><code>Given:
+
+    length = 5,
+    updates = [
+        [1,  3,  2],
+        [2,  4,  3],
+        [0,  2, -2]
+    ]
+
+Output:
+
+    [-2, 0, 3, 5, 3]
+</code></pre>
+
+<h2 id="explanation:391bf8c2ccd1748d42853cd47f55ff11">Explanation</h2>
+
+<pre><code>Initial state:
+[ 0, 0, 0, 0, 0 ]
+
+After applying operation [1, 3, 2]:
+[ 0, 2, 2, 2, 0 ]
+
+After applying operation [2, 4, 3]:
+[ 0, 2, 5, 5, 3 ]
+
+After applying operation [0, 2, -2]:
+[-2, 0, 3, 5, 3 ]
+</code></pre>
+
+<h2 id="solution:391bf8c2ccd1748d42853cd47f55ff11">Solution</h2>
+
+<p>Only update the start and end+1 index every time is sufficient.</p>
+
+<pre><code>    public int[] getModifiedArray(int length, int[][] updates) {
+        int[] result = new int[length];
+        for(int[] update: updates) {
+            result[update[0]] += update[2];
+            if(update[1] &lt; length-1)
+                result[update[1]+1] -= update[2];
+        }
+        
+        for(int i = 1; i &lt; length; i ++)
+            result[i] += result[i-1];
+        return result;
+    }
+</code></pre>
+
+<h1 id="shortest-word-distance:391bf8c2ccd1748d42853cd47f55ff11">Shortest Word Distance</h1>
+
+<p>Given a list of words and two words word1 and word2, return the shortest distance between these two words in the list.</p>
+
+<p>For example,</p>
+
+<p>Assume that words = [&ldquo;practice&rdquo;, &ldquo;makes&rdquo;, &ldquo;perfect&rdquo;, &ldquo;coding&rdquo;, &ldquo;makes&rdquo;].</p>
+
+<p>Given word1 = “coding”, word2 = “practice”, return 3.</p>
+
+<p>Given word1 = &ldquo;makes&rdquo;, word2 = &ldquo;coding&rdquo;, return 1.</p>
+
+<h2 id="solution-1:391bf8c2ccd1748d42853cd47f55ff11">Solution</h2>
+
+<pre><code>    public int shortestDistance(String[] words, String word1, String word2) {
+        int p1 = -1, p2 = -1;
+        int min = words.length;
+        for(int i = 0; i &lt; words.length; i ++) {
+            if(words[i].equals(word1))
+                p1 = i;
+            if(words[i].equals(word2))
+                p2 = i;
+            if(p1 != -1 &amp;&amp; p2 != -1)
+                min = Math.min(Math.abs(p2 - p1), min);
+        }
+        return min;
+    }
+</code></pre>
+
+<h2 id="follow-up-1:391bf8c2ccd1748d42853cd47f55ff11">Follow up 1</h2>
+
+<p>Now you are given the list of words and your method will be called repeatedly many times with different parameters. How would you optimize it?</p>
+
+<p>Design a class which receives a list of words in the constructor, and implements a method that takes two words word1 and word2 and return the shortest distance between these two words in the list.</p>
+
+<h3 id="solution-2:391bf8c2ccd1748d42853cd47f55ff11">Solution</h3>
+
+<p>Use HashMap</p>
+
+<pre><code>public class WordDistance {
+    HashMap&lt;String, List&lt;Integer&gt;&gt; map;
+    
+    public WordDistance(String[] words) {
+        map = new HashMap();
+        for(int i = 0; i &lt; words.length; i ++) {
+            if(!map.containsKey(words[i]))
+                map.put(words[i], new ArrayList());
+            map.get(words[i]).add(i);
+        }
+    }
+
+    public int shortest(String word1, String word2) {
+        int min = Integer.MAX_VALUE;
+        for(int i: map.get(word1)) {
+            for(int j: map.get(word2)) 
+                min = Math.min(Math.abs(i - j), min);
+        }
+        return min;
+    }
+}
+</code></pre>
+
+<h2 id="follow-up-2:391bf8c2ccd1748d42853cd47f55ff11">Follow up 2</h2>
+
+<p>Now word1 could be the same as word2 and they represent two individual words in the list.</p>
+
+<h3 id="solution-3:391bf8c2ccd1748d42853cd47f55ff11">Solution</h3>
+
+<p>If we remove the boolean same variable, it can solve the basic problem.</p>
+
+<pre><code>    public int shortestWordDistance(String[] words, String word1, String word2) {
+        int index = -1;
+        int min = words.length;
+        boolean same = word1.equals(word2);
+        for(int i = 0; i &lt; words.length; i ++) {
+            if(words[i].equals(word1) || words[i].equals(word2)) {
+                if(index != -1 &amp;&amp; (same || !words[index].equals(words[i]))){
+                    min = Math.min(i - index, min);
+                }
+                index = i;
+            }
+        }
+        return min;
+    }
+
+</code></pre>
+
+<h1 id="zigzag-iterator:391bf8c2ccd1748d42853cd47f55ff11">Zigzag iterator</h1>
+
+<p>Given two 1d vectors, implement an iterator to return their elements alternately.</p>
+
+<p>For example, given two 1d vectors:</p>
+
+<pre><code>v1 = [1, 2]
+v2 = [3, 4, 5, 6]
+By calling next repeatedly until hasNext returns false, the order of elements returned by next should be:
+[1, 3, 2, 4, 5, 6]
+</code></pre>
+
+<p>Follow up: What if you are given k 1d vectors? How well can your code be extended to such cases?</p>
+
+<pre><code>[1,2,3]
+[4,5,6,7]
+[8,9]
+It should return [1,4,8,2,5,9,3,6,7].
+</code></pre>
+
+<h2 id="solution-4:391bf8c2ccd1748d42853cd47f55ff11">Solution</h2>
+
+<p>Uses a linkedlist to store the iterators in different vectors. Every time we call next(), we pop an element from the list, and re-add it to the end to cycle through the lists.</p>
+
+<pre><code>public class ZigzagIterator {
+    LinkedList&lt;Iterator&gt; list;
+    
+    public ZigzagIterator(List&lt;Integer&gt; v1, List&lt;Integer&gt; v2) {
+        list = new LinkedList();
+        if(!v1.isEmpty())
+            list.add(v1.iterator());
+        if(!v2.isEmpty())
+            list.add(v2.iterator());
+    }
+
+    public int next() {
+        Iterator cur = list.remove();
+        int result = (int)cur.next();
+        if(cur.hasNext()) list.add(cur);
+        return result;
+    }
+
+    public boolean hasNext() {
+        return !list.isEmpty();
+    }
+}
+
+</code></pre>
+
+<p>Many things need to be notice in code:</p>
+
+<ul>
+<li><p>For the member list, we need to specify its type as LinkedList, or Queue. If we use List<Iterator> list, we cannot use remove() or poll() method because they are not specified by interface List, but by Queue or Deque.</p></li>
+
+<li><p>After we got the Iterator cur, we need to convert cur.next() to (int), otherwise it will raise Object cannot convert to int exception.</p></li>
+</ul>
+
+			</div>
+
+			
+		</div>
+
+  </body>
+</html>

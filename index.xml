@@ -7,8 +7,219 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>© 2016 Jianan Yue. All right reserved.</copyright>
-    <lastBuildDate>Tue, 03 Jan 2017 00:05:36 -0500</lastBuildDate>
+    <lastBuildDate>Thu, 05 Jan 2017 14:34:10 -0500</lastBuildDate>
     <atom:link href="http://yjn93.github.io/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>LeetCodeLocked</title>
+      <link>http://yjn93.github.io/dev/LeetCodeLocked/</link>
+      <pubDate>Thu, 05 Jan 2017 14:34:10 -0500</pubDate>
+      
+      <guid>http://yjn93.github.io/dev/LeetCodeLocked/</guid>
+      <description>
+
+&lt;h1 id=&#34;range-addition:391bf8c2ccd1748d42853cd47f55ff11&#34;&gt;Range Addition&lt;/h1&gt;
+
+&lt;p&gt;Assume you have an array of length n initialized with all 0&amp;rsquo;s and are given k update operations.&lt;/p&gt;
+
+&lt;p&gt;Each operation is represented as a triplet: [startIndex, endIndex, inc] which increments each element of subarray A[startIndex &amp;hellip; endIndex] /(startIndex and endIndex inclusive) with inc.&lt;/p&gt;
+
+&lt;p&gt;Return the modified array after all k operations were executed.&lt;/p&gt;
+
+&lt;h2 id=&#34;example:391bf8c2ccd1748d42853cd47f55ff11&#34;&gt;Example&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;Given:
+
+    length = 5,
+    updates = [
+        [1,  3,  2],
+        [2,  4,  3],
+        [0,  2, -2]
+    ]
+
+Output:
+
+    [-2, 0, 3, 5, 3]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;explanation:391bf8c2ccd1748d42853cd47f55ff11&#34;&gt;Explanation&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;Initial state:
+[ 0, 0, 0, 0, 0 ]
+
+After applying operation [1, 3, 2]:
+[ 0, 2, 2, 2, 0 ]
+
+After applying operation [2, 4, 3]:
+[ 0, 2, 5, 5, 3 ]
+
+After applying operation [0, 2, -2]:
+[-2, 0, 3, 5, 3 ]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;solution:391bf8c2ccd1748d42853cd47f55ff11&#34;&gt;Solution&lt;/h2&gt;
+
+&lt;p&gt;Only update the start and end+1 index every time is sufficient.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;    public int[] getModifiedArray(int length, int[][] updates) {
+        int[] result = new int[length];
+        for(int[] update: updates) {
+            result[update[0]] += update[2];
+            if(update[1] &amp;lt; length-1)
+                result[update[1]+1] -= update[2];
+        }
+        
+        for(int i = 1; i &amp;lt; length; i ++)
+            result[i] += result[i-1];
+        return result;
+    }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h1 id=&#34;shortest-word-distance:391bf8c2ccd1748d42853cd47f55ff11&#34;&gt;Shortest Word Distance&lt;/h1&gt;
+
+&lt;p&gt;Given a list of words and two words word1 and word2, return the shortest distance between these two words in the list.&lt;/p&gt;
+
+&lt;p&gt;For example,&lt;/p&gt;
+
+&lt;p&gt;Assume that words = [&amp;ldquo;practice&amp;rdquo;, &amp;ldquo;makes&amp;rdquo;, &amp;ldquo;perfect&amp;rdquo;, &amp;ldquo;coding&amp;rdquo;, &amp;ldquo;makes&amp;rdquo;].&lt;/p&gt;
+
+&lt;p&gt;Given word1 = “coding”, word2 = “practice”, return 3.&lt;/p&gt;
+
+&lt;p&gt;Given word1 = &amp;ldquo;makes&amp;rdquo;, word2 = &amp;ldquo;coding&amp;rdquo;, return 1.&lt;/p&gt;
+
+&lt;h2 id=&#34;solution-1:391bf8c2ccd1748d42853cd47f55ff11&#34;&gt;Solution&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;    public int shortestDistance(String[] words, String word1, String word2) {
+        int p1 = -1, p2 = -1;
+        int min = words.length;
+        for(int i = 0; i &amp;lt; words.length; i ++) {
+            if(words[i].equals(word1))
+                p1 = i;
+            if(words[i].equals(word2))
+                p2 = i;
+            if(p1 != -1 &amp;amp;&amp;amp; p2 != -1)
+                min = Math.min(Math.abs(p2 - p1), min);
+        }
+        return min;
+    }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;follow-up-1:391bf8c2ccd1748d42853cd47f55ff11&#34;&gt;Follow up 1&lt;/h2&gt;
+
+&lt;p&gt;Now you are given the list of words and your method will be called repeatedly many times with different parameters. How would you optimize it?&lt;/p&gt;
+
+&lt;p&gt;Design a class which receives a list of words in the constructor, and implements a method that takes two words word1 and word2 and return the shortest distance between these two words in the list.&lt;/p&gt;
+
+&lt;h3 id=&#34;solution-2:391bf8c2ccd1748d42853cd47f55ff11&#34;&gt;Solution&lt;/h3&gt;
+
+&lt;p&gt;Use HashMap&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;public class WordDistance {
+    HashMap&amp;lt;String, List&amp;lt;Integer&amp;gt;&amp;gt; map;
+    
+    public WordDistance(String[] words) {
+        map = new HashMap();
+        for(int i = 0; i &amp;lt; words.length; i ++) {
+            if(!map.containsKey(words[i]))
+                map.put(words[i], new ArrayList());
+            map.get(words[i]).add(i);
+        }
+    }
+
+    public int shortest(String word1, String word2) {
+        int min = Integer.MAX_VALUE;
+        for(int i: map.get(word1)) {
+            for(int j: map.get(word2)) 
+                min = Math.min(Math.abs(i - j), min);
+        }
+        return min;
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;follow-up-2:391bf8c2ccd1748d42853cd47f55ff11&#34;&gt;Follow up 2&lt;/h2&gt;
+
+&lt;p&gt;Now word1 could be the same as word2 and they represent two individual words in the list.&lt;/p&gt;
+
+&lt;h3 id=&#34;solution-3:391bf8c2ccd1748d42853cd47f55ff11&#34;&gt;Solution&lt;/h3&gt;
+
+&lt;p&gt;If we remove the boolean same variable, it can solve the basic problem.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;    public int shortestWordDistance(String[] words, String word1, String word2) {
+        int index = -1;
+        int min = words.length;
+        boolean same = word1.equals(word2);
+        for(int i = 0; i &amp;lt; words.length; i ++) {
+            if(words[i].equals(word1) || words[i].equals(word2)) {
+                if(index != -1 &amp;amp;&amp;amp; (same || !words[index].equals(words[i]))){
+                    min = Math.min(i - index, min);
+                }
+                index = i;
+            }
+        }
+        return min;
+    }
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h1 id=&#34;zigzag-iterator:391bf8c2ccd1748d42853cd47f55ff11&#34;&gt;Zigzag iterator&lt;/h1&gt;
+
+&lt;p&gt;Given two 1d vectors, implement an iterator to return their elements alternately.&lt;/p&gt;
+
+&lt;p&gt;For example, given two 1d vectors:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;v1 = [1, 2]
+v2 = [3, 4, 5, 6]
+By calling next repeatedly until hasNext returns false, the order of elements returned by next should be:
+[1, 3, 2, 4, 5, 6]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Follow up: What if you are given k 1d vectors? How well can your code be extended to such cases?&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;[1,2,3]
+[4,5,6,7]
+[8,9]
+It should return [1,4,8,2,5,9,3,6,7].
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;solution-4:391bf8c2ccd1748d42853cd47f55ff11&#34;&gt;Solution&lt;/h2&gt;
+
+&lt;p&gt;Uses a linkedlist to store the iterators in different vectors. Every time we call next(), we pop an element from the list, and re-add it to the end to cycle through the lists.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;public class ZigzagIterator {
+    LinkedList&amp;lt;Iterator&amp;gt; list;
+    
+    public ZigzagIterator(List&amp;lt;Integer&amp;gt; v1, List&amp;lt;Integer&amp;gt; v2) {
+        list = new LinkedList();
+        if(!v1.isEmpty())
+            list.add(v1.iterator());
+        if(!v2.isEmpty())
+            list.add(v2.iterator());
+    }
+
+    public int next() {
+        Iterator cur = list.remove();
+        int result = (int)cur.next();
+        if(cur.hasNext()) list.add(cur);
+        return result;
+    }
+
+    public boolean hasNext() {
+        return !list.isEmpty();
+    }
+}
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Many things need to be notice in code:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;For the member list, we need to specify its type as LinkedList, or Queue. If we use List&lt;Iterator&gt; list, we cannot use remove() or poll() method because they are not specified by interface List, but by Queue or Deque.&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;After we got the Iterator cur, we need to convert cur.next() to (int), otherwise it will raise Object cannot convert to int exception.&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
     
     <item>
       <title>Union Find for board connection</title>
@@ -87,6 +298,7 @@ int[] size = new int[unionSet.length];
 X O O X
 X X O X
 X O X X
+
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;After running your function, the board should be:&lt;/p&gt;
@@ -95,6 +307,7 @@ X O X X
 X X X X
 X X X X
 X O X X
+
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;h2 id=&#34;solution-with-union-find:7b5dfc6ca8814f1e54ab64455253b7f0&#34;&gt;Solution with union find&lt;/h2&gt;
@@ -146,6 +359,195 @@ X O X X
         hasEdgeO[rootQ] = hasEdgeO[rootP] || hasEdgeO[rootQ];
     }
 }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h1 id=&#34;number-of-connected-components-in-an-undirected-graph:7b5dfc6ca8814f1e54ab64455253b7f0&#34;&gt;Number of Connected Components in an Undirected Graph&lt;/h1&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://leetcode.com/problems/number-of-connected-components-in-an-undirected-graph/&#34;&gt;LeetCode 323&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Given n nodes labeled from 0 to n - 1 and a list of undirected edges (each edge is a pair of nodes), write a function to find the number of connected components in an undirected graph.&lt;/p&gt;
+
+&lt;h2 id=&#34;example-1:7b5dfc6ca8814f1e54ab64455253b7f0&#34;&gt;Example&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;	 0          3
+     |          |
+     1 --- 2    4
+Given n = 5 and edges = [[0, 1], [1, 2], [3, 4]], return 2.
+
+     0           4
+     |           |
+     1 --- 2 --- 3
+Given n = 5 and edges = [[0, 1], [1, 2], [2, 3], [3, 4]], return 1.
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;solution-with-straitforward-dfs:7b5dfc6ca8814f1e54ab64455253b7f0&#34;&gt;Solution with straitforward dfs&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;    public int countComponents(int n, int[][] edges) {
+        boolean[] visited = new boolean[n];
+        List&amp;lt;Integer&amp;gt;[] adjs = new List[n];
+        for(int i = 0; i &amp;lt; n; i ++)
+            adjs[i] = new ArrayList();
+        for(int[] edge: edges) {
+            if(!adjs[edge[0]].contains(edge[1]))
+                adjs[edge[0]].add(edge[1]);
+            if(!adjs[edge[1]].contains(edge[0]))
+                adjs[edge[1]].add(edge[0]);
+        }
+        int count = 0;
+        for(int i = 0; i &amp;lt; n; i ++) {
+            if(!visited[i]) {
+                dfs(adjs, visited, i);
+                count ++;
+            }
+        }
+        return count;
+    }
+    
+    public void dfs(List&amp;lt;Integer&amp;gt;[] adjs, boolean[] visited, int cur) {
+        
+        visited[cur] = true;
+        for(int neighbor: adjs[cur])
+            if(!visited[neighbor])
+                dfs(adjs, visited, neighbor);
+    }
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;solution-with-union-find-1:7b5dfc6ca8814f1e54ab64455253b7f0&#34;&gt;Solution with Union-Find&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;    public int countComponents(int n, int[][] edges) {
+        int[] root = new int[n];
+        for(int i = 0; i &amp;lt; n; i ++) {
+            root[i] = i;
+        }
+        for(int[] edge: edges) {
+            int i = find(root, edge[0]);
+            int j = find(root, edge[1]);
+            if(i != j) {
+                root[i] = j;
+                n --;
+            }
+        }
+        return n;
+    }
+    
+    public int find(int[] root, int p) {
+        if(root[p] == p)
+            return p;
+        root[p] = find(root, root[p]);
+        return root[p];
+    }
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h1 id=&#34;number-of-islands:7b5dfc6ca8814f1e54ab64455253b7f0&#34;&gt;Number of Islands&lt;/h1&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://leetcode.com/problems/number-of-islands/&#34;&gt;LeetCode&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Given a 2d grid map of &amp;lsquo;1&amp;rsquo;s (land) and &amp;lsquo;0&amp;rsquo;s (water), count the number of islands. An island is surrounded by water and is formed by connecting adjacent lands horizontally or vertically. You may assume all four edges of the grid are all surrounded by water.&lt;/p&gt;
+
+&lt;h2 id=&#34;example-2:7b5dfc6ca8814f1e54ab64455253b7f0&#34;&gt;Example&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;11110
+11010
+11000
+00000
+
+Answer: 1
+
+11000
+11000
+00100
+00011
+
+Answer: 3
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;dfs-solution:7b5dfc6ca8814f1e54ab64455253b7f0&#34;&gt;DFS solution&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;    public int numIslands(char[][] grid) {
+        int count = 0;
+        for(int i = 0; i &amp;lt; grid.length; i ++) {
+            for(int j = 0; j &amp;lt; grid[0].length; j ++) {
+                if(grid[i][j] == &#39;1&#39;) {
+                    dfs(grid, i, j);
+                    count ++;
+                }
+            }
+        }
+        return count;
+    }
+    
+    public void dfs(char[][] grid, int i, int j) {
+        if(i &amp;lt; 0 || j &amp;lt; 0 || i &amp;gt;= grid.length || j &amp;gt;= grid[0].length || grid[i][j] != &#39;1&#39; ) 
+            return;
+        grid[i][j] = &#39;0&#39;;
+        dfs(grid, i-1, j);
+        dfs(grid, i+1, j);
+        dfs(grid, i, j-1);
+        dfs(grid, i, j+1);
+    }
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;union-find-solution:7b5dfc6ca8814f1e54ab64455253b7f0&#34;&gt;Union-Find solution&lt;/h2&gt;
+
+&lt;p&gt;2d version of the above connected components problem.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;    public int numIslands(char[][] grid) {
+        if(grid == null || grid.length == 0 || grid[0].length == 0)
+            return 0;
+        int count = 0;
+        int m = grid.length, n = grid[0].length;
+        int[] root = new int[m * n];
+        for(int i = 0; i &amp;lt; m; i ++) {
+            for(int j = 0; j &amp;lt; n; j ++) {
+                if(grid[i][j] == &#39;1&#39;) {
+                    count ++;
+                }
+                int index = i * n + j;
+                root[index] = index;
+            }
+        }
+        
+        for(int i = 0; i &amp;lt; m; i ++) {
+            for(int j = 0; j &amp;lt; n; j ++) {
+                if(grid[i][j] == &#39;0&#39;) continue;
+                int index = i * n + j;
+                if(i &amp;gt; 0 &amp;amp;&amp;amp; grid[i-1][j] == &#39;1&#39;) {
+                    int root1 = find(root, index);
+                    int root2 = find(root, index-n);
+                    if(root1 != root2) {
+                        root[root1] = root2;
+                        count --;
+                    }
+                }
+                if(j &amp;gt; 0 &amp;amp;&amp;amp; grid[i][j-1] == &#39;1&#39;) {
+                    int root1 = find(root, index);
+                    int root2 = find(root, index-1);
+                    if(root1 != root2) {
+                        root[root1] = root2;
+                        count --;
+                    }
+                }
+            }
+        }
+        return count;
+    }
+    
+    public int find(int[] root, int p) {
+        if(root[p] == p) 
+            return p;
+        root[p] = find(root, root[p]);
+        return root[p];
+    }
+
 &lt;/code&gt;&lt;/pre&gt;
 </description>
     </item>
@@ -1520,41 +1922,6 @@ dp[3] = dp[3 - 2] + 1 = dp[1] + 1
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;Notice the priority for &amp;amp; operator is lower than +, so we need to use () for (i&amp;amp;1).&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>最好的自己</title>
-      <link>http://yjn93.github.io/blog/%E6%9C%80%E5%A5%BD%E7%9A%84%E8%87%AA%E5%B7%B1/</link>
-      <pubDate>Sat, 08 Oct 2016 17:05:40 -0400</pubDate>
-      
-      <guid>http://yjn93.github.io/blog/%E6%9C%80%E5%A5%BD%E7%9A%84%E8%87%AA%E5%B7%B1/</guid>
-      <description>&lt;p&gt;最近觉得自己格外迷茫，人生一直按部就班的过，考高中，考大学，申请国外研究生，可却完全不知道自己喜欢什么，想要什么。忽然有一天需要自己承担责任，自己做决定，就纠结的要死，完全想象不到一年后的自己会在哪里做什么。&lt;/p&gt;
-
-&lt;p&gt;我害怕把日子过成黑白片；也害怕找不到自己想要的彩色是什么。&lt;/p&gt;
-
-&lt;p&gt;昨天知乎了两件事，一个是安稳，一个是快乐。&lt;/p&gt;
-
-&lt;p&gt;其实每个人都追求安稳，只不过稳定的层次不一样，有人在一楼安稳下来了，觉得这么过就很好，而有的人在二楼安稳却还想要努力一把去三楼安稳。&lt;/p&gt;
-
-&lt;p&gt;“知道了生活的现实，却依然愿意走出「稳定」的小绿洲，踏上那荆棘满地却又风景如画的路途，我觉得这才是真正的勇敢和乐观&amp;rdquo; ——知乎&lt;/p&gt;
-
-&lt;p&gt;关于快乐，我曾经跟室友讨论过，她想要什么样的生活，她说想要快乐的生活。我额子也老说，还是觉得活着很好，很快乐。我也很想要热爱生活，可是不知道为什么会那么烦，不知道要怎么快乐。&lt;/p&gt;
-
-&lt;p&gt;又看了知乎，有这样一个答案：&lt;/p&gt;
-
-&lt;p&gt;想太多“意义”，想太多“快不快乐”，杀死了我们的“快乐”。
-“理智”杀死了我们的快乐。 我们想了太多，算计太多，失掉了快乐需要的感性。嗯，不去想它怎样？就着手做好自己手头的事情。&lt;/p&gt;
-
-&lt;p&gt;是啊，本来没有什么烦恼，现在想太多没有定数的事情给自己徒增烦恼。以前觉得别人说&amp;rdquo;不想长大&amp;rdquo;都是矫情，人生好不容易过到了现在，我可不想回到以前。而最近真的有点不想长大了，害怕未来也后悔过去有些事没有做，或许这是真的不再年少了吧。&lt;/p&gt;
-
-&lt;p&gt;今天看了《最好的我们》, 作者八月长安是个知道自己想要什么的人。作品塑造的也是比我优秀还比我努力的人。我想要一个这样纯粹的爱情，也怀念自己曾经拼搏过的时光。&lt;/p&gt;
-
-&lt;p&gt;我从来都没有达到自己心目中最好的自己，希望自己能像准备高考，准备GRE时一样，不畏艰难再努力一把，少想多做，相信也能自然而然的获得快乐。&lt;/p&gt;
-
-&lt;p&gt;最近练瑜伽老师是个平静的老奶奶，她教我们冥想“You have nowhere to go and nothing to do”。乱想并不能改变去向与未来，还是踏踏实实做好眼前的事吧。&lt;/p&gt;
-
-&lt;p&gt;先定一个小小的目标，比如瘦个5斤~&lt;/p&gt;
 </description>
     </item>
     
