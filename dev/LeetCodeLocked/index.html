@@ -233,7 +233,8 @@ It should return [1,4,8,2,5,9,3,6,7].
 
 <p>Uses a linkedlist to store the iterators in different vectors. Every time we call next(), we pop an element from the list, and re-add it to the end to cycle through the lists.</p>
 
-<pre><code>public class ZigzagIterator {
+<pre><code>
+public class ZigzagIterator {
     LinkedList&lt;Iterator&gt; list;
     
     public ZigzagIterator(List&lt;Integer&gt; v1, List&lt;Integer&gt; v2) {
@@ -265,6 +266,284 @@ It should return [1,4,8,2,5,9,3,6,7].
 
 <li><p>After we got the Iterator cur, we need to convert cur.next() to (int), otherwise it will raise Object cannot convert to int exception.</p></li>
 </ul>
+
+<h1 id="flip-game:391bf8c2ccd1748d42853cd47f55ff11">Flip Game</h1>
+
+<p>You are playing the following Flip Game with your friend: Given a string that contains only these two characters: + and -, you and your friend take turns to flip two consecutive &ldquo;++&rdquo; into &ldquo;&ndash;&rdquo;. The game ends when a person can no longer make a move and therefore the other person will be the winner.</p>
+
+<p>Write a function to determine if the starting player can guarantee a win.</p>
+
+<p>For example, given s = &ldquo;++++&rdquo;, return true. The starting player can guarantee a win by flipping the middle &ldquo;++&rdquo; to become &ldquo;+&ndash;+&rdquo;.</p>
+
+<h2 id="solution-5:391bf8c2ccd1748d42853cd47f55ff11">Solution</h2>
+
+<pre><code>    Map&lt;String, Boolean&gt; winMap = new HashMap();
+    
+    public boolean canWin(String s) {
+        if(winMap.containsKey(s)) return winMap.get(s);
+        for(int i = -1; (i = s.indexOf(&quot;++&quot;, i + 1)) &gt;= 0; ) {
+            String t = s.substring(0, i) + &quot;--&quot; + s.substring(i+2);
+            if(!canWin(t)) {
+                winMap.put(s, true);
+                return true;
+            }
+        }
+        winMap.put(s, false);
+        return false;
+    }
+
+</code></pre>
+
+<h1 id="generalized-abbreviation:391bf8c2ccd1748d42853cd47f55ff11">Generalized Abbreviation</h1>
+
+<p>Write a function to generate the generalized abbreviations of a word.</p>
+
+<h2 id="example-1:391bf8c2ccd1748d42853cd47f55ff11">Example</h2>
+
+<p>Given word = &ldquo;word&rdquo;, return the following list (order does not matter):</p>
+
+<pre><code>[&quot;word&quot;, &quot;1ord&quot;, &quot;w1rd&quot;, &quot;wo1d&quot;, &quot;wor1&quot;, &quot;2rd&quot;, &quot;w2d&quot;, &quot;wo2&quot;, &quot;1o1d&quot;, &quot;1or1&quot;, &quot;w1r1&quot;, &quot;1o2&quot;, &quot;2r1&quot;, &quot;3d&quot;, &quot;w3&quot;, &quot;4&quot;]
+
+</code></pre>
+
+<h2 id="solution-6:391bf8c2ccd1748d42853cd47f55ff11">Solution</h2>
+
+<p>For each character, we can choose to put or not put it in the abbreviation. So we can use backtracking</p>
+
+<pre><code>
+    public List&lt;String&gt; generateAbbreviations(String word) {
+        List&lt;String&gt; result = new ArrayList();
+        dfs(result, new StringBuilder(), word, 0, 0);
+        return result;
+    }
+    
+    public void dfs(List&lt;String&gt; result, StringBuilder sb, String word, int pos, int count) {
+        int len = sb.length();
+        if(pos == word.length()) {
+            if(count &gt; 0) sb.append(count);
+            result.add(sb.toString());
+        } else {
+            dfs(result, sb, word, pos+1, count+1);
+            if(count &gt; 0)
+                sb.append(count);
+            dfs(result, sb.append(word.charAt(pos)), word, pos+1, 0);
+        }
+        sb.setLength(len);
+    }
+
+</code></pre>
+
+<h1 id="maximum-size-subarray-sum-equals-k:391bf8c2ccd1748d42853cd47f55ff11">Maximum Size Subarray Sum Equals k</h1>
+
+<p>Given an array nums and a target value k, find the maximum length of a subarray that sums to k. If there isn&rsquo;t one, return 0 instead.</p>
+
+<pre><code>
+Example 1:
+Given nums = [1, -1, 5, -2, 3], k = 3,
+return 4. (because the subarray [1, -1, 5, -2] sums to 3 and is the longest)
+
+Example 2:
+Given nums = [-2, -1, 2, 1], k = 1,
+return 2. (because the subarray [-1, 2] sums to 1 and is the longest
+
+</code></pre>
+
+<h2 id="solution-7:391bf8c2ccd1748d42853cd47f55ff11">Solution</h2>
+
+<p>I didn&rsquo;t come up with the idea of using map.</p>
+
+<pre><code>    public int maxSubArrayLen(int[] nums, int k) {
+        int max = 0, sum = 0;
+        HashMap&lt;Integer, Integer&gt; map = new HashMap();
+        for(int i = 0; i &lt; nums.length; i ++) {
+            sum += nums[i];
+            if(sum == k) 
+                max = i + 1;
+            else if(map.containsKey(sum - k))
+                max = Math.max(max, i - map.get(sum - k));
+            if(!map.containsKey(sum))
+                map.put(sum, i);
+        }
+        return max;
+    }
+
+</code></pre>
+
+<h1 id="factor-combinations:391bf8c2ccd1748d42853cd47f55ff11">Factor Combinations</h1>
+
+<p>Numbers can be regarded as product of its factors. Write a function that takes an integer n and return all possible combinations of its factors,</p>
+
+<h2 id="example-2:391bf8c2ccd1748d42853cd47f55ff11">Example</h2>
+
+<pre><code>input: 1
+output: []
+
+input: 37
+output: []
+
+input: 12
+output:
+[
+  [2, 6],
+  [2, 2, 3],
+  [3, 4]
+]
+
+input: 32
+output:
+[
+  [2, 16],
+  [2, 2, 8],
+  [2, 2, 2, 4],
+  [2, 2, 2, 2, 2],
+  [2, 4, 4],
+  [4, 8]
+]
+
+</code></pre>
+
+<h2 id="solution-8:391bf8c2ccd1748d42853cd47f55ff11">Solution</h2>
+
+<p>Backtracking, similar to combination sum.</p>
+
+<pre><code>    public List&lt;List&lt;Integer&gt;&gt; getFactors(int n) {
+        List&lt;List&lt;Integer&gt;&gt; result = new ArrayList();
+        helper(result, new ArrayList(), n, 2);
+        return result;
+    }
+    
+    public void helper(List&lt;List&lt;Integer&gt;&gt; result, List&lt;Integer&gt; cur, int n, int start) {
+        for(int i = start; i &lt;= n / i; i ++) {
+            if(n % i == 0) {
+                cur.add(i);
+                cur.add(n/i);
+                result.add(new ArrayList(cur));
+                cur.remove(cur.size()-1);
+                helper(result, cur, n/i, i);
+                cur.remove(cur.size()-1);
+            }
+        }
+    }
+
+</code></pre>
+
+<h1 id="bomb-enemy:391bf8c2ccd1748d42853cd47f55ff11">Bomb Enemy</h1>
+
+<p>Given a 2D grid, each cell is either a wall &lsquo;W&rsquo;, an enemy &lsquo;E&rsquo; or empty &lsquo;0&rsquo; (the number zero), return the maximum enemies you can kill using one bomb.</p>
+
+<p>The bomb kills all the enemies in the same row and column from the planted point until it hits the wall since the wall is too strong to be destroyed.</p>
+
+<p>Note that you can only put the bomb at an empty cell.</p>
+
+<h2 id="example-3:391bf8c2ccd1748d42853cd47f55ff11">Example</h2>
+
+<pre><code>For the given grid
+
+0 E 0 0
+E 0 W E
+0 E 0 0
+
+return 3. (Placing a bomb at (1,1) kills 3 enemies)
+</code></pre>
+
+<h2 id="solution-9:391bf8c2ccd1748d42853cd47f55ff11">Solution</h2>
+
+<p>Using dp, only need to record number of enemies in current row and every column. If encounter a wall, update the values.</p>
+
+<pre><code>    public int maxKilledEnemies(char[][] grid) {
+        if(grid == null || grid.length == 0 || grid[0].length == 0)
+            return 0;
+        int m = grid.length, n = grid[0].length;
+        int row = 0;
+        int[] col = new int[n];
+        int max = 0;
+        for(int i = 0; i &lt; m; i ++) {
+            for(int j = 0; j &lt; n; j ++) {
+                if(grid[i][j] == 'W') continue;
+                if(j == 0 || grid[i][j-1] == 'W') {
+                    row = 0;
+                    for(int k = j; k &lt; n &amp;&amp; grid[i][k] != 'W'; k ++)
+                        row += grid[i][k] == 'E' ? 1 : 0;
+                }
+                if(i == 0 || grid[i-1][j] == 'W') {
+                    col[j] = 0;
+                    for(int k = i; k &lt; m &amp;&amp; grid[k][j] != 'W'; k ++)
+                        col[j] += grid[k][j] == 'E' ? 1 : 0;
+                }
+                if(grid[i][j] == '0')
+                    max = Math.max(row + col[j], max);
+            }
+        }
+        return max;
+    }
+
+</code></pre>
+
+<h1 id="inorder-successor-in-bst:391bf8c2ccd1748d42853cd47f55ff11">Inorder Successor in BST</h1>
+
+<p>Given a binary search tree and a node in it, find the in-order successor of that node in the BST.</p>
+
+<p>Note: If the given node has no in-order successor in the tree, return null.</p>
+
+<h2 id="solution-10:391bf8c2ccd1748d42853cd47f55ff11">Solution</h2>
+
+<pre><code>	//Iterative
+    public TreeNode inorderSuccessor(TreeNode root, TreeNode p) {
+        TreeNode cur = root;
+        TreeNode result = null;
+        while(cur != null) {
+            if(cur.val &gt; p.val) {
+                result = cur;
+                cur = cur.left;
+            } else {
+                cur = cur.right;
+            }
+        }
+        return result;
+    }
+
+	// Recursive
+	public TreeNode successor(TreeNode root, TreeNode p) {
+  		if (root == null)
+    	return null;
+
+  		if (root.val &lt;= p.val) {
+    		return successor(root.right, p);
+  		} else {
+    		TreeNode left = successor(root.left, p);
+    		return (left != null) ? left : root;
+  		}
+	}	
+</code></pre>
+
+<h1 id="find-the-celebrity:391bf8c2ccd1748d42853cd47f55ff11">Find the Celebrity</h1>
+
+<p>Suppose you are at a party with n people (labeled from 0 to n - 1) and among them, there may exist one celebrity. The definition of a celebrity is that all the other n - 1 people know him/her but he/she does not know any of them.</p>
+
+<p>Now you want to find out who the celebrity is or verify that there is not one. The only thing you are allowed to do is to ask questions like: &ldquo;Hi, A. Do you know B?&rdquo; to get information of whether A knows B. You need to find out the celebrity (or verify there is not one) by asking as few questions as possible (in the asymptotic sense).</p>
+
+<p>You are given a helper function bool knows(a, b) which tells you whether A knows B. Implement a function int findCelebrity(n), your function should minimize the number of calls to knows.</p>
+
+<p>Note: There will be exactly one celebrity if he/she is in the party. Return the celebrity&rsquo;s label if there is a celebrity in the party. If there is no celebrity, return -1.</p>
+
+<h2 id="solution-11:391bf8c2ccd1748d42853cd47f55ff11">Solution</h2>
+
+<pre><code>    public int findCelebrity(int n) {
+        if(n &lt;= 1) return n-1;
+        int cur = 0;
+        for(int i = 1; i &lt; n; i ++) {
+            if(knows(cur, i)) {
+                    cur = i;
+            }
+        }
+        for(int i = 0; i &lt; n; i ++) {
+            if(i != cur &amp;&amp; (knows(cur, i) || !knows(i, cur)))
+                return -1;
+        }
+        return cur;
+    }
+
+</code></pre>
 
 			</div>
 
