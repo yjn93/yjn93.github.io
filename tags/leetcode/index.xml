@@ -7,8 +7,1154 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>© 2016 Jianan Yue. All right reserved.</copyright>
-    <lastBuildDate>Thu, 05 Jan 2017 14:34:10 -0500</lastBuildDate>
+    <lastBuildDate>Fri, 20 Jan 2017 00:15:59 -0500</lastBuildDate>
     <atom:link href="http://yjn93.github.io/tags/leetcode/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Binary Indexed Trees</title>
+      <link>http://yjn93.github.io/dev/BIT/</link>
+      <pubDate>Fri, 20 Jan 2017 00:15:59 -0500</pubDate>
+      
+      <guid>http://yjn93.github.io/dev/BIT/</guid>
+      <description>
+
+&lt;h1 id=&#34;bit:32b8e87fcf011b19f769e4a32f7c0999&#34;&gt;BIT&lt;/h1&gt;
+
+&lt;p&gt;Binary Indexed Trees is often used for storing frequencies and manipulating cumulative frequency tables.&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://www.topcoder.com/community/data-science/data-science-tutorials/binary-indexed-trees/&#34;&gt;TopCoder explanation&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;init-tree:32b8e87fcf011b19f769e4a32f7c0999&#34;&gt;Init tree&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;    void init(int[] nums) {
+        maxIdx = nums.length;
+        //The index of BIT starts from 1
+        BIT = new int[maxIdx + 1];
+        for(int i = 0; i &amp;lt; maxIdx; i ++)
+            updateBIT(i+1, nums[i]);
+    }
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;read:32b8e87fcf011b19f769e4a32f7c0999&#34;&gt;Read&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;    int readBIT(int idx) {
+        int sum = 0;
+        while(idx &amp;gt; 0) {
+            sum += BIT[idx];
+            idx -= (idx &amp;amp; -idx);
+        }
+        return sum;
+    }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;update:32b8e87fcf011b19f769e4a32f7c0999&#34;&gt;Update&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;    void updateBIT(int idx, int diff) {
+        while(idx &amp;lt;= maxIdx) {
+            BIT[idx] += diff;
+            idx += (idx &amp;amp; -idx);
+        } 
+    }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h1 id=&#34;range-sum-query-mutable:32b8e87fcf011b19f769e4a32f7c0999&#34;&gt;Range Sum Query - Mutable&lt;/h1&gt;
+
+&lt;p&gt;Given an integer array nums, find the sum of the elements between indices i and j (i ≤ j), inclusive.&lt;/p&gt;
+
+&lt;p&gt;The update(i, val) function modifies nums by updating the element at index i to val.&lt;/p&gt;
+
+&lt;h2 id=&#34;example:32b8e87fcf011b19f769e4a32f7c0999&#34;&gt;Example&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;Given nums = [1, 3, 5]
+
+sumRange(0, 2) -&amp;gt; 9
+update(1, 2)
+sumRange(0, 2) -&amp;gt; 8
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;solution-segment-tree:32b8e87fcf011b19f769e4a32f7c0999&#34;&gt;Solution - Segment Tree&lt;/h2&gt;
+
+&lt;p&gt;Segement Tree is like a complete binary tree. Each node represent sum of some range (from a start index to an end index). The children of one node has a subrange of the range.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;    segmentNode root;
+    int[] nums;
+
+    public NumArray(int[] nums) {
+        this.nums = nums;
+        if(nums.length != 0)
+        root = buildTree(nums, 0, nums.length-1);
+    }
+
+    segmentNode buildTree(int[] nums, int start, int end) {
+        segmentNode root = new segmentNode(start, end);
+        if(start == end)
+            root.sum = nums[start];
+        else {
+            int mid = (end-start)/2 + start;
+            root.left = buildTree(nums, start, mid);
+            root.right = buildTree(nums, mid+1, end);
+            root.sum = root.left.sum + root.right.sum;
+        }
+        return root;
+    }
+    
+    void update(int i, int val) {
+        int diff = nums[i] - val;
+        nums[i] = val;
+        updateNode(root, i, diff);
+    }
+    
+    void updateNode(segmentNode root, int i, int diff) {
+        if(root == null || root.start &amp;gt; i || root.end &amp;lt; i) return;
+        root.sum -= diff;
+        updateNode(root.left, i, diff);
+        updateNode(root.right, i, diff);
+    }
+
+    public int sumRange(int i, int j) {
+        return sumRange(root, i, j);
+    }
+    
+    int sumRange(segmentNode root, int i, int j) {
+        if(root == null || root.start &amp;gt; j || root.end &amp;lt; i) return 0;
+        if(root.start &amp;gt;= i &amp;amp;&amp;amp; root.end &amp;lt;= j) return root.sum;
+        return sumRange(root.left, i, j) + sumRange(root.right, i, j);
+    }
+    
+}
+
+class segmentNode {
+    int start;
+    int end;
+    int sum;
+    segmentNode left;
+    segmentNode right;
+    
+    segmentNode(int start, int end) {
+        this.start = start;
+        this.end = end;
+        this.sum = 0;
+        left = null;
+        right = null;
+    }
+}
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;solution-bit:32b8e87fcf011b19f769e4a32f7c0999&#34;&gt;Solution - BIT&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;    int[] nums;
+    int[] BIT;
+    int maxIdx;
+
+    public NumArray(int[] nums) {
+        this.nums = nums;
+        init(nums);
+    }
+
+    void init(int[] nums) {
+        maxIdx = nums.length;
+        //The index of BIT starts from 1
+        BIT = new int[maxIdx + 1];
+        for(int i = 0; i &amp;lt; maxIdx; i ++)
+            updateBIT(i+1, nums[i]);
+    }
+    
+    void updateBIT(int idx, int diff) {
+        while(idx &amp;lt;= maxIdx) {
+            BIT[idx] += diff;
+            idx += (idx &amp;amp; -idx);
+        } 
+    }
+    
+    void update(int i, int val) {
+        int diff = val - nums[i];
+        nums[i] = val;
+        updateBIT(i+1, diff);
+    }
+    
+    int readBIT(int idx) {
+        int sum = 0;
+        while(idx &amp;gt; 0) {
+            sum += BIT[idx];
+            idx -= (idx &amp;amp; -idx);
+        }
+        return sum;
+    }
+    
+    public int sumRange(int i, int j) {
+        return readBIT(j+1) - readBIT(i);
+    }
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h1 id=&#34;range-sum-query-2d-mutable:32b8e87fcf011b19f769e4a32f7c0999&#34;&gt;Range Sum Query 2D - Mutable&lt;/h1&gt;
+
+&lt;p&gt;Given a 2D matrix matrix, find the sum of the elements inside the rectangle defined by its upper left corner (row1, col1) and lower right corner (row2, col2).&lt;/p&gt;
+
+&lt;h2 id=&#34;example-1:32b8e87fcf011b19f769e4a32f7c0999&#34;&gt;Example&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;Given matrix = [
+  [3, 0, 1, 4, 2],
+  [5, 6, 3, 2, 1],
+  [1, 2, 0, 1, 5],
+  [4, 1, 0, 1, 7],
+  [1, 0, 3, 0, 5]
+]
+
+sumRegion(2, 1, 4, 3) -&amp;gt; 8
+update(3, 2, 2)
+sumRegion(2, 1, 4, 3) -&amp;gt; 10
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;solution:32b8e87fcf011b19f769e4a32f7c0999&#34;&gt;Solution&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;    int[][] BIT;
+    int[][] nums;
+    int m;
+    int n;
+
+    public NumMatrix(int[][] matrix) {
+        if (matrix == null || matrix.length == 0 || matrix[0].length == 0) return;
+        m = matrix.length;
+        n = matrix[0].length;
+        nums = matrix;
+        BIT = new int[m+1][n+1];
+        for(int i = 0; i &amp;lt; m; i ++) {
+            for(int j = 0; j &amp;lt; n; j ++) {
+                updateBIT(i+1, j+1, matrix[i][j]);
+            }
+        }
+    }
+
+    public void update(int row, int col, int val) {
+        int diff = val - nums[row][col];
+        nums[row][col] = val;
+        updateBIT(row+1, col+1, diff);
+    }
+    
+    public void updateBIT(int x, int y, int diff) {
+        for(int i = x; i &amp;lt;= m; i += (i &amp;amp; -i))  {
+            for(int j = y; j &amp;lt;= n; j += (j &amp;amp; -j)) {
+                BIT[i][j] += diff;
+            }
+        }
+    }
+    
+    public int readBIT(int x, int y) {
+        int sum = 0;
+        for(int i = x; i &amp;gt; 0; i -=(i &amp;amp; -i)) {
+            for(int j = y; j &amp;gt; 0; j -= (j &amp;amp; -j)) {
+                sum += BIT[i][j];
+            }
+        }
+        return sum;
+    }
+
+    public int sumRegion(int row1, int col1, int row2, int col2) {
+        return readBIT(row2+1, col2+1) - readBIT(row2+1, col1) - readBIT(row1, col2+1) + readBIT(row1, col1);
+    }
+
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>KMP-String Pattern Match</title>
+      <link>http://yjn93.github.io/dev/KMP/</link>
+      <pubDate>Fri, 13 Jan 2017 17:12:53 -0500</pubDate>
+      
+      <guid>http://yjn93.github.io/dev/KMP/</guid>
+      <description>
+
+&lt;h1 id=&#34;kmp:cdddce7445004a283bb5a182f0d88bd4&#34;&gt;KMP&lt;/h1&gt;
+
+&lt;p&gt;KMP is a string searching algorithm searches for occurrences of a &amp;ldquo;word&amp;rdquo; W within a main &amp;ldquo;text string&amp;rdquo; S by employing the observation that when a mismatch occurs, the word itself embodies sufficient information to determine where the next match could begin, thus bypassing re-examination of previously matched characters.&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://blog.csdn.net/v_july_v/article/details/7041827&#34;&gt;A link with detailed explanation&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;calculate-longest-prefix-suffix-lps-array:cdddce7445004a283bb5a182f0d88bd4&#34;&gt;Calculate Longest Prefix Suffix (LPS) Array&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;    public int[] kmp(String str) {
+        int len = str.length();
+        int[] LPS = new int[len];
+        LPS[0] = 0;
+        int k = 0, j = 1;
+        while(j &amp;lt; len) {
+            if(str.charAt(k) == str.charAt(j))
+                LPS[j ++] = ++ k;
+            else if(k == 0)
+                LPS[j ++] = 0;
+            else
+                k = LPS[k-1];
+        }
+		return LPS;
+    }
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;calculate-next-array:cdddce7445004a283bb5a182f0d88bd4&#34;&gt;Calculate Next Array&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;    public int[] kmp(String str) {
+        int len = str.length();
+        int[] next = new int[len];
+        next[0] = -1;
+        int k = -1, j = 0;
+        while(j &amp;lt; len-1) {
+            if(k == -1 || str.charAt(k) == str.charAt(j))
+                next[++ j] = ++ k;
+            else 
+                k = next[k];
+        }
+        return next;
+    }
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;optimised-next-array:cdddce7445004a283bb5a182f0d88bd4&#34;&gt;Optimised Next Array&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;    public int[] kmp(String str) {
+        int len = str.length();
+        int[] next = new int[len];
+        next[0] = -1;
+        int k = -1, j = 0;
+        while(j &amp;lt; len-1) {
+            if(k == -1 || str.charAt(k) == str.charAt(j)) {
+                if(str.charAt(++ k) == str.charAt(++ j))
+                    next[j] = next[k];  //make sure str(j) != str(next[j])
+                else    
+                    next[j] = k;
+            }
+            else 
+                k = next[k];
+        }
+        return next;
+    }
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h1 id=&#34;encode-string-with-shortest-length:cdddce7445004a283bb5a182f0d88bd4&#34;&gt;Encode String with Shortest Length&lt;/h1&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://leetcode.com/problems/encode-string-with-shortest-length/&#34;&gt;LeetCode 471&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;solution:cdddce7445004a283bb5a182f0d88bd4&#34;&gt;Solution&lt;/h2&gt;
+
+&lt;p&gt;dp[i][j] = string from index i to index j in encoded form.&lt;/p&gt;
+
+&lt;p&gt;We can write the following formula as:-
+dp[i][j] = min(dp[i][j], dp[i][k] + dp[k+1][j]) or if we can find some pattern in string from i to j which will result in more less length.&lt;/p&gt;
+
+&lt;p&gt;Time Complexity = O(n^3)&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;    public String encode(String s) {
+        if(s == null || s.length() &amp;lt; 5) return s;
+        int len = s.length();
+        String[][] dp = new String[len][len];
+        
+        for(int l = 0; l &amp;lt; len; l ++) {
+            for(int i = 0; i &amp;lt; len-l; i ++) {
+                int j = i + l;
+                String str = s.substring(i, j + 1);
+                dp[i][j] = str;
+                if(l &amp;lt; 4) continue;
+                for(int k = i; k &amp;lt; j; k ++) {
+                    if(dp[i][k].length() + dp[k+1][j].length() &amp;lt; dp[i][j].length())
+                        dp[i][j] = dp[i][k] + dp[k+1][j];
+                }
+                String pattern = kmp(str);
+                if(pattern.length() == str.length()) continue;  // no repeat pattern found
+                String patternEncode = str.length()/pattern.length() + &amp;quot;[&amp;quot; + dp[i][i+pattern.length()-1] + &amp;quot;]&amp;quot;;
+                if(patternEncode.length() &amp;lt; dp[i][j].length())
+                    dp[i][j] = patternEncode;
+            }
+        }
+        System.out.println(dp[0][7]);
+        return dp[0][len-1];
+    }
+    
+    public String kmp(String str) {
+        int len = str.length();
+        int[] LPS = new int[len];
+        LPS[0] = 0;
+        int k = 0, j = 1;
+        while(j &amp;lt; len) {
+            if(str.charAt(k) == str.charAt(j))
+                LPS[j ++] = ++ k;
+            else if(k == 0)
+                LPS[j ++] = 0;
+            else
+                k = LPS[k-1];
+        }
+        String pattern = str.substring(LPS[len-1]);
+        if(pattern.length() != len &amp;amp;&amp;amp; len % pattern.length() == 0)
+            return pattern;
+        return str;
+    }
+
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>LeetCodeHard</title>
+      <link>http://yjn93.github.io/dev/LeetCodeHard/</link>
+      <pubDate>Fri, 13 Jan 2017 10:44:08 -0500</pubDate>
+      
+      <guid>http://yjn93.github.io/dev/LeetCodeHard/</guid>
+      <description>
+
+&lt;h1 id=&#34;best-meeting-point:76dac5b6b228718d148e25520d85376a&#34;&gt;Best Meeting Point&lt;/h1&gt;
+
+&lt;p&gt;A group of two or more people wants to meet and minimize the total travel distance. You are given a 2D grid of values 0 or 1, where each 1 marks the home of someone in the group. The distance is calculated using Manhattan Distance, where distance(p1, p2) = |p2.x - p1.x| + |p2.y - p1.y|.&lt;/p&gt;
+
+&lt;p&gt;For example, given three people living at (0,0), (0,4), and (2,2)&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;1 - 0 - 0 - 0 - 1
+|   |   |   |   |
+0 - 0 - 0 - 0 - 0
+|   |   |   |   |
+0 - 0 - 1 - 0 - 0
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The point (0,2) is an ideal meeting point, as the total travel distance of 2+2+2=6 is minimal. So return 6.&lt;/p&gt;
+
+&lt;h2 id=&#34;solution:76dac5b6b228718d148e25520d85376a&#34;&gt;Solution&lt;/h2&gt;
+
+&lt;p&gt;Try to solve it in one dimension first. Similar to the problem &lt;em&gt;Minimum Moves to Equal Array Elements&lt;/em&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;    public int minTotalDistance(int[][] grid) {
+        if(grid == null || grid.length == 0 || grid[0].length == 0)
+            return 0;
+        int m = grid.length, n = grid[0].length;
+        List&amp;lt;Integer&amp;gt; rows = new ArrayList();
+        List&amp;lt;Integer&amp;gt; cols = new ArrayList();
+        for(int i = 0; i &amp;lt; m; i ++) {
+            for(int j = 0; j &amp;lt; n; j ++) {
+                if(grid[i][j] == 1)
+                    rows.add(i);
+            }
+        }
+        for(int j = 0; j &amp;lt; n; j ++) {
+            for(int i = 0; i &amp;lt; m; i ++) {
+                if(grid[i][j] == 1)
+                    cols.add(j);
+            }
+        }
+        
+        return getMin(rows) + getMin(cols);
+    }
+    
+    public int getMin(List&amp;lt;Integer&amp;gt; list) {
+        int left = 0, right = list.size() - 1;
+        int sum = 0;
+        while(left &amp;lt; right)
+            sum += list.get(right --) - list.get(left ++);
+        return sum;
+    }
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h1 id=&#34;smallest-rectangle-enclosing-black-pixels:76dac5b6b228718d148e25520d85376a&#34;&gt;Smallest Rectangle Enclosing Black Pixels&lt;/h1&gt;
+
+&lt;p&gt;An image is represented by a binary matrix with 0 as a white pixel and 1 as a black pixel. The black pixels are connected, i.e., there is only one black region. Pixels are connected horizontally and vertically. Given the location (x, y) of one of the black pixels, return the area of the smallest (axis-aligned) rectangle that encloses all black pixels.&lt;/p&gt;
+
+&lt;h2 id=&#34;example:76dac5b6b228718d148e25520d85376a&#34;&gt;Example&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;[
+  &amp;quot;0010&amp;quot;,
+  &amp;quot;0110&amp;quot;,
+  &amp;quot;0100&amp;quot;
+]
+and x = 0, y = 2,
+Return 6.
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;solution-1:76dac5b6b228718d148e25520d85376a&#34;&gt;Solution&lt;/h2&gt;
+
+&lt;p&gt;I used dfs to find the boundary, but we don&amp;rsquo;t need to search every black cell. All the black cells are connected, in a projected 1D array all the black pixels are also connected.&lt;/p&gt;
+
+&lt;p&gt;We can use binary search to search boundaries.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;    public int minArea(char[][] image, int x, int y) {
+        if(image == null || image.length == 0 || image[0].length == 0)
+            return 0;
+        int y_min = searchCols(image, 0, y, true);
+        int y_max = searchCols(image, y + 1, image[0].length, false);
+        int x_min = searchRows(image, 0, x, true);
+        int x_max = searchRows(image, x + 1, image.length, false);
+        
+        return (x_max - x_min) * (y_max - y_min);
+    }
+    
+    public int searchCols(char[][] image, int left, int right, boolean leftPart) {
+        int m = image.length;
+        while(left &amp;lt; right) {
+            int mid = (right - left) /2 + left;
+            int k = 0;
+            while(k &amp;lt; m &amp;amp;&amp;amp; image[k][mid] == &#39;0&#39;) k ++;
+            if((k &amp;lt; m) == leftPart)
+                right = mid;
+            else
+                left = mid + 1;
+        }
+        return left;
+    }
+    
+    public int searchRows(char[][] image, int top, int bottom, boolean topPart) {
+        int n = image[0].length;
+        while(top &amp;lt; bottom) {
+            int mid = (bottom - top) /2 + top;
+            int k = 0;
+            while(k &amp;lt; n &amp;amp;&amp;amp; image[mid][k] == &#39;0&#39;) k ++;
+            if((k &amp;lt; n) == topPart)
+                bottom = mid;
+            else
+                top = mid + 1;
+        }
+        return top;
+    }
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h1 id=&#34;valid-word-square-easy:76dac5b6b228718d148e25520d85376a&#34;&gt;Valid Word Square (easy)&lt;/h1&gt;
+
+&lt;p&gt;Given a sequence of words, check whether it forms a valid word square.&lt;/p&gt;
+
+&lt;p&gt;A sequence of words forms a valid word square if the kth row and column read the exact same string, where 0 ≤ k &amp;lt; max(numRows, numColumns).&lt;/p&gt;
+
+&lt;p&gt;Note:
+1. The number of words given is at least 1 and does not exceed 500.
+2. Word length will be at least 1 and does not exceed 500.
+3. Each word contains only lowercase English alphabet a-z.&lt;/p&gt;
+
+&lt;h2 id=&#34;example-1:76dac5b6b228718d148e25520d85376a&#34;&gt;Example&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;Input:
+[
+  &amp;quot;abcd&amp;quot;,
+  &amp;quot;bnrt&amp;quot;,
+  &amp;quot;crmy&amp;quot;,
+  &amp;quot;dtye&amp;quot;
+]
+
+Output:
+true
+
+Input:
+[
+  &amp;quot;abcd&amp;quot;,
+  &amp;quot;bnrt&amp;quot;,
+  &amp;quot;crm&amp;quot;,
+  &amp;quot;dt&amp;quot;
+]
+
+Output:
+true
+
+Input:
+[
+  &amp;quot;ball&amp;quot;,
+  &amp;quot;area&amp;quot;,
+  &amp;quot;read&amp;quot;,
+  &amp;quot;lady&amp;quot;
+]
+
+Output:
+false
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;solution-2:76dac5b6b228718d148e25520d85376a&#34;&gt;Solution&lt;/h2&gt;
+
+&lt;p&gt;Simple compare every symmetric char.&lt;/p&gt;
+
+&lt;p&gt;I failed on this case: [&amp;ldquo;ball&amp;rdquo;,&amp;ldquo;asee&amp;rdquo;,&amp;ldquo;let&amp;rdquo;,&amp;ldquo;lep&amp;rdquo;]&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;    public boolean validWordSquare(List&amp;lt;String&amp;gt; words) {
+        if(words == null || words.size() == 0) return true;
+        int len = words.size();
+        for(int i = 0; i &amp;lt; len; i ++) {
+            if(words.get(i).length() &amp;gt; len) return false;
+            for(int j = 0; j &amp;lt; words.get(i).length(); j ++) {
+                if(words.get(j).length() &amp;lt;= i || words.get(j).charAt(i) != words.get(i).charAt(j))
+                    return false;
+            }
+        }
+        return true;
+    }
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h1 id=&#34;word-squares:76dac5b6b228718d148e25520d85376a&#34;&gt;Word Squares&lt;/h1&gt;
+
+&lt;p&gt;Given a set of words (without duplicates), find all word squares you can build from them.&lt;/p&gt;
+
+&lt;h2 id=&#34;example-2:76dac5b6b228718d148e25520d85376a&#34;&gt;Example&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;Input:
+[&amp;quot;area&amp;quot;,&amp;quot;lead&amp;quot;,&amp;quot;wall&amp;quot;,&amp;quot;lady&amp;quot;,&amp;quot;ball&amp;quot;]
+
+Output:
+[
+  [ &amp;quot;wall&amp;quot;,
+    &amp;quot;area&amp;quot;,
+    &amp;quot;lead&amp;quot;,
+    &amp;quot;lady&amp;quot;
+  ],
+  [ &amp;quot;ball&amp;quot;,
+    &amp;quot;area&amp;quot;,
+    &amp;quot;lead&amp;quot;,
+    &amp;quot;lady&amp;quot;
+  ]
+]
+
+Input:
+[&amp;quot;abat&amp;quot;,&amp;quot;baba&amp;quot;,&amp;quot;atan&amp;quot;,&amp;quot;atal&amp;quot;]
+
+Output:
+[
+  [ &amp;quot;baba&amp;quot;,
+    &amp;quot;abat&amp;quot;,
+    &amp;quot;baba&amp;quot;,
+    &amp;quot;atan&amp;quot;
+  ],
+  [ &amp;quot;baba&amp;quot;,
+    &amp;quot;abat&amp;quot;,
+    &amp;quot;baba&amp;quot;,
+    &amp;quot;atal&amp;quot;
+  ]
+]
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;solution-3:76dac5b6b228718d148e25520d85376a&#34;&gt;Solution&lt;/h2&gt;
+
+&lt;p&gt;We know that the sequence contains 4 words because the length of each word is 4.&lt;/p&gt;
+
+&lt;p&gt;Every word can be the first word of the sequence, let&amp;rsquo;s take &amp;ldquo;wall&amp;rdquo; for example.&lt;/p&gt;
+
+&lt;p&gt;Which word could be the second word? Must be a word start with &amp;ldquo;a&amp;rdquo; (therefore &amp;ldquo;area&amp;rdquo;), because it has to match the second letter of word &amp;ldquo;wall&amp;rdquo;.&lt;/p&gt;
+
+&lt;p&gt;Which word could be the third word? Must be a word start with &amp;ldquo;le&amp;rdquo; (therefore &amp;ldquo;lead&amp;rdquo;), because it has to match the third letter of word &amp;ldquo;wall&amp;rdquo; and the third letter of word &amp;ldquo;area&amp;rdquo;.&lt;/p&gt;
+
+&lt;p&gt;What about the last word? Must be a word start with &amp;ldquo;lad&amp;rdquo; (therefore &amp;ldquo;lady&amp;rdquo;). For the same reason above.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;    class TrieNode {
+        List&amp;lt;String&amp;gt; startWith;
+        TrieNode[] children;
+        
+        public TrieNode() {
+            startWith = new ArrayList();
+            children = new TrieNode[26];
+        }
+    }
+    
+    class Trie {
+        TrieNode root;
+        
+        public Trie(String[] words) {
+            root = new TrieNode();
+            for(String word: words) {
+                TrieNode cur = root;
+                for(char ch: word.toCharArray()) {
+                    int idx = ch - &#39;a&#39;;
+                    if(cur.children[idx] == null)
+                        cur.children[idx] = new TrieNode();
+                    cur.children[idx].startWith.add(word);
+                    cur = cur.children[idx];
+                } 
+            }
+        }
+        
+        public List&amp;lt;String&amp;gt; findPrefix(String prefix) {
+            List&amp;lt;String&amp;gt; result = new ArrayList();
+            TrieNode cur = root;
+            for(char ch: prefix.toCharArray()) {
+                int idx = ch - &#39;a&#39;;
+                if(cur.children[idx] == null)
+                    return result;
+                cur = cur.children[idx];
+            }
+            return cur.startWith;
+        }
+    }
+    
+    public List&amp;lt;List&amp;lt;String&amp;gt;&amp;gt; wordSquares(String[] words) {
+        List&amp;lt;List&amp;lt;String&amp;gt;&amp;gt; result = new ArrayList();
+        if(words == null || words.length == 0) return result;
+        int len = words[0].length();
+        Trie trie = new Trie(words);
+        List&amp;lt;String&amp;gt; cur = new ArrayList();
+        for(String word: words) {
+            cur.add(word);
+            dfs(result, cur, trie, len);
+            cur.remove(cur.size()-1);
+        }
+        return result;
+    }
+    
+    public void dfs(List&amp;lt;List&amp;lt;String&amp;gt;&amp;gt; result, List&amp;lt;String&amp;gt; cur, Trie trie, int len) {
+        if(cur.size() == len) {
+            result.add(new ArrayList(cur));
+            return;
+        }
+        int index = cur.size();
+        StringBuilder prefix = new StringBuilder();
+        for(String w: cur)
+            prefix.append(w.charAt(index));
+        List&amp;lt;String&amp;gt; startWith = trie.findPrefix(prefix.toString());
+        for(String s: startWith) {
+            cur.add(s);
+            dfs(result, cur, trie, len);
+            cur.remove(cur.size()-1);
+        }
+    }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h1 id=&#34;longest-substring-with-at-most-two-distinct-characters:76dac5b6b228718d148e25520d85376a&#34;&gt;Longest Substring with At Most Two Distinct Characters&lt;/h1&gt;
+
+&lt;p&gt;Given a string, find the length of the longest substring T that contains at most 2 distinct characters.&lt;/p&gt;
+
+&lt;p&gt;For example, Given s = “eceba”,&lt;/p&gt;
+
+&lt;p&gt;T is &amp;ldquo;ece&amp;rdquo; which its length is 3.&lt;/p&gt;
+
+&lt;h2 id=&#34;solution-4:76dac5b6b228718d148e25520d85376a&#34;&gt;Solution&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;    public int lengthOfLongestSubstringTwoDistinct(String s) {
+        int start = 0, next = -1;
+        int result = 0;
+        for(int end = 1; end &amp;lt; s.length(); end ++) {
+            if(s.charAt(end) == s.charAt(end-1)) continue;
+            if(next &amp;gt; -1 &amp;amp;&amp;amp; s.charAt(end) != s.charAt(next-1))
+            {
+                result = Math.max(result, end - start);
+                start = next;
+            }
+            next = end;
+        }
+        return result &amp;gt; s.length() - start ? result : s.length() - start;
+    }
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h1 id=&#34;longest-substring-with-at-most-k-distinct-characters:76dac5b6b228718d148e25520d85376a&#34;&gt;Longest Substring with At Most K Distinct Characters&lt;/h1&gt;
+
+&lt;p&gt;Given a string, find the length of the longest substring T that contains at most k distinct characters.&lt;/p&gt;
+
+&lt;p&gt;For example, Given s = “eceba” and k = 2,&lt;/p&gt;
+
+&lt;p&gt;T is &amp;ldquo;ece&amp;rdquo; which its length is 3.&lt;/p&gt;
+
+&lt;h2 id=&#34;solution-using-hashmap:76dac5b6b228718d148e25520d85376a&#34;&gt;Solution using HashMap&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;    public int lengthOfLongestSubstringKDistinct(String s, int k) {
+        HashMap&amp;lt;Character, Integer&amp;gt; map = new HashMap();
+        int start = 0;
+        int result = 0;
+        for(int end = 0; end &amp;lt; s.length(); end ++) {
+            map.put(s.charAt(end), end);
+            if(map.size() &amp;gt; k) {
+                int leftMost = end;
+                for(int value: map.values()) {
+                    leftMost = Math.min(leftMost, value);
+                }
+                map.remove(s.charAt(leftMost));
+                start = leftMost + 1;
+            }
+            result = Math.max(result, end - start + 1);
+        }
+        return result;
+    }
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;solution-using-sliding-window:76dac5b6b228718d148e25520d85376a&#34;&gt;Solution using Sliding Window&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;    public int lengthOfLongestSubstringKDistinct(String s, int k) {
+        int[] count = new int[256];
+        int num = 0, start = 0, result = 0;
+        for(int i = 0; i &amp;lt; s.length(); i ++) {
+            if(count[s.charAt(i)] ++ == 0) num ++;
+            if(num &amp;gt; k) {
+                while(-- count[s.charAt(start++)] &amp;gt; 0);
+                num --;
+            }
+            result = Math.max(result, i - start + 1);
+        }
+        return result;
+    }
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h1 id=&#34;word-pattern:76dac5b6b228718d148e25520d85376a&#34;&gt;Word Pattern&lt;/h1&gt;
+
+&lt;p&gt;Given a pattern and a string str, find if str follows the same pattern.&lt;/p&gt;
+
+&lt;p&gt;Here follow means a full match, such that there is a bijection between a letter in pattern and a non-empty substring in str.&lt;/p&gt;
+
+&lt;h2 id=&#34;examples:76dac5b6b228718d148e25520d85376a&#34;&gt;Examples:&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;pattern = &amp;quot;abab&amp;quot;, str = &amp;quot;redblueredblue&amp;quot; should return true.
+pattern = &amp;quot;aaaa&amp;quot;, str = &amp;quot;asdasdasdasd&amp;quot; should return true.
+pattern = &amp;quot;aabb&amp;quot;, str = &amp;quot;xyzabcxzyabc&amp;quot; should return false.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;solution-5:76dac5b6b228718d148e25520d85376a&#34;&gt;Solution&lt;/h2&gt;
+
+&lt;p&gt;Backtracking&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;    public boolean wordPatternMatch(String pattern, String str) {
+        HashMap&amp;lt;Character, String&amp;gt; map = new HashMap();
+        HashSet&amp;lt;String&amp;gt; used = new HashSet();
+        return helper(map, used, pattern, 0, str, 0);
+    }
+    
+    public boolean helper(HashMap&amp;lt;Character, String&amp;gt; map, HashSet&amp;lt;String&amp;gt; used, String pattern, int idx, String str, int pos) {
+        if(pos == str.length() &amp;amp;&amp;amp; idx == pattern.length())
+            return true;
+        if(pos == str.length() || idx == pattern.length())
+            return false;
+        char ch = pattern.charAt(idx);
+        if(map.containsKey(ch)) {
+            String temp = map.get(ch);
+            if(!str.startsWith(temp, pos))
+                return false;
+            return helper(map, used, pattern, idx+1, str, pos + temp.length());
+        }
+        for(int i = pos; i &amp;lt; str.length(); i ++) {
+            String s = str.substring(pos, i+1);
+            if(used.contains(s)) continue;
+            map.put(ch, s);
+            used.add(s);
+            if(helper(map, used, pattern, idx+1, str, i+1))
+                return true;
+            map.remove(ch);
+            used.remove(s);
+        }
+        return false;
+    }
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h1 id=&#34;closest-binary-search-tree-value-ii:76dac5b6b228718d148e25520d85376a&#34;&gt;Closest Binary Search Tree Value II&lt;/h1&gt;
+
+&lt;p&gt;Given a non-empty binary search tree and a target value, find k values in the BST that are closest to the target.&lt;/p&gt;
+
+&lt;p&gt;Note:
+- Given target value is a floating point.
+- You may assume k is always valid, that is: k ≤ total nodes.
+- You are guaranteed to have only one unique set of k values in the BST that are closest to the target.
+- Follow up: assume that the BST is balanced, could you solve it in less than O(n) runtime (where n = total nodes)?&lt;/p&gt;
+
+&lt;h2 id=&#34;solution-6:76dac5b6b228718d148e25520d85376a&#34;&gt;Solution&lt;/h2&gt;
+
+&lt;ol&gt;
+&lt;li&gt;Consider implement these two helper functions:
+
+&lt;ul&gt;
+&lt;li&gt;getPredecessor(N), which returns the next smaller node to N.&lt;/li&gt;
+&lt;li&gt;getSuccessor(N), which returns the next larger node to N.&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;Try to assume that each node has a parent pointer, it makes the problem much easier.&lt;/li&gt;
+&lt;li&gt;Without parent pointer we just need to keep track of the path from the root to the current node using a stack.&lt;/li&gt;
+&lt;li&gt;You would need two stacks to track the path in finding predecessor and successor node separately.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;pre&gt;&lt;code&gt;    public List&amp;lt;Integer&amp;gt; closestKValues(TreeNode root, double target, int k) {
+        Stack&amp;lt;TreeNode&amp;gt; pred = new Stack();
+        Stack&amp;lt;TreeNode&amp;gt; succ = new Stack();
+        initialStack(root, target, pred, succ);
+        
+        List&amp;lt;Integer&amp;gt; result = new ArrayList();
+        
+        while((!pred.isEmpty() || !succ.isEmpty()) &amp;amp;&amp;amp; k -- &amp;gt; 0) {
+            if(pred.isEmpty())
+                result.add(getSucc(succ));
+            else if(succ.isEmpty())
+                result.add(getPred(pred));
+            else if(Math.abs(succ.peek().val-target) &amp;lt; Math.abs(pred.peek().val-target))
+                result.add(getSucc(succ));
+            else
+                result.add(getPred(pred));
+        }
+        return result;
+    }
+    
+    public void initialStack(TreeNode root, double target, Stack&amp;lt;TreeNode&amp;gt; pred, Stack&amp;lt;TreeNode&amp;gt; succ) {
+        TreeNode cur = root;
+        while(cur != null) {
+            if(cur.val &amp;gt; target) {
+                succ.push(cur);
+                cur = cur.left;
+            } else {
+                pred.push(cur);
+                cur = cur.right;
+            }
+        } 
+    }
+    
+    public int getPred(Stack&amp;lt;TreeNode&amp;gt; pred) {
+        TreeNode res = pred.pop();
+        TreeNode cur = res.left;
+        while(cur != null) {
+            pred.push(cur);
+            cur = cur.right;
+        }
+        return res.val;
+    }
+    
+    public int getSucc(Stack&amp;lt;TreeNode&amp;gt; succ) {
+        TreeNode res = succ.pop();
+        TreeNode cur = res.right;
+        while(cur != null) {
+            succ.push(cur);
+            cur = cur.left;
+        }
+        return res.val;
+    } 
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h1 id=&#34;shortest-distance-from-all-buildings:76dac5b6b228718d148e25520d85376a&#34;&gt;Shortest Distance from All Buildings&lt;/h1&gt;
+
+&lt;p&gt;You want to build a house on an empty land which reaches all buildings in the shortest amount of distance. You can only move up, down, left and right. You are given a 2D grid of values 0, 1 or 2, where:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Each 0 marks an empty land which you can pass by freely.&lt;/li&gt;
+&lt;li&gt;Each 1 marks a building which you cannot pass through.&lt;/li&gt;
+&lt;li&gt;Each 2 marks an obstacle which you cannot pass through.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;For example, given three buildings at (0,0), (0,4), (2,2), and an obstacle at (0,2):&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;1 - 0 - 2 - 0 - 1
+|   |   |   |   |
+0 - 0 - 0 - 0 - 0
+|   |   |   |   |
+0 - 0 - 1 - 0 - 0
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;The point (1,2) is an ideal empty land to build a house, as the total travel distance of 3+3+1=7 is minimal. So return 7.&lt;/p&gt;
+
+&lt;p&gt;There will be at least one building. If it is not possible to build such house according to the above rules, return -1.&lt;/p&gt;
+
+&lt;h2 id=&#34;solution-7:76dac5b6b228718d148e25520d85376a&#34;&gt;Solution&lt;/h2&gt;
+
+&lt;p&gt;Walk only onto the cells that were reachable from all previous buildings. From the first building I only walk onto cells where grid is 0, and make them -1. From the second building I only walk onto cells where grid is -1, and I make them -2. And so on.&lt;/p&gt;
+
+&lt;p&gt;Use a distance matrix to record the total distance from each cell to all the buildings.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;    int[] delta = {-1, 0, 1, 0, -1};
+    int min = Integer.MAX_VALUE;
+    
+    public int shortestDistance(int[][] grid) {
+        if(grid == null || grid.length == 0 || grid[0].length == 0)
+            return 0;
+        int m = grid.length, n = grid[0].length;
+        int[][] dis = new int[m][n];
+        int start = 0;
+        for(int i = 0; i &amp;lt; m; i ++) {
+            for(int j = 0; j &amp;lt; n; j ++) {
+                if(grid[i][j] == 1) {
+                    bfs(grid, dis, i, j, start --);
+                }
+            }
+        }
+        return min == Integer.MAX_VALUE ? -1 : min;
+    }
+
+    public void bfs(int[][] grid, int[][] dis, int row, int col, int start) {
+        Queue&amp;lt;int[]&amp;gt; queue = new LinkedList();
+        queue.offer(new int[]{row, col});
+        int level = 0;
+        min = Integer.MAX_VALUE;
+        while(!queue.isEmpty()) {
+            int size = queue.size();
+            level ++;
+            while(size -- &amp;gt; 0) {
+                int[] cur = queue.poll();
+                for(int i = 1; i &amp;lt; delta.length; i ++) {
+                    int x = cur[0] + delta[i-1];
+                    int y = cur[1] + delta[i];
+                    if(x &amp;lt; 0 || x == grid.length || y &amp;lt; 0 || y == grid[0].length || grid[x][y] != start)
+                        continue;
+                    dis[x][y] += level;
+                    grid[x][y] --;
+                    queue.offer(new int[]{x, y});
+                    min = Math.min(min, dis[x][y]);
+                }
+            }
+        }
+    }
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h1 id=&#34;rearrange-string-k-distance-apart:76dac5b6b228718d148e25520d85376a&#34;&gt;Rearrange String k Distance Apart&lt;/h1&gt;
+
+&lt;p&gt;Given a non-empty string str and an integer k, rearrange the string such that the same characters are at least distance k from each other.&lt;/p&gt;
+
+&lt;p&gt;All input strings are given in lowercase letters. If it is not possible to rearrange the string, return an empty string &amp;ldquo;&amp;rdquo;.&lt;/p&gt;
+
+&lt;h2 id=&#34;example-3:76dac5b6b228718d148e25520d85376a&#34;&gt;Example&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;str = &amp;quot;aabbcc&amp;quot;, k = 3
+
+Result: &amp;quot;abcabc&amp;quot;
+
+The same letters are at least distance 3 from each other.
+
+str = &amp;quot;aaabc&amp;quot;, k = 3 
+
+Answer: &amp;quot;&amp;quot;
+
+It is not possible to rearrange the string.
+
+str = &amp;quot;aaadbbcc&amp;quot;, k = 2
+
+Answer: &amp;quot;abacabcd&amp;quot;
+
+Another possible answer is: &amp;quot;abcabcda&amp;quot;
+
+The same letters are at least distance 2 from each other.
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;solution-8:76dac5b6b228718d148e25520d85376a&#34;&gt;Solution&lt;/h2&gt;
+
+&lt;p&gt;Use a hashMap to record the count for every character. Use a max heap to sort characters according to frequency. Use a waitQueue to freeze characters which are currently in the k size window.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;    public String rearrangeString(String str, int k) {
+        if(k &amp;lt; 2 || str.length() &amp;lt; 2) return str;
+        HashMap&amp;lt;Character, Integer&amp;gt; map = new HashMap();
+        StringBuilder sb = new StringBuilder();
+        for(char ch: str.toCharArray()) {
+            if(!map.containsKey(ch))
+                map.put(ch, 0);
+            map.put(ch, map.get(ch)+1);
+        }
+        
+		// Both ways are correct to create a priorityqueue.
+        // Queue&amp;lt;Map.Entry&amp;lt;Character, Integer&amp;gt;&amp;gt; maxHeap 
+        //     = new PriorityQueue(new Comparator&amp;lt;Map.Entry&amp;lt;Character, Integer&amp;gt;&amp;gt;() {
+        //         public int compare(Map.Entry&amp;lt;Character, Integer&amp;gt; e1, Map.Entry&amp;lt;Character, Integer&amp;gt; e2) {
+        //             return e2.getValue() - e1.getValue();
+        //         }
+        //         });
+        PriorityQueue&amp;lt;Map.Entry&amp;lt;Character, Integer&amp;gt;&amp;gt; maxHeap 
+            = new PriorityQueue&amp;lt;&amp;gt;((a, b) -&amp;gt; (b.getValue() - a.getValue()));
+        
+        maxHeap.addAll(map.entrySet());
+        Queue&amp;lt;Map.Entry&amp;lt;Character, Integer&amp;gt;&amp;gt; waitQueue = new LinkedList&amp;lt;&amp;gt;();
+        
+        while(!maxHeap.isEmpty()) {
+            Map.Entry&amp;lt;Character, Integer&amp;gt; cur = maxHeap.poll();
+            sb.append(cur.getKey());
+            cur.setValue(cur.getValue()-1);
+            waitQueue.offer(cur);
+            
+            if(waitQueue.size() &amp;lt; k) continue;
+            
+            Map.Entry&amp;lt;Character, Integer&amp;gt; front = waitQueue.poll();
+            if(front.getValue() &amp;gt; 0)
+                maxHeap.offer(front);
+        }
+        
+        return sb.length() == str.length() ? sb.toString() : &amp;quot;&amp;quot;;
+    }
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h1 id=&#34;alien-dictionary:76dac5b6b228718d148e25520d85376a&#34;&gt;Alien Dictionary&lt;/h1&gt;
+
+&lt;p&gt;There is a new alien language which uses the latin alphabet. However, the order among letters are unknown to you. You receive a list of words from the dictionary, where words are sorted lexicographically by the rules of this new language. Derive the order of letters in this language.&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;You may assume all letters are in lowercase.&lt;/li&gt;
+&lt;li&gt;If the order is invalid, return an empty string.&lt;/li&gt;
+&lt;li&gt;There may be multiple valid order of letters, return any one of them is fine.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2 id=&#34;example-4:76dac5b6b228718d148e25520d85376a&#34;&gt;Example&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;Given the following words in dictionary,
+[
+  &amp;quot;wrt&amp;quot;,
+  &amp;quot;wrf&amp;quot;,
+  &amp;quot;er&amp;quot;,
+  &amp;quot;ett&amp;quot;,
+  &amp;quot;rftt&amp;quot;
+]
+The correct order is: &amp;quot;wertf&amp;quot;.
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;solution-9:76dac5b6b228718d148e25520d85376a&#34;&gt;Solution&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;    public String alienOrder(String[] words) {
+        Map&amp;lt;Character, Set&amp;lt;Character&amp;gt;&amp;gt; map = new HashMap();
+        Map&amp;lt;Character, Integer&amp;gt; degree = new HashMap();
+        for(String w: words) {
+            for(char ch: w.toCharArray())
+                degree.put(ch, 0);
+        }
+        
+        for(int i = 1; i &amp;lt; words.length; i ++) {
+            String w1 = words[i-1];
+            String w2 = words[i];
+			//if dictionary is [&amp;quot;wtfkj&amp;quot;, &amp;quot;wtf&amp;quot;], should return &amp;quot; &amp;quot;
+            if (w1.length() &amp;gt; w2.length() &amp;amp;&amp;amp; w2.equals(w1.substring(0, w2.length()))) 
+                return &amp;quot;&amp;quot;;
+            int len = Math.min(w1.length(), w2.length());
+            for(int j = 0; j &amp;lt; len; j ++) {
+                char c1 = w1.charAt(j);
+                char c2 = w2.charAt(j);
+                if(c1 != c2) {
+                    if(!map.containsKey(c1))
+                        map.put(c1, new HashSet());
+                    if(map.get(c1).add(c2)) {
+                        degree.put(c2, degree.get(c2) + 1);
+                    }
+                    break;
+                }
+            }
+        }
+        
+        Queue&amp;lt;Character&amp;gt; queue = new LinkedList();
+        for(Map.Entry&amp;lt;Character, Integer&amp;gt; entry: degree.entrySet()) {
+            if(entry.getValue() == 0) queue.offer(entry.getKey());
+        }
+        StringBuilder res = new StringBuilder();
+        
+        while(!queue.isEmpty()) {
+            char cur = queue.poll();
+            res.append(cur);
+            if(map.containsKey(cur)){
+                for(char next: map.get(cur)) {
+                    degree.put(next, degree.get(next)-1);
+                    if(degree.get(next) == 0)
+                        queue.offer(next);
+                }
+            }
+        }
+        if(res.length() != degree.size()) return &amp;quot;&amp;quot;;
+        return res.toString();
+    }
+
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
     
     <item>
       <title>LeetCodeLocked</title>
@@ -134,7 +1280,7 @@ After applying operation [0, 2, -2]:
         }
         return min;
     }
-}
+}EEEEEEE
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;h2 id=&#34;follow-up-2:391bf8c2ccd1748d42853cd47f55ff11&#34;&gt;Follow up 2&lt;/h2&gt;
@@ -286,6 +1432,115 @@ public class ZigzagIterator {
 
 &lt;/code&gt;&lt;/pre&gt;
 
+&lt;h1 id=&#34;minimum-unique-word-abbreviation-hard:391bf8c2ccd1748d42853cd47f55ff11&#34;&gt;Minimum Unique Word Abbreviation (Hard)&lt;/h1&gt;
+
+&lt;p&gt;Given a target string and a set of strings in a dictionary, find an abbreviation of this target string with the smallest possible length such that it does not conflict with abbreviations of the strings in the dictionary.&lt;/p&gt;
+
+&lt;p&gt;Each number or letter in the abbreviation is considered length = 1. For example, the abbreviation &amp;ldquo;a32bc&amp;rdquo; has length = 4.&lt;/p&gt;
+
+&lt;h2 id=&#34;example-2:391bf8c2ccd1748d42853cd47f55ff11&#34;&gt;Example&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;quot;apple&amp;quot;, [&amp;quot;blade&amp;quot;] -&amp;gt; &amp;quot;a4&amp;quot; (because &amp;quot;5&amp;quot; or &amp;quot;4e&amp;quot; conflicts with &amp;quot;blade&amp;quot;)
+
+&amp;quot;apple&amp;quot;, [&amp;quot;plain&amp;quot;, &amp;quot;amber&amp;quot;, &amp;quot;blade&amp;quot;] -&amp;gt; &amp;quot;1p3&amp;quot; (other valid answers include &amp;quot;ap3&amp;quot;, &amp;quot;a3e&amp;quot;, &amp;quot;2p2&amp;quot;, &amp;quot;3le&amp;quot;, &amp;quot;3l1&amp;quot;).
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;solution-7:391bf8c2ccd1748d42853cd47f55ff11&#34;&gt;Solution&lt;/h2&gt;
+
+&lt;p&gt;Bit manipulation + DFS&lt;/p&gt;
+
+&lt;p&gt;The key idea of my solution is to preprocess the dictionary to transfer all the words to bit sequences (int):&lt;/p&gt;
+
+&lt;p&gt;Pick the words with same length as target string from the dictionary and compare the characters with target. If the characters are different, set the corresponding bit to 1, otherwise, set to 0.&lt;/p&gt;
+
+&lt;p&gt;Ex: &amp;ldquo;abcde&amp;rdquo;, [&amp;ldquo;abxdx&amp;rdquo;, &amp;ldquo;xbcdx&amp;rdquo;] =&amp;gt; [00101, 10001]&lt;/p&gt;
+
+&lt;p&gt;The problem is now converted to find a bit mask that can represent the shortest abbreviation, so that for all the bit sequences in dictionary, mask &amp;amp; bit sequence &amp;gt; 0.&lt;/p&gt;
+
+&lt;p&gt;Ex: for [00101, 10001], the mask should be [00001]. if we mask the target string with it, we get &amp;ldquo;4e&amp;rdquo;, which is the abbreviation we are looking for.&lt;/p&gt;
+
+&lt;p&gt;To find the bit mask, we need to perform DFS with some optimizations. But which bits should be checked? We can perform &amp;ldquo;or&amp;rdquo; operation for all the bit sequences in the dictionary and do DFS for the &amp;ldquo;1&amp;rdquo; bits in the result.&lt;/p&gt;
+
+&lt;p&gt;Ex: 00101 | 10001 = 10101, so we only need to take care of the 1st, 3rd, and 5th bit.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;    int cand;  // candidate bits in mask that can be set to 1
+    int n, bn;  
+    int minLen, minAbbr;
+    List&amp;lt;Integer&amp;gt; dict = new ArrayList(); //store reversed bit representation of words
+    
+    public String minAbbreviation(String target, String[] dictionary) {
+        n = target.length();
+        bn = 1 &amp;lt;&amp;lt; n;
+        minLen = Integer.MAX_VALUE;
+        buildBitDict(target, dictionary);
+        
+        dfs(1, 0);
+        
+        //Reconstruct from minAbbr (minAbbr is a reversed representation of abbr) 
+        int count = 0;
+        StringBuilder res = new StringBuilder();
+        for(int i = 0; i &amp;lt; n; i ++) {
+            if(((1 &amp;lt;&amp;lt; i) &amp;amp; minAbbr) == 0) 
+                count ++;
+            else {
+                if(count &amp;gt; 0)
+                    res.append(count);
+                res.append(target.charAt(i));
+                count = 0;
+            }
+        }
+        if(count &amp;gt; 0) res.append(count);
+        return res.toString();
+        
+    }
+    
+    public void dfs(int bit, int mask) {
+        int len = abbrLen(mask);
+        if(len &amp;gt;= minLen) return;
+        boolean match = true;
+        for(int word: dict) {
+            if((word &amp;amp; mask) == 0){
+                match = false;
+                break;
+            }
+        }
+        if(match) {
+            minLen = len;
+            minAbbr = mask;
+        } else {
+            for(int b = bit; b &amp;lt; bn; b &amp;lt;&amp;lt;= 1) {
+                if((b &amp;amp; cand) != 0)
+                    dfs(b &amp;lt;&amp;lt; 1, mask + b);
+            }
+        }
+    }
+    
+    public int abbrLen(int mask) {
+        int count = n;
+        for(int b = 3; b &amp;lt; bn; b &amp;lt;&amp;lt;= 1) {
+            if((b &amp;amp; mask) == 0)
+                count --;
+        }
+        return count;
+    }
+    
+    public void buildBitDict(String target, String[] dictionary) {
+        cand = 0;
+        for(String s: dictionary) {
+            if(s.length() != n) continue;
+            int word = 0;
+            for(int i = 0; i &amp;lt; n; i ++) {
+                if(s.charAt(i) != target.charAt(i))
+                    word |= 1 &amp;lt;&amp;lt; i;
+            }
+            dict.add(word);
+            cand |= word;
+        }        
+    }
+
+&lt;/code&gt;&lt;/pre&gt;
+
 &lt;h1 id=&#34;maximum-size-subarray-sum-equals-k:391bf8c2ccd1748d42853cd47f55ff11&#34;&gt;Maximum Size Subarray Sum Equals k&lt;/h1&gt;
 
 &lt;p&gt;Given an array nums and a target value k, find the maximum length of a subarray that sums to k. If there isn&amp;rsquo;t one, return 0 instead.&lt;/p&gt;
@@ -301,7 +1556,7 @@ return 2. (because the subarray [-1, 2] sums to 1 and is the longest
 
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;h2 id=&#34;solution-7:391bf8c2ccd1748d42853cd47f55ff11&#34;&gt;Solution&lt;/h2&gt;
+&lt;h2 id=&#34;solution-8:391bf8c2ccd1748d42853cd47f55ff11&#34;&gt;Solution&lt;/h2&gt;
 
 &lt;p&gt;I didn&amp;rsquo;t come up with the idea of using map.&lt;/p&gt;
 
@@ -326,7 +1581,7 @@ return 2. (because the subarray [-1, 2] sums to 1 and is the longest
 
 &lt;p&gt;Numbers can be regarded as product of its factors. Write a function that takes an integer n and return all possible combinations of its factors,&lt;/p&gt;
 
-&lt;h2 id=&#34;example-2:391bf8c2ccd1748d42853cd47f55ff11&#34;&gt;Example&lt;/h2&gt;
+&lt;h2 id=&#34;example-3:391bf8c2ccd1748d42853cd47f55ff11&#34;&gt;Example&lt;/h2&gt;
 
 &lt;pre&gt;&lt;code&gt;input: 1
 output: []
@@ -355,7 +1610,7 @@ output:
 
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;h2 id=&#34;solution-8:391bf8c2ccd1748d42853cd47f55ff11&#34;&gt;Solution&lt;/h2&gt;
+&lt;h2 id=&#34;solution-9:391bf8c2ccd1748d42853cd47f55ff11&#34;&gt;Solution&lt;/h2&gt;
 
 &lt;p&gt;Backtracking, similar to combination sum.&lt;/p&gt;
 
@@ -388,7 +1643,7 @@ output:
 
 &lt;p&gt;Note that you can only put the bomb at an empty cell.&lt;/p&gt;
 
-&lt;h2 id=&#34;example-3:391bf8c2ccd1748d42853cd47f55ff11&#34;&gt;Example&lt;/h2&gt;
+&lt;h2 id=&#34;example-4:391bf8c2ccd1748d42853cd47f55ff11&#34;&gt;Example&lt;/h2&gt;
 
 &lt;pre&gt;&lt;code&gt;For the given grid
 
@@ -399,7 +1654,7 @@ E 0 W E
 return 3. (Placing a bomb at (1,1) kills 3 enemies)
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;h2 id=&#34;solution-9:391bf8c2ccd1748d42853cd47f55ff11&#34;&gt;Solution&lt;/h2&gt;
+&lt;h2 id=&#34;solution-10:391bf8c2ccd1748d42853cd47f55ff11&#34;&gt;Solution&lt;/h2&gt;
 
 &lt;p&gt;Using dp, only need to record number of enemies in current row and every column. If encounter a wall, update the values.&lt;/p&gt;
 
@@ -438,7 +1693,7 @@ return 3. (Placing a bomb at (1,1) kills 3 enemies)
 
 &lt;p&gt;Note: If the given node has no in-order successor in the tree, return null.&lt;/p&gt;
 
-&lt;h2 id=&#34;solution-10:391bf8c2ccd1748d42853cd47f55ff11&#34;&gt;Solution&lt;/h2&gt;
+&lt;h2 id=&#34;solution-11:391bf8c2ccd1748d42853cd47f55ff11&#34;&gt;Solution&lt;/h2&gt;
 
 &lt;pre&gt;&lt;code&gt;	//Iterative
     public TreeNode inorderSuccessor(TreeNode root, TreeNode p) {
@@ -479,7 +1734,7 @@ return 3. (Placing a bomb at (1,1) kills 3 enemies)
 
 &lt;p&gt;Note: There will be exactly one celebrity if he/she is in the party. Return the celebrity&amp;rsquo;s label if there is a celebrity in the party. If there is no celebrity, return -1.&lt;/p&gt;
 
-&lt;h2 id=&#34;solution-11:391bf8c2ccd1748d42853cd47f55ff11&#34;&gt;Solution&lt;/h2&gt;
+&lt;h2 id=&#34;solution-12:391bf8c2ccd1748d42853cd47f55ff11&#34;&gt;Solution&lt;/h2&gt;
 
 &lt;pre&gt;&lt;code&gt;    public int findCelebrity(int n) {
         if(n &amp;lt;= 1) return n-1;
@@ -496,6 +1751,534 @@ return 3. (Placing a bomb at (1,1) kills 3 enemies)
         return cur;
     }
 
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h1 id=&#34;palindrome-permutation:391bf8c2ccd1748d42853cd47f55ff11&#34;&gt;Palindrome Permutation&lt;/h1&gt;
+
+&lt;p&gt;Given a string, determine if a permutation of the string could form a palindrome.&lt;/p&gt;
+
+&lt;p&gt;For example,
+&amp;ldquo;code&amp;rdquo; -&amp;gt; False, &amp;ldquo;aab&amp;rdquo; -&amp;gt; True, &amp;ldquo;carerac&amp;rdquo; -&amp;gt; True.&lt;/p&gt;
+
+&lt;h2 id=&#34;solution-13:391bf8c2ccd1748d42853cd47f55ff11&#34;&gt;Solution&lt;/h2&gt;
+
+&lt;p&gt;Use a set.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;    public boolean canPermutePalindrome(String s) {
+        Set&amp;lt;Character&amp;gt; set = new HashSet();
+        for(int i = 0; i &amp;lt; s.length(); i ++) {
+            if(!set.add(s.charAt(i)))
+                set.remove(s.charAt(i));
+        }
+        return set.size() == 0 || set.size() == 1;
+    }
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h1 id=&#34;palindrome-permutation-ii:391bf8c2ccd1748d42853cd47f55ff11&#34;&gt;Palindrome Permutation II&lt;/h1&gt;
+
+&lt;p&gt;Given a string s, return all the palindromic permutations (without duplicates) of it. Return an empty list if no palindromic permutation could be form.&lt;/p&gt;
+
+&lt;p&gt;For example:&lt;/p&gt;
+
+&lt;p&gt;Given s = &amp;ldquo;aabb&amp;rdquo;, return [&amp;ldquo;abba&amp;rdquo;, &amp;ldquo;baab&amp;rdquo;].&lt;/p&gt;
+
+&lt;p&gt;Given s = &amp;ldquo;abc&amp;rdquo;, return [].&lt;/p&gt;
+
+&lt;h2 id=&#34;solution-14:391bf8c2ccd1748d42853cd47f55ff11&#34;&gt;Solution&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;    public List&amp;lt;String&amp;gt; generatePalindromes(String s) {
+        List&amp;lt;String&amp;gt; result = new ArrayList();
+        if(s == null || s.length() == 0)
+            return result;
+        Set&amp;lt;Character&amp;gt; set = new HashSet();
+        List&amp;lt;Character&amp;gt; sb = new ArrayList();
+        for(int i = 0; i &amp;lt; s.length(); i ++) {
+            if(!set.add(s.charAt(i))) {
+                set.remove(s.charAt(i));
+                sb.add(s.charAt(i));
+            }
+        }
+        System.out.println(sb.toString());
+        if(set.size() != 0 &amp;amp;&amp;amp; set.size() != 1)
+            return result;
+        String mid = set.size() == 1 ? set.iterator().next().toString() : &amp;quot;&amp;quot;;
+        Collections.sort(sb);
+        helper(result, new StringBuilder(), mid, sb, new boolean[sb.size()]);
+        return result;        
+    }
+    
+    public void helper(List&amp;lt;String&amp;gt; result, StringBuilder cur, String mid, List&amp;lt;Character&amp;gt; sb, boolean[] used) {
+        if(cur.length() == sb.size()) {
+            result.add(cur.toString() + mid + cur.reverse().toString());
+            // reverse back is very important!!!
+            cur.reverse();
+            return;
+        }
+        for(int i = 0; i &amp;lt; sb.size(); i ++) {
+            if(used[i]) continue;
+            if(i &amp;gt; 0 &amp;amp;&amp;amp; sb.get(i) == sb.get(i-1) &amp;amp;&amp;amp; !used[i-1]) continue;
+            cur.append(sb.get(i));
+            used[i] = true;
+            helper(result, cur, mid, sb, used);
+            cur.deleteCharAt(cur.length()-1);
+            used[i] = false;
+        }
+    }
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h1 id=&#34;one-edit-distance:391bf8c2ccd1748d42853cd47f55ff11&#34;&gt;One Edit Distance&lt;/h1&gt;
+
+&lt;p&gt;Given two strings S and T, determine if they are both one edit distance apart.&lt;/p&gt;
+
+&lt;h2 id=&#34;solution-15:391bf8c2ccd1748d42853cd47f55ff11&#34;&gt;Solution&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;
+//  There&#39;re 3 possibilities to satisfy one edit distance apart: 
+  
+//  1) Replace 1 char:
+// 	  s: a B c
+// 	  t: a D c
+//  2) Delete 1 char from s: 
+//	  s: a D  b c
+//	  t: a    b c
+//  3) Delete 1 char from t
+//	  s: a   b c
+//	  t: a D b c
+ 
+
+    public boolean isOneEditDistance(String s, String t) {
+        if(Math.abs(s.length() - t.length()) &amp;gt; 1)
+            return false;
+        for(int i = 0; i &amp;lt; Math.min(s.length(), t.length()); i ++) {
+            if(s.charAt(i) != t.charAt(i)) {
+                if(s.length() == t.length()) 
+                    return s.substring(i+1).equals(t.substring(i+1));
+                else if(s.length() &amp;gt; t.length())
+                    return s.substring(i+1).equals(t.substring(i));
+                else 
+                    return s.substring(i).equals(t.substring(i+1));
+            }
+        }
+		//All previous chars are the same, the only possibility is deleting the end char in the longer one of s and t 
+        return Math.abs(s.length() - t.length()) == 1;
+    }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h1 id=&#34;line-reflection:391bf8c2ccd1748d42853cd47f55ff11&#34;&gt;Line Reflection&lt;/h1&gt;
+
+&lt;p&gt;Given n points on a 2D plane, find if there is such a line parallel to y-axis that reflect the given points.&lt;/p&gt;
+
+&lt;p&gt;Example 1:
+Given points = [[1,1],[-1,1]], return true.&lt;/p&gt;
+
+&lt;p&gt;Example 2:
+Given points = [[1,1],[-1,-1]], return false.&lt;/p&gt;
+
+&lt;h2 id=&#34;solution-16:391bf8c2ccd1748d42853cd47f55ff11&#34;&gt;Solution&lt;/h2&gt;
+
+&lt;ol&gt;
+&lt;li&gt;Find the smallest and largest x-value for all points.&lt;/li&gt;
+&lt;li&gt;If there is a line then it should be at y = (minX + maxX) / 2.&lt;/li&gt;
+&lt;li&gt;For each point, make sure that it has a reflected point in the opposite side.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;I used HashMap because I didn&amp;rsquo;t consider the case that several points can share the same x-index.&lt;/p&gt;
+
+&lt;p&gt;For example: [[1,2],[2,2],[1,4],[2,4]]&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;    public boolean isReflected(int[][] points) {
+        HashSet&amp;lt;Integer&amp;gt; set = new HashSet();
+        int min = Integer.MAX_VALUE, max = Integer.MIN_VALUE;
+        for(int[] point: points) {
+            set.add(Arrays.hashCode(point));
+            min = Math.min(min, point[0]);
+            max = Math.max(max, point[0]);
+        }
+        int sum = max + min;
+        for(int[] point: points) {
+            if(!set.contains(Arrays.hashCode(new int[]{sum - point[0], point[1]})))
+                return false;
+        }
+        return true;
+    }
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h1 id=&#34;largest-bst-subtree:391bf8c2ccd1748d42853cd47f55ff11&#34;&gt;Largest BST Subtree&lt;/h1&gt;
+
+&lt;p&gt;Given a binary tree, find the largest subtree which is a Binary Search Tree (BST), where largest means subtree with largest number of nodes in it.&lt;/p&gt;
+
+&lt;h2 id=&#34;solution-17:391bf8c2ccd1748d42853cd47f55ff11&#34;&gt;Solution&lt;/h2&gt;
+
+&lt;p&gt;Similar to LeetCode 98. Validate Binary Search Tree&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;    int max = 0;
+    
+    class TreeNodeBound {
+        int size;
+        int left;
+        int right;
+        
+        public TreeNodeBound(int size, int left, int right) {
+            this.size = size;
+            this.left = left;
+            this.right = right;
+        }
+    }
+    
+    public int largestBSTSubtree(TreeNode root) {
+        dfs(root);
+        return max;
+    }
+    
+    public TreeNodeBound dfs(TreeNode root) {
+        if(root == null) return new TreeNodeBound(0, Integer.MAX_VALUE, Integer.MIN_VALUE);
+        TreeNodeBound left = dfs(root.left);
+        TreeNodeBound right = dfs(root.right);
+        if(left.size == -1 || right.size == -1 || left.right &amp;gt;= root.val || right.left &amp;lt;= root.val)
+            return new TreeNodeBound(-1, 0, 0);
+        int size = left.size + right.size + 1;
+        max = Math.max(max, size);
+        return new TreeNodeBound(size, Math.min(left.left, root.val), Math.max(right.right, root.val));
+    }
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h1 id=&#34;sentence-screen-fitting:391bf8c2ccd1748d42853cd47f55ff11&#34;&gt;Sentence Screen Fitting&lt;/h1&gt;
+
+&lt;p&gt;Given a rows x cols screen and a sentence represented by a list of non-empty words, find how many times the given sentence can be fitted on the screen.&lt;/p&gt;
+
+&lt;p&gt;Note:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;A word cannot be split into two lines.&lt;/li&gt;
+&lt;li&gt;The order of words in the sentence must remain unchanged.&lt;/li&gt;
+&lt;li&gt;Two consecutive words in a line must be separated by a single space.&lt;/li&gt;
+&lt;li&gt;Total words in the sentence won&amp;rsquo;t exceed 100.&lt;/li&gt;
+&lt;li&gt;Length of each word is greater than 0 and won&amp;rsquo;t exceed 10.&lt;/li&gt;
+&lt;li&gt;1 ≤ rows, cols ≤ 20,000.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2 id=&#34;solution-18:391bf8c2ccd1748d42853cd47f55ff11&#34;&gt;Solution&lt;/h2&gt;
+
+&lt;p&gt;I used brute force which exceeds time limit. We can use a dp like solution which keep track of the row  starting with every index of the sentence.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;    public int wordsTyping(String[] sentence, int rows, int cols) {
+        int[] nextIdx = new int[sentence.length];
+        int[] times = new int[sentence.length];
+        for(int i = 0; i &amp;lt; sentence.length; i ++) {
+            int cur = i;
+            int j = 0;
+            while(j + sentence[cur].length() &amp;lt;= cols) {
+                j += sentence[cur].length() + 1;
+                cur ++;
+                if(cur == sentence.length){
+                    cur = 0;
+                    times[i] ++;
+                }
+            }
+            nextIdx[i] = cur;
+        }
+        int count = 0;
+        int index = 0;
+        for(int i = 0; i &amp;lt; rows; i ++) {
+            count += times[index];
+            index = nextIdx[index];
+        }
+
+        return count;
+    }
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h1 id=&#34;encode-and-decode-strings:391bf8c2ccd1748d42853cd47f55ff11&#34;&gt;Encode and Decode Strings&lt;/h1&gt;
+
+&lt;p&gt;Design an algorithm to encode a list of strings to a string. The encoded string is then sent over the network and is decoded back to the original list of strings.&lt;/p&gt;
+
+&lt;h2 id=&#34;solution-19:391bf8c2ccd1748d42853cd47f55ff11&#34;&gt;Solution&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;    // Encodes a list of strings to a single string.
+    public String encode(List&amp;lt;String&amp;gt; strs) {
+        StringBuilder sb = new StringBuilder();
+        for(String str: strs) {
+            sb.append(str.length() + &amp;quot;/&amp;quot; + str);
+        }
+        return sb.toString();
+    }
+
+    // Decodes a single string to a list of strings.
+    public List&amp;lt;String&amp;gt; decode(String s) {
+        List&amp;lt;String&amp;gt; result = new ArrayList();
+        int index = 0;
+        while(index &amp;lt; s.length()) {
+            int slash = s.indexOf(&amp;quot;/&amp;quot;, index);
+            int len = Integer.valueOf(s.substring(index, slash));
+            result.add(s.substring(slash + 1, slash + len + 1));
+            index = slash + len + 1;
+        }
+        return result;
+    }
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h1 id=&#34;sequence-reconstruction:391bf8c2ccd1748d42853cd47f55ff11&#34;&gt;Sequence Reconstruction&lt;/h1&gt;
+
+&lt;p&gt;Check whether the original sequence org can be uniquely reconstructed from the sequences in seqs. The org sequence is a permutation of the integers from 1 to n, with 1 ≤ n ≤ 104. Reconstruction means building a shortest common supersequence of the sequences in seqs (i.e., a shortest sequence so that all sequences in seqs are subsequences of it). Determine whether there is only one sequence that can be reconstructed from seqs and it is the org sequence.&lt;/p&gt;
+
+&lt;h2 id=&#34;example-5:391bf8c2ccd1748d42853cd47f55ff11&#34;&gt;Example&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;Input:
+org: [1,2,3], seqs: [[1,2],[1,3]]
+
+Output:
+false
+
+Explanation:
+[1,2,3] is not the only one sequence that can be reconstructed, because [1,3,2] is also a valid sequence that can be reconstructed.
+
+Input:
+org: [1,2,3], seqs: [[1,2]]
+
+Output:
+false
+
+Explanation:
+The reconstructed sequence can only be [1,2].
+
+Input:
+org: [1,2,3], seqs: [[1,2],[1,3],[2,3]]
+
+Output:
+true
+
+Explanation:
+The sequences [1,2], [1,3], and [2,3] can uniquely reconstruct the original sequence [1,2,3].
+
+Input:
+org: [4,1,5,2,6,3], seqs: [[5,2,6,3],[4,1,5,2]]
+
+Output:
+true
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;solution-20:391bf8c2ccd1748d42853cd47f55ff11&#34;&gt;Solution&lt;/h2&gt;
+
+&lt;p&gt;BFS topological sort&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;    public boolean sequenceReconstruction(int[] org, List&amp;lt;List&amp;lt;Integer&amp;gt;&amp;gt; seqs) {
+        Map&amp;lt;Integer, Set&amp;lt;Integer&amp;gt;&amp;gt; adjs = new HashMap();
+        Map&amp;lt;Integer, Integer&amp;gt; inDegree = new HashMap();
+        
+        for(List&amp;lt;Integer&amp;gt; seq: seqs) {
+            if(seq.size() == 1) {
+                if(!adjs.containsKey(seq.get(0))) {
+                    adjs.put(seq.get(0), new HashSet());
+                    inDegree.put(seq.get(0), 0);
+                }
+            } 
+            for(int i = 0; i &amp;lt; seq.size()-1; i ++) {
+                if(!adjs.containsKey(seq.get(i))) {
+                    adjs.put(seq.get(i), new HashSet());
+                    inDegree.put(seq.get(i), 0);
+                }
+                if(!adjs.containsKey(seq.get(i+1))) {
+                    adjs.put(seq.get(i+1), new HashSet());
+                    inDegree.put(seq.get(i+1), 0);
+                }
+                if(adjs.get(seq.get(i)).add(seq.get(i+1)))
+                    inDegree.put(seq.get(i+1), inDegree.get(seq.get(i+1))+1);
+            }
+        }
+        
+        Queue&amp;lt;Integer&amp;gt; queue = new LinkedList();
+        for(Map.Entry&amp;lt;Integer, Integer&amp;gt; entry: inDegree.entrySet()) {
+            if(entry.getValue() == 0)
+                queue.offer(entry.getKey());
+        }
+        
+        int index = 0;
+        
+        while(!queue.isEmpty()) {
+            if(queue.size() &amp;gt; 1) return false;
+            int cur = queue.poll();
+            if(index == org.length || org[index ++] != cur)
+                return false;
+            for(int next: adjs.get(cur)) {
+                inDegree.put(next, inDegree.get(next)-1);
+                if(inDegree.get(next) == 0)
+                    queue.offer(next);
+            }
+        }
+        return org.length == index &amp;amp;&amp;amp; index == adjs.size();
+    }
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h1 id=&#34;strobogrammatic-number:391bf8c2ccd1748d42853cd47f55ff11&#34;&gt;Strobogrammatic Number&lt;/h1&gt;
+
+&lt;p&gt;A strobogrammatic number is a number that looks the same when rotated 180 degrees (looked at upside down).&lt;/p&gt;
+
+&lt;p&gt;Write a function to determine if a number is strobogrammatic. The number is represented as a string.&lt;/p&gt;
+
+&lt;p&gt;For example, the numbers &amp;ldquo;69&amp;rdquo;, &amp;ldquo;88&amp;rdquo;, and &amp;ldquo;818&amp;rdquo; are all strobogrammatic.&lt;/p&gt;
+
+&lt;h2 id=&#34;solution-21:391bf8c2ccd1748d42853cd47f55ff11&#34;&gt;Solution&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;    public boolean isStrobogrammatic(String num) {
+        for(int i = 0, j = num.length()-1; i &amp;lt;= j; i++, j--) {
+            if(!&amp;quot;00 11 88 696&amp;quot;.contains(num.charAt(i) + &amp;quot;&amp;quot; + num.charAt(j)))
+                return false;
+        }
+        return true;
+    }
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h1 id=&#34;strobogrammatic-number-ii:391bf8c2ccd1748d42853cd47f55ff11&#34;&gt;Strobogrammatic Number II&lt;/h1&gt;
+
+&lt;p&gt;Find all strobogrammatic numbers that are of length = n.&lt;/p&gt;
+
+&lt;p&gt;For example,&lt;/p&gt;
+
+&lt;p&gt;Given n = 2, return [&amp;ldquo;11&amp;rdquo;,&amp;ldquo;69&amp;rdquo;,&amp;ldquo;88&amp;rdquo;,&amp;ldquo;96&amp;rdquo;].&lt;/p&gt;
+
+&lt;h2 id=&#34;solution-22:391bf8c2ccd1748d42853cd47f55ff11&#34;&gt;Solution&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;    int[][] map = {{0,0},{1,1},{8,8},{6,9},{9,6}};
+    
+    public List&amp;lt;String&amp;gt; findStrobogrammatic(int n) {
+        List&amp;lt;String&amp;gt; result = new ArrayList();
+        if(n == 0) return result;
+        if(n == 1) {
+            result.add(&amp;quot;0&amp;quot;);
+            result.add(&amp;quot;1&amp;quot;);
+            result.add(&amp;quot;8&amp;quot;);
+            return result;
+        }
+        if(n % 2 == 0)
+            helper(result, &amp;quot;&amp;quot;, n);
+        else {
+            helper(result, &amp;quot;0&amp;quot;, n - 1);
+            helper(result, &amp;quot;1&amp;quot;, n - 1);
+            helper(result, &amp;quot;8&amp;quot;, n - 1);
+        }
+        return result;
+    }
+    
+    public void helper(List&amp;lt;String&amp;gt; result, String cur, int n) {
+        if(n == 0) {
+            if(cur.charAt(0) != &#39;0&#39;)
+                result.add(cur);
+            return;
+        }
+        int len = cur.length();
+        for(int[] num: map) {
+            cur = num[0] + cur + num[1];
+            helper(result, cur, n - 2);
+            cur = cur.substring(1, len+1);
+        }
+    }
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h1 id=&#34;strobogrammatic-number-iii:391bf8c2ccd1748d42853cd47f55ff11&#34;&gt;Strobogrammatic Number III&lt;/h1&gt;
+
+&lt;p&gt;Write a function to count the total strobogrammatic numbers that exist in the range of low &amp;lt;= num &amp;lt;= high.&lt;/p&gt;
+
+&lt;p&gt;For example,&lt;/p&gt;
+
+&lt;p&gt;Given low = &amp;ldquo;50&amp;rdquo;, high = &amp;ldquo;100&amp;rdquo;, return 3. Because 69, 88, and 96 are three strobogrammatic numbers.&lt;/p&gt;
+
+&lt;h2 id=&#34;solution-23:391bf8c2ccd1748d42853cd47f55ff11&#34;&gt;Solution&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;    int[][] map = {{0,0}, {1,1}, {8,8}, {6,9}, {9,6}};
+    int count = 0;
+    
+    public int strobogrammaticInRange(String low, String high) {
+        int min = low.length(), max = high.length();
+        for(int n = min; n &amp;lt;= max; n ++) {
+            if(n % 2 == 0)
+                helper(&amp;quot;&amp;quot;, low, high, n);
+            else {
+                helper(&amp;quot;0&amp;quot;, low, high, n-1);
+                helper(&amp;quot;1&amp;quot;, low, high, n-1);
+                helper(&amp;quot;8&amp;quot;, low, high, n-1);
+            }
+        }
+        return count;
+    }
+    
+    public void helper(String cur, String low, String high, int n) {
+        int len = cur.length();
+        if(n == 0) {
+            if(len &amp;gt; 1 &amp;amp;&amp;amp; cur.charAt(0) == &#39;0&#39;) return;
+            if((len == low.length() &amp;amp;&amp;amp; cur.compareTo(low) &amp;lt; 0) ||
+                (len == high.length() &amp;amp;&amp;amp; cur.compareTo(high) &amp;gt; 0))
+                return;
+            count ++;
+            return;
+        }
+        for(int[] num: map) {
+            cur = num[0] + cur + num[1];
+            helper(cur, low, high, n-2);
+            cur = cur.substring(1, len+1);
+        }
+    }
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h1 id=&#34;read-n-characters-given-read4:391bf8c2ccd1748d42853cd47f55ff11&#34;&gt;Read N Characters Given Read4&lt;/h1&gt;
+
+&lt;p&gt;The API: int read4(char *buf) reads 4 characters at a time from a file.&lt;/p&gt;
+
+&lt;p&gt;The return value is the actual number of characters read. For example, it returns 3 if there is only 3 characters left in the file.&lt;/p&gt;
+
+&lt;p&gt;By using the read4 API, implement the function int read(char *buf, int n) that reads n characters from the file.&lt;/p&gt;
+
+&lt;h2 id=&#34;solution-24:391bf8c2ccd1748d42853cd47f55ff11&#34;&gt;Solution&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;    public int read(char[] buf, int n) {
+        char[] temp = new char[4];
+        int count = 0;
+        boolean eof = false;
+        while(count &amp;lt; n &amp;amp;&amp;amp; !eof) {
+            int cur = read4(temp);
+            eof = cur &amp;lt; 4;
+            int len = Math.min(cur, n - count);
+            for(int i = 0; i &amp;lt; len; i ++) {
+                buf[count ++] = temp[i];
+            }
+        }
+        return count;
+    }
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h1 id=&#34;read-n-characters-given-read4-ii-call-multiple-times:391bf8c2ccd1748d42853cd47f55ff11&#34;&gt;Read N Characters Given Read4 II - Call multiple times&lt;/h1&gt;
+
+&lt;p&gt;The read function may be called multiple times.&lt;/p&gt;
+
+&lt;h2 id=&#34;solution-25:391bf8c2ccd1748d42853cd47f55ff11&#34;&gt;Solution&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;     int index = 0;
+     int count = 0;
+     char[] next = new char[4];
+     
+    public int read(char[] buf, int n) {
+        int p = 0;
+        while(p &amp;lt; n) {
+            if(index == 0)
+                count = read4(next);
+            if(count == 0) break;
+            while(p &amp;lt; n &amp;amp;&amp;amp; index &amp;lt; count)
+                buf[p ++] = next[index ++];
+            if(index == count) index = 0;
+        }
+        return p;
+    }
 &lt;/code&gt;&lt;/pre&gt;
 </description>
     </item>
@@ -829,6 +2612,85 @@ Answer: 3
 
 &lt;/code&gt;&lt;/pre&gt;
 
+&lt;h1 id=&#34;number-of-island-2:7b5dfc6ca8814f1e54ab64455253b7f0&#34;&gt;Number of Island 2&lt;/h1&gt;
+
+&lt;p&gt;A 2d grid map of m rows and n columns is initially filled with water. We may perform an addLand operation which turns the water at position (row, col) into a land. Given a list of positions to operate, count the number of islands after each addLand operation. An island is surrounded by water and is formed by connecting adjacent lands horizontally or vertically. You may assume all four edges of the grid are all surrounded by water.&lt;/p&gt;
+
+&lt;h2 id=&#34;example-3:7b5dfc6ca8814f1e54ab64455253b7f0&#34;&gt;Example&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;Given m = 3, n = 3, positions = [[0,0], [0,1], [1,2], [2,1]].
+
+Initially, the 2d grid grid is filled with water. (Assume 0 represents water and 1 represents land).
+
+Operation #1: addLand(0, 0) turns the water at grid[0][0] into a land.
+
+1 0 0
+0 0 0   Number of islands = 1
+0 0 0
+
+Operation #2: addLand(0, 1) turns the water at grid[0][1] into a land.
+
+1 1 0
+0 0 0   Number of islands = 1
+0 0 0
+
+Operation #3: addLand(1, 2) turns the water at grid[1][2] into a land.
+
+1 1 0
+0 0 1   Number of islands = 2
+0 0 0
+
+Operation #4: addLand(2, 1) turns the water at grid[2][1] into a land.
+
+1 1 0
+0 0 1   Number of islands = 3
+0 1 0
+
+We return the result as an array: [1, 1, 2, 3]
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;solution:7b5dfc6ca8814f1e54ab64455253b7f0&#34;&gt;Solution&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;    int[][] dirs = {{-1, 0}, {1, 0}, {0, 1}, {0, -1}};
+    
+    public List&amp;lt;Integer&amp;gt; numIslands2(int m, int n, int[][] positions) {
+        List&amp;lt;Integer&amp;gt; result = new ArrayList();
+        if(positions == null || positions.length == 0)
+            return result;
+        int[] unionSet = new int[m*n];
+        for(int i = 0; i &amp;lt; m*n; i ++)
+            unionSet[i] = -1;
+            
+        int count = 0;
+        for(int[] pos: positions) {
+            int idx = pos[0] * n + pos[1];
+            count ++;
+            unionSet[idx] = idx;
+            for(int[] dir: dirs) {
+                int x = pos[0] + dir[0];
+                int y = pos[1] + dir[1];
+                if(x &amp;lt; 0 || x == m || y &amp;lt; 0 || y == n || unionSet[x*n+y] == -1)
+                    continue;
+                int root = find(unionSet, x*n+y);
+                if(idx != root) {
+                    unionSet[root] = idx;
+                    count --;
+                }
+            }
+            result.add(count);
+        }
+        return result;
+    }
+    
+    public int find(int[] unionSet, int p) {
+        if(unionSet[p] == p) return p;
+        unionSet[p] = find(unionSet, unionSet[p]);
+        return unionSet[p];
+    }
+
+&lt;/code&gt;&lt;/pre&gt;
+
 &lt;h1 id=&#34;graph-valid-tree:7b5dfc6ca8814f1e54ab64455253b7f0&#34;&gt;Graph Valid Tree&lt;/h1&gt;
 
 &lt;p&gt;Given n nodes labeled from 0 to n - 1 and a list of undirected edges (each edge is a pair of nodes), write a function to check whether these edges make up a valid tree.&lt;/p&gt;
@@ -839,7 +2701,7 @@ Answer: 3
 
 &lt;p&gt;Given n = 5 and edges = [[0, 1], [1, 2], [2, 3], [1, 3], [1, 4]], return false.&lt;/p&gt;
 
-&lt;h2 id=&#34;solution:7b5dfc6ca8814f1e54ab64455253b7f0&#34;&gt;Solution&lt;/h2&gt;
+&lt;h2 id=&#34;solution-1:7b5dfc6ca8814f1e54ab64455253b7f0&#34;&gt;Solution&lt;/h2&gt;
 
 &lt;p&gt;For the graph to be a tree, it should satisfy 2 conditions:&lt;/p&gt;
 
@@ -1186,6 +3048,59 @@ We get the following sequence (ie, for n = 3):&lt;/p&gt;
         }
         return sb.toString();
     }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h1 id=&#34;palindrome-permutation-ii:ae5fadc6fef33d3a20be0c4537ee7524&#34;&gt;Palindrome Permutation II&lt;/h1&gt;
+
+&lt;p&gt;Given a string s, return all the palindromic permutations (without duplicates) of it. Return an empty list if no palindromic permutation could be form.&lt;/p&gt;
+
+&lt;p&gt;For example:&lt;/p&gt;
+
+&lt;p&gt;Given s = &amp;ldquo;aabb&amp;rdquo;, return [&amp;ldquo;abba&amp;rdquo;, &amp;ldquo;baab&amp;rdquo;].&lt;/p&gt;
+
+&lt;p&gt;Given s = &amp;ldquo;abc&amp;rdquo;, return [].&lt;/p&gt;
+
+&lt;h2 id=&#34;solution-2:ae5fadc6fef33d3a20be0c4537ee7524&#34;&gt;Solution&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;    public List&amp;lt;String&amp;gt; generatePalindromes(String s) {
+        List&amp;lt;String&amp;gt; result = new ArrayList();
+        if(s == null || s.length() == 0)
+            return result;
+        Set&amp;lt;Character&amp;gt; set = new HashSet();
+        List&amp;lt;Character&amp;gt; sb = new ArrayList();
+        for(int i = 0; i &amp;lt; s.length(); i ++) {
+            if(!set.add(s.charAt(i))) {
+                set.remove(s.charAt(i));
+                sb.add(s.charAt(i));
+            }
+        }
+        System.out.println(sb.toString());
+        if(set.size() != 0 &amp;amp;&amp;amp; set.size() != 1)
+            return result;
+        String mid = set.size() == 1 ? set.iterator().next().toString() : &amp;quot;&amp;quot;;
+        Collections.sort(sb);
+        helper(result, new StringBuilder(), mid, sb, new boolean[sb.size()]);
+        return result;        
+    }
+    
+    public void helper(List&amp;lt;String&amp;gt; result, StringBuilder cur, String mid, List&amp;lt;Character&amp;gt; sb, boolean[] used) {
+        if(cur.length() == sb.size()) {
+            result.add(cur.toString() + mid + cur.reverse().toString());
+            // reverse back is very important!!!
+            cur.reverse();
+            return;
+        }
+        for(int i = 0; i &amp;lt; sb.size(); i ++) {
+            if(used[i]) continue;
+            if(i &amp;gt; 0 &amp;amp;&amp;amp; sb.get(i) == sb.get(i-1) &amp;amp;&amp;amp; !used[i-1]) continue;
+            cur.append(sb.get(i));
+            used[i] = true;
+            helper(result, cur, mid, sb, used);
+            cur.deleteCharAt(cur.length()-1);
+            used[i] = false;
+        }
+    }
+
 &lt;/code&gt;&lt;/pre&gt;
 </description>
     </item>
@@ -1832,483 +3747,6 @@ Therefore the output is 7.
         return dp[target];
     }
 &lt;/code&gt;&lt;/pre&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Buy and Sell Stocks</title>
-      <link>http://yjn93.github.io/dev/Buy_and_Sell_Stocks/</link>
-      <pubDate>Fri, 18 Nov 2016 09:54:11 -0500</pubDate>
-      
-      <guid>http://yjn93.github.io/dev/Buy_and_Sell_Stocks/</guid>
-      <description>
-
-&lt;h1 id=&#34;one-transaction:bc34b67cdae43a991edbce9949a535fb&#34;&gt;One transaction&lt;/h1&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://leetcode.com/problems/best-time-to-buy-and-sell-stock/&#34;&gt;LeetCode 121&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h2 id=&#34;solution:bc34b67cdae43a991edbce9949a535fb&#34;&gt;Solution&lt;/h2&gt;
-
-&lt;h3 id=&#34;my-approach:bc34b67cdae43a991edbce9949a535fb&#34;&gt;My approach&lt;/h3&gt;
-
-&lt;p&gt;Track the min value, update the maxProfit.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;    public int maxProfit(int[] prices) {
-        int min = Integer.MAX_VALUE;
-        int max = 0;
-        for(int price: prices) {
-            min = Math.min(min, price);
-            max = Math.max(max, price-min);
-        }
-        return max;
-    }
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h3 id=&#34;kadane-s-algorithm-solution:bc34b67cdae43a991edbce9949a535fb&#34;&gt;Kadane&amp;rsquo;s Algorithm Solution&lt;/h3&gt;
-
-&lt;p&gt;Kadane&amp;rsquo;s Algorithm is used to solve Maximum Subarray problem
-Here, the logic is to calculate the difference (maxCur += prices[i] - prices[i-1]) of the original array, and find a contiguous subarray giving maximum profit. If the difference falls below 0, reset it to zero.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;    public int maxProfit(int[] prices) {
-        int curMax = 0;
-        int max = 0;
-        for(int i = 1; i &amp;lt; prices.length; i ++) {
-            curMax = Math.max(0, curMax+prices[i]-prices[i-1]);
-            max = Math.max(max, curMax);
-        }
-        return max;
-    }
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h2 id=&#34;maximum-subarray-problem:bc34b67cdae43a991edbce9949a535fb&#34;&gt;Maximum Subarray Problem&lt;/h2&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://leetcode.com/problems/maximum-subarray/&#34;&gt;LeetCode 53&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h3 id=&#34;example:bc34b67cdae43a991edbce9949a535fb&#34;&gt;Example&lt;/h3&gt;
-
-&lt;p&gt;given the array [-2,1,-3,4,-1,2,1,-5,4], the contiguous subarray [4,-1,2,1] has the largest sum = 6.&lt;/p&gt;
-
-&lt;h3 id=&#34;solution-1:bc34b67cdae43a991edbce9949a535fb&#34;&gt;Solution&lt;/h3&gt;
-
-&lt;p&gt;Using Kadane&amp;rsquo;s algorithm, which consists of a scan through the array values, computing at each position the maximum (positive sum) subarray ending at that position. This subarray is either empty (in which case its sum is zero) or consists of one more element than the maximum subarray ending at the previous position.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;    public int maxSubArray(int[] nums) {
-        int max = Integer.MIN_VALUE;
-        int leftMax = 0;
-        for(int num: nums) {
-            max = Math.max(max, leftMax+num);
-            leftMax = Math.max(0, leftMax+num);
-        }
-        return max;
-    }
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h3 id=&#34;notice:bc34b67cdae43a991edbce9949a535fb&#34;&gt;Notice&lt;/h3&gt;
-
-&lt;p&gt;The corner case: all elements are negative.&lt;/p&gt;
-
-&lt;h1 id=&#34;many-transactions:bc34b67cdae43a991edbce9949a535fb&#34;&gt;Many transactions&lt;/h1&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://leetcode.com/problems/best-time-to-buy-and-sell-stock-ii/&#34;&gt;LeetCode 122&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h2 id=&#34;peak-and-valley-approach:bc34b67cdae43a991edbce9949a535fb&#34;&gt;Peak and Valley approach&lt;/h2&gt;
-
-&lt;pre&gt;&lt;code&gt;    public int maxProfit(int[] prices) {
-        int result = 0;
-        int idx = 0;
-        while(idx &amp;lt; prices.length-1) {
-            while(idx+1 &amp;lt; prices.length &amp;amp;&amp;amp; prices[idx+1] &amp;lt;= prices[idx])
-                idx ++;
-            int low = prices[idx];
-            while(idx+1 &amp;lt; prices.length &amp;amp;&amp;amp; prices[idx+1] &amp;gt;= prices[idx])
-                idx ++;
-            result += prices[idx]-low;
-            idx ++;
-        }
-        return result;
-    }
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h2 id=&#34;simple-one-pass:bc34b67cdae43a991edbce9949a535fb&#34;&gt;Simple one pass&lt;/h2&gt;
-
-&lt;p&gt;we can directly keep on adding the difference between the consecutive numbers of the array if the second number is larger than the first one, and at the total sum we obtain will be the maximum profit.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;    public int maxProfit(int[] prices) {
-        int max = 0;
-        for(int i = 1; i &amp;lt; prices.length; i ++) {
-            if(prices[i] &amp;gt; prices[i-1])
-                max += prices[i]-prices[i-1];
-        }
-        return max;
-    }
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h1 id=&#34;multiple-transactions-with-cooldown:bc34b67cdae43a991edbce9949a535fb&#34;&gt;Multiple transactions with cooldown&lt;/h1&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://leetcode.com/problems/best-time-to-buy-and-sell-stock-with-cooldown/&#34;&gt;LeetCode 309&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h2 id=&#34;example-1:bc34b67cdae43a991edbce9949a535fb&#34;&gt;Example&lt;/h2&gt;
-
-&lt;pre&gt;&lt;code&gt;prices = [1, 2, 3, 0, 2]
-maxProfit = 3
-transactions = [buy, sell, cooldown, buy, sell]
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h2 id=&#34;solution-2:bc34b67cdae43a991edbce9949a535fb&#34;&gt;Solution&lt;/h2&gt;
-
-&lt;p&gt;Dynamic programming: tracking the maxProfit for ending with sell and buy&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;buy[i] = max(sell[i-2]-price, buy[i-1])
-sell[i] = max(buy[i-1]+price, sell[i-1])
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Can reduce the space:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;preBuy = curBuy;
-curBuy = max(preSell-num, preBuy);
-preSell = curSell;
-curSell = max(preBuy+num, preSell);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Java code&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;    public int maxProfit(int[] prices) {
-        int preSell = 0, curSell = 0;
-		int curBuy = Integer.MIN_VALUE, preBuy;
-        for(int price: prices) {
-            preBuy = curBuy;
-            curBuy = Math.max(preSell - price, preBuy);
-            preSell = curSell;
-            curSell = Math.max(preBuy + price, preSell);
-        }
-        return curSell;
-    }
-
-&lt;/code&gt;&lt;/pre&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Bit Manipulation</title>
-      <link>http://yjn93.github.io/dev/Bit-Manipulation/</link>
-      <pubDate>Sun, 13 Nov 2016 10:46:27 -0500</pubDate>
-      
-      <guid>http://yjn93.github.io/dev/Bit-Manipulation/</guid>
-      <description>
-
-&lt;h1 id=&#34;clever-tricks:3344d83625fb333615fef7b8a8bdad05&#34;&gt;Clever Tricks&lt;/h1&gt;
-
-&lt;h3 id=&#34;get-the-rightmost-set-bit:3344d83625fb333615fef7b8a8bdad05&#34;&gt;Get the rightmost set bit&lt;/h3&gt;
-
-&lt;pre&gt;&lt;code&gt;	num &amp;amp;= -num;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h3 id=&#34;set-the-rightmost-1-to-0:3344d83625fb333615fef7b8a8bdad05&#34;&gt;Set the rightmost 1 to 0&lt;/h3&gt;
-
-&lt;pre&gt;&lt;code&gt;	num &amp;amp;= (num-1)
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h3 id=&#34;facts:3344d83625fb333615fef7b8a8bdad05&#34;&gt;Facts&lt;/h3&gt;
-
-&lt;ul&gt;
-&lt;li&gt;~(num-1) == -num&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h1 id=&#34;single-number-iii:3344d83625fb333615fef7b8a8bdad05&#34;&gt;Single Number III&lt;/h1&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://leetcode.com/problems/single-number-iii/&#34;&gt;LeetCode 260&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;Given an array of numbers nums, in which exactly two elements appear only once and all the other elements appear exactly twice. Find the two elements that appear only once.&lt;/p&gt;
-
-&lt;h2 id=&#34;example:3344d83625fb333615fef7b8a8bdad05&#34;&gt;Example:&lt;/h2&gt;
-
-&lt;p&gt;Given nums = [1, 2, 1, 3, 2, 5], return [3, 5].&lt;/p&gt;
-
-&lt;h2 id=&#34;solution:3344d83625fb333615fef7b8a8bdad05&#34;&gt;Solution&lt;/h2&gt;
-
-&lt;p&gt;In the first pass of for loop, we XOR all elements in the array, and get the XOR of the two numbers we need to find.&lt;/p&gt;
-
-&lt;p&gt;The second pass is hard to come up with, we use the trick in the first session to get the rightmost set bit of the XOR of the two target number. We can divide all elements in two groups, and the target two numbers will fall into different groups.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;    public int[] singleNumber(int[] nums) {
-        int diff = 0;
-        for(int num: nums) {
-            diff ^= num;
-        }
-        diff &amp;amp;= -diff;
-        int[] result = {0,0};
-        for(int num: nums) {
-            if((num &amp;amp; diff) == 0)
-                result[0] ^= num;
-            else
-                result[1] ^= num;
-        }
-        return result;
-    }
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h1 id=&#34;single-number-ii:3344d83625fb333615fef7b8a8bdad05&#34;&gt;Single Number II&lt;/h1&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://leetcode.com/problems/single-number-ii/&#34;&gt;LeetCode 137&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;Given an array of integers, every element appears three times except for one. Find that single one.&lt;/p&gt;
-
-&lt;h2 id=&#34;solution-1:3344d83625fb333615fef7b8a8bdad05&#34;&gt;Solution&lt;/h2&gt;
-
-&lt;pre&gt;&lt;code&gt;    public int singleNumber(int[] nums) {
-        int ones = 0, twos = 0;
-        for(int num: nums) {
-            ones = (ones ^ num) &amp;amp; ~twos;
-            twos = (twos ^ num) &amp;amp; ~ones;
-        }
-        return ones;
-    }
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h1 id=&#34;missing-number:3344d83625fb333615fef7b8a8bdad05&#34;&gt;Missing Number&lt;/h1&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://leetcode.com/problems/missing-number/&#34;&gt;LeetCode 268&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;Given an array containing n distinct numbers taken from 0, 1, 2, &amp;hellip;, n, find the one that is missing from the array.&lt;/p&gt;
-
-&lt;h2 id=&#34;example-1:3344d83625fb333615fef7b8a8bdad05&#34;&gt;Example&lt;/h2&gt;
-
-&lt;p&gt;Given nums = [0, 1, 3] return 2.&lt;/p&gt;
-
-&lt;h2 id=&#34;solution-2:3344d83625fb333615fef7b8a8bdad05&#34;&gt;Solution&lt;/h2&gt;
-
-&lt;pre&gt;&lt;code&gt;    public int missingNumber(int[] nums) {
-        int result = nums.length;
-        for(int i = 0; i &amp;lt; nums.length; i ++) {
-            result ^= i;
-            result ^= nums[i];
-        }
-        return result;
-    }
-
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h1 id=&#34;integer-replacement:3344d83625fb333615fef7b8a8bdad05&#34;&gt;Integer Replacement&lt;/h1&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://leetcode.com/problems/integer-replacement/&#34;&gt;LeetCode 397&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;Given a positive integer n and you can do operations as follow:&lt;/p&gt;
-
-&lt;p&gt;If n is even, replace n with n/2.&lt;/p&gt;
-
-&lt;p&gt;If n is odd, you can replace n with either n + 1 or n - 1.&lt;/p&gt;
-
-&lt;p&gt;What is the minimum number of replacements needed for n to become 1?&lt;/p&gt;
-
-&lt;h2 id=&#34;example-2:3344d83625fb333615fef7b8a8bdad05&#34;&gt;Example&lt;/h2&gt;
-
-&lt;p&gt;Input: 8&lt;/p&gt;
-
-&lt;p&gt;Output: 3&lt;/p&gt;
-
-&lt;p&gt;Explanation: 8 -&amp;gt; 4 -&amp;gt; 2 -&amp;gt; 1&lt;/p&gt;
-
-&lt;p&gt;Input: 7&lt;/p&gt;
-
-&lt;p&gt;Output: 4&lt;/p&gt;
-
-&lt;p&gt;Explanation: 7 -&amp;gt; 8 -&amp;gt; 4 -&amp;gt; 2 -&amp;gt; 1 or 7 -&amp;gt; 6 -&amp;gt; 3 -&amp;gt; 2 -&amp;gt; 1&lt;/p&gt;
-
-&lt;h2 id=&#34;solution-3:3344d83625fb333615fef7b8a8bdad05&#34;&gt;Solution&lt;/h2&gt;
-
-&lt;p&gt;Recursion will cause StackOverFlow. There are two ways for this problem. One uses iteration, one use bit manipulation.&lt;/p&gt;
-
-&lt;h3 id=&#34;iteration:3344d83625fb333615fef7b8a8bdad05&#34;&gt;Iteration&lt;/h3&gt;
-
-&lt;p&gt;When n is odd it can be written into the form n = 2k+1 (k is a non-negative integer.). That is, n+1 = 2k+2 and n-1 = 2k. Then, (n+1)/2 = k+1 and (n-1)/2 = k. So one of (n+1)/2 and (n-1)/2 is even, the other is odd. And the &amp;ldquo;best&amp;rdquo; case of this problem is to divide as much as possible. Because of that, always pick n+1 or n-1 based on if it can be divided by 4. The only special case of that is when n=3 you would like to pick n-1 rather than n+1.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;    public int integerReplacement(int n) {
-        if(n == Integer.MAX_VALUE) return 32;
-        int count = 0;
-        while(n != 1) {
-            if(n % 2 == 0) {
-                n /= 2;
-            } else {
-                if((n + 1) % 4 == 0 &amp;amp;&amp;amp; n != 3)
-                    n += 1;
-                else
-                    n -= 1;
-            }
-            count ++;
-        }
-        return count;
-    }
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h3 id=&#34;bit-manipulation:3344d83625fb333615fef7b8a8bdad05&#34;&gt;Bit Manipulation&lt;/h3&gt;
-
-&lt;p&gt;We can use the same idea to do bit manipulation. When n is odd, we only need to check the last two bits of n. If the second least significant bit is 1, then increase n by 1, unless n is 3.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;    public int integerReplacement(int n) {
-        int count = 0;
-        while(n != 1) {
-            if(n % 2 == 0)
-                n &amp;gt;&amp;gt;&amp;gt;= 1;
-            else if(n == 3 || ((n &amp;gt;&amp;gt;&amp;gt; 1) &amp;amp; 1) == 0)
-                n --;
-            else 
-                n ++;
-            count ++;
-        }
-        return count;
-    }
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h1 id=&#34;subsets:3344d83625fb333615fef7b8a8bdad05&#34;&gt;Subsets&lt;/h1&gt;
-
-&lt;p&gt;Given a set of distinct integers, nums, return all possible subsets.&lt;/p&gt;
-
-&lt;p&gt;Note: The solution set must not contain duplicate subsets.&lt;/p&gt;
-
-&lt;p&gt;For example,
-If nums = [1,2,3], a solution is:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;[
-  [3],
-  [1],
-  [2],
-  [1,2,3],
-  [1,3],
-  [2,3],
-  [1,2],
-  []
-]
-
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h2 id=&#34;backtracking-solution:3344d83625fb333615fef7b8a8bdad05&#34;&gt;BackTracking Solution&lt;/h2&gt;
-
-&lt;pre&gt;&lt;code&gt;    public List&amp;lt;List&amp;lt;Integer&amp;gt;&amp;gt; subsets(int[] nums) {
-        List&amp;lt;List&amp;lt;Integer&amp;gt;&amp;gt; result = new ArrayList&amp;lt;List&amp;lt;Integer&amp;gt;&amp;gt;();
-        backTracking(result, new ArrayList&amp;lt;Integer&amp;gt;(), nums, 0);
-        return result;
-    }
-    
-    public void backTracking(List&amp;lt;List&amp;lt;Integer&amp;gt;&amp;gt; result, List&amp;lt;Integer&amp;gt; subset, int[] nums, int start) {
-        result.add(new ArrayList&amp;lt;Integer&amp;gt;(subset));
-        for(int i = start; i &amp;lt; nums.length; i ++) {
-            subset.add(nums[i]);
-            backTracking(result, subset, nums, i+1);
-            subset.remove(subset.size()-1);
-        }
-    }
-
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h2 id=&#34;bit-manipulation-solution:3344d83625fb333615fef7b8a8bdad05&#34;&gt;Bit Manipulation Solution&lt;/h2&gt;
-
-&lt;p&gt;We can take or not take an element, so we can represent one subset as a unique state sequence.&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;    public List&amp;lt;List&amp;lt;Integer&amp;gt;&amp;gt; subsets(int[] nums) {
-        List&amp;lt;List&amp;lt;Integer&amp;gt;&amp;gt; result = new ArrayList&amp;lt;List&amp;lt;Integer&amp;gt;&amp;gt;();
-        int total = 1 &amp;lt;&amp;lt; nums.length;
-        for(int i = 0; i &amp;lt; total; i ++) {
-            List&amp;lt;Integer&amp;gt; cur = new ArrayList();
-            for(int j = 0; j &amp;lt; nums.length; j ++) {
-                if(((1 &amp;lt;&amp;lt; j) &amp;amp; i) != 0)
-                    cur.add(nums[j]);
-            }
-            result.add(cur);
-        }
-        return result;
-    }
-
-&lt;/code&gt;&lt;/pre&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Counting Bits</title>
-      <link>http://yjn93.github.io/dev/Counting-Bits/</link>
-      <pubDate>Sat, 12 Nov 2016 15:10:24 -0500</pubDate>
-      
-      <guid>http://yjn93.github.io/dev/Counting-Bits/</guid>
-      <description>
-
-&lt;h1 id=&#34;problem-description:022354bb3fdd3cdde4f44cb9f57b56b0&#34;&gt;Problem description&lt;/h1&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://leetcode.com/problems/counting-bits/&#34;&gt;LeetCode 338&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;Given a non negative integer number num. For every numbers i in the range 0 ≤ i ≤ num calculate the number of 1&amp;rsquo;s in their binary representation and return them as an array.&lt;/p&gt;
-
-&lt;h2 id=&#34;example:022354bb3fdd3cdde4f44cb9f57b56b0&#34;&gt;Example:&lt;/h2&gt;
-
-&lt;p&gt;For num = 5 you should return [0,1,1,2,1,2]&lt;/p&gt;
-
-&lt;h2 id=&#34;my-dp-solution:022354bb3fdd3cdde4f44cb9f57b56b0&#34;&gt;My DP Solution&lt;/h2&gt;
-
-&lt;p&gt;This problem can be solved by dynamic programming because the count of bits follow certains rules as the number grows:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;		0	0
-		1	1
-		2	10
-		3	11
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;The number 2 is adding another bit 1 in front of number 0; the number 3 is adding another bit 1 at the beginning of number 1. So my solution is to track the previous size of numbers that can be represented by a fix number of bits. For example, we have 0, 1 initially, the size is 2. Then for 3, 4, we apply the formula:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;dp[i] = dp[i-size] + 1
-dp[2] = dp[2 - 2] + 1 = dp[0] + 1 
-dp[3] = dp[3 - 2] + 1 = dp[1] + 1
-
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Then, for number 4, we need more bits to represent it, so the previous size is updated to 4, and dp[4], dp[5], dp[6], dp[7] can be calculated by dp[0], dp[1], dp[2], dp[3]. My code is as following:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;    public int[] countBits(int num) {
-        if(num == 0) return new int[]{0};
-        int[] dp = new int[num+1];
-        dp[0] = 0;
-        dp[1] = 1;
-        int size = 2;
-        for(int i = 2; i &amp;lt;= num; i ++) {
-            if(i - size == size)
-                size = i;
-            dp[i] = 1 + dp[i-size];
-        }
-        return dp;
-    }
-
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h2 id=&#34;another-dp-solution-combining-bit-manipulation:022354bb3fdd3cdde4f44cb9f57b56b0&#34;&gt;Another DP solution combining Bit Manipulation&lt;/h2&gt;
-
-&lt;p&gt;Instead of adding the bit 1 infront of the previous cycle, this brilliant solution think it as deleting the last bit to obtain the number of bits without last bit, then add another counting for last bit if the last bit is 1.&lt;/p&gt;
-
-&lt;p&gt;4-line:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;    public int[] countBits(int num) {
-        int[] dp = new int[num+1];
-        for(int i = 1; i &amp;lt;= num; i ++) 
-            dp[i] = dp[i&amp;gt;&amp;gt;1] + (i&amp;amp;1);
-        return dp;
-    }
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;Notice the priority for &amp;amp; operator is lower than +, so we need to use () for (i&amp;amp;1).&lt;/p&gt;
 </description>
     </item>
     

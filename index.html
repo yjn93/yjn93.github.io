@@ -66,6 +66,1161 @@
       
   <div class="post">
     <h1 class="post-title">
+      <a href="http://yjn93.github.io/dev/BIT/">
+        Binary Indexed Trees
+      </a>
+    </h1>
+
+    <span class="post-date">Fri, Jan 20, 2017</span>
+
+    
+
+<h1 id="bit:32b8e87fcf011b19f769e4a32f7c0999">BIT</h1>
+
+<p>Binary Indexed Trees is often used for storing frequencies and manipulating cumulative frequency tables.</p>
+
+<ul>
+<li><a href="https://www.topcoder.com/community/data-science/data-science-tutorials/binary-indexed-trees/">TopCoder explanation</a></li>
+</ul>
+
+<h2 id="init-tree:32b8e87fcf011b19f769e4a32f7c0999">Init tree</h2>
+
+<pre><code>    void init(int[] nums) {
+        maxIdx = nums.length;
+        //The index of BIT starts from 1
+        BIT = new int[maxIdx + 1];
+        for(int i = 0; i &lt; maxIdx; i ++)
+            updateBIT(i+1, nums[i]);
+    }
+
+</code></pre>
+
+<h2 id="read:32b8e87fcf011b19f769e4a32f7c0999">Read</h2>
+
+<pre><code>    int readBIT(int idx) {
+        int sum = 0;
+        while(idx &gt; 0) {
+            sum += BIT[idx];
+            idx -= (idx &amp; -idx);
+        }
+        return sum;
+    }
+</code></pre>
+
+<h2 id="update:32b8e87fcf011b19f769e4a32f7c0999">Update</h2>
+
+<pre><code>    void updateBIT(int idx, int diff) {
+        while(idx &lt;= maxIdx) {
+            BIT[idx] += diff;
+            idx += (idx &amp; -idx);
+        } 
+    }
+</code></pre>
+
+<h1 id="range-sum-query-mutable:32b8e87fcf011b19f769e4a32f7c0999">Range Sum Query - Mutable</h1>
+
+<p>Given an integer array nums, find the sum of the elements between indices i and j (i ≤ j), inclusive.</p>
+
+<p>The update(i, val) function modifies nums by updating the element at index i to val.</p>
+
+<h2 id="example:32b8e87fcf011b19f769e4a32f7c0999">Example</h2>
+
+<pre><code>Given nums = [1, 3, 5]
+
+sumRange(0, 2) -&gt; 9
+update(1, 2)
+sumRange(0, 2) -&gt; 8
+
+</code></pre>
+
+<h2 id="solution-segment-tree:32b8e87fcf011b19f769e4a32f7c0999">Solution - Segment Tree</h2>
+
+<p>Segement Tree is like a complete binary tree. Each node represent sum of some range (from a start index to an end index). The children of one node has a subrange of the range.</p>
+
+<pre><code>    segmentNode root;
+    int[] nums;
+
+    public NumArray(int[] nums) {
+        this.nums = nums;
+        if(nums.length != 0)
+        root = buildTree(nums, 0, nums.length-1);
+    }
+
+    segmentNode buildTree(int[] nums, int start, int end) {
+        segmentNode root = new segmentNode(start, end);
+        if(start == end)
+            root.sum = nums[start];
+        else {
+            int mid = (end-start)/2 + start;
+            root.left = buildTree(nums, start, mid);
+            root.right = buildTree(nums, mid+1, end);
+            root.sum = root.left.sum + root.right.sum;
+        }
+        return root;
+    }
+    
+    void update(int i, int val) {
+        int diff = nums[i] - val;
+        nums[i] = val;
+        updateNode(root, i, diff);
+    }
+    
+    void updateNode(segmentNode root, int i, int diff) {
+        if(root == null || root.start &gt; i || root.end &lt; i) return;
+        root.sum -= diff;
+        updateNode(root.left, i, diff);
+        updateNode(root.right, i, diff);
+    }
+
+    public int sumRange(int i, int j) {
+        return sumRange(root, i, j);
+    }
+    
+    int sumRange(segmentNode root, int i, int j) {
+        if(root == null || root.start &gt; j || root.end &lt; i) return 0;
+        if(root.start &gt;= i &amp;&amp; root.end &lt;= j) return root.sum;
+        return sumRange(root.left, i, j) + sumRange(root.right, i, j);
+    }
+    
+}
+
+class segmentNode {
+    int start;
+    int end;
+    int sum;
+    segmentNode left;
+    segmentNode right;
+    
+    segmentNode(int start, int end) {
+        this.start = start;
+        this.end = end;
+        this.sum = 0;
+        left = null;
+        right = null;
+    }
+}
+
+</code></pre>
+
+<h2 id="solution-bit:32b8e87fcf011b19f769e4a32f7c0999">Solution - BIT</h2>
+
+<pre><code>    int[] nums;
+    int[] BIT;
+    int maxIdx;
+
+    public NumArray(int[] nums) {
+        this.nums = nums;
+        init(nums);
+    }
+
+    void init(int[] nums) {
+        maxIdx = nums.length;
+        //The index of BIT starts from 1
+        BIT = new int[maxIdx + 1];
+        for(int i = 0; i &lt; maxIdx; i ++)
+            updateBIT(i+1, nums[i]);
+    }
+    
+    void updateBIT(int idx, int diff) {
+        while(idx &lt;= maxIdx) {
+            BIT[idx] += diff;
+            idx += (idx &amp; -idx);
+        } 
+    }
+    
+    void update(int i, int val) {
+        int diff = val - nums[i];
+        nums[i] = val;
+        updateBIT(i+1, diff);
+    }
+    
+    int readBIT(int idx) {
+        int sum = 0;
+        while(idx &gt; 0) {
+            sum += BIT[idx];
+            idx -= (idx &amp; -idx);
+        }
+        return sum;
+    }
+    
+    public int sumRange(int i, int j) {
+        return readBIT(j+1) - readBIT(i);
+    }
+
+</code></pre>
+
+<h1 id="range-sum-query-2d-mutable:32b8e87fcf011b19f769e4a32f7c0999">Range Sum Query 2D - Mutable</h1>
+
+<p>Given a 2D matrix matrix, find the sum of the elements inside the rectangle defined by its upper left corner (row1, col1) and lower right corner (row2, col2).</p>
+
+<h2 id="example-1:32b8e87fcf011b19f769e4a32f7c0999">Example</h2>
+
+<pre><code>Given matrix = [
+  [3, 0, 1, 4, 2],
+  [5, 6, 3, 2, 1],
+  [1, 2, 0, 1, 5],
+  [4, 1, 0, 1, 7],
+  [1, 0, 3, 0, 5]
+]
+
+sumRegion(2, 1, 4, 3) -&gt; 8
+update(3, 2, 2)
+sumRegion(2, 1, 4, 3) -&gt; 10
+
+</code></pre>
+
+<h2 id="solution:32b8e87fcf011b19f769e4a32f7c0999">Solution</h2>
+
+<pre><code>    int[][] BIT;
+    int[][] nums;
+    int m;
+    int n;
+
+    public NumMatrix(int[][] matrix) {
+        if (matrix == null || matrix.length == 0 || matrix[0].length == 0) return;
+        m = matrix.length;
+        n = matrix[0].length;
+        nums = matrix;
+        BIT = new int[m+1][n+1];
+        for(int i = 0; i &lt; m; i ++) {
+            for(int j = 0; j &lt; n; j ++) {
+                updateBIT(i+1, j+1, matrix[i][j]);
+            }
+        }
+    }
+
+    public void update(int row, int col, int val) {
+        int diff = val - nums[row][col];
+        nums[row][col] = val;
+        updateBIT(row+1, col+1, diff);
+    }
+    
+    public void updateBIT(int x, int y, int diff) {
+        for(int i = x; i &lt;= m; i += (i &amp; -i))  {
+            for(int j = y; j &lt;= n; j += (j &amp; -j)) {
+                BIT[i][j] += diff;
+            }
+        }
+    }
+    
+    public int readBIT(int x, int y) {
+        int sum = 0;
+        for(int i = x; i &gt; 0; i -=(i &amp; -i)) {
+            for(int j = y; j &gt; 0; j -= (j &amp; -j)) {
+                sum += BIT[i][j];
+            }
+        }
+        return sum;
+    }
+
+    public int sumRegion(int row1, int col1, int row2, int col2) {
+        return readBIT(row2+1, col2+1) - readBIT(row2+1, col1) - readBIT(row1, col2+1) + readBIT(row1, col1);
+    }
+
+</code></pre>
+
+  </div>
+  
+  <div class="post">
+    <h1 class="post-title">
+      <a href="http://yjn93.github.io/dev/KMP/">
+        KMP-String Pattern Match
+      </a>
+    </h1>
+
+    <span class="post-date">Fri, Jan 13, 2017</span>
+
+    
+
+<h1 id="kmp:cdddce7445004a283bb5a182f0d88bd4">KMP</h1>
+
+<p>KMP is a string searching algorithm searches for occurrences of a &ldquo;word&rdquo; W within a main &ldquo;text string&rdquo; S by employing the observation that when a mismatch occurs, the word itself embodies sufficient information to determine where the next match could begin, thus bypassing re-examination of previously matched characters.</p>
+
+<ul>
+<li><a href="http://blog.csdn.net/v_july_v/article/details/7041827">A link with detailed explanation</a></li>
+</ul>
+
+<h2 id="calculate-longest-prefix-suffix-lps-array:cdddce7445004a283bb5a182f0d88bd4">Calculate Longest Prefix Suffix (LPS) Array</h2>
+
+<pre><code>    public int[] kmp(String str) {
+        int len = str.length();
+        int[] LPS = new int[len];
+        LPS[0] = 0;
+        int k = 0, j = 1;
+        while(j &lt; len) {
+            if(str.charAt(k) == str.charAt(j))
+                LPS[j ++] = ++ k;
+            else if(k == 0)
+                LPS[j ++] = 0;
+            else
+                k = LPS[k-1];
+        }
+		return LPS;
+    }
+
+</code></pre>
+
+<h2 id="calculate-next-array:cdddce7445004a283bb5a182f0d88bd4">Calculate Next Array</h2>
+
+<pre><code>    public int[] kmp(String str) {
+        int len = str.length();
+        int[] next = new int[len];
+        next[0] = -1;
+        int k = -1, j = 0;
+        while(j &lt; len-1) {
+            if(k == -1 || str.charAt(k) == str.charAt(j))
+                next[++ j] = ++ k;
+            else 
+                k = next[k];
+        }
+        return next;
+    }
+
+</code></pre>
+
+<h2 id="optimised-next-array:cdddce7445004a283bb5a182f0d88bd4">Optimised Next Array</h2>
+
+<pre><code>    public int[] kmp(String str) {
+        int len = str.length();
+        int[] next = new int[len];
+        next[0] = -1;
+        int k = -1, j = 0;
+        while(j &lt; len-1) {
+            if(k == -1 || str.charAt(k) == str.charAt(j)) {
+                if(str.charAt(++ k) == str.charAt(++ j))
+                    next[j] = next[k];  //make sure str(j) != str(next[j])
+                else    
+                    next[j] = k;
+            }
+            else 
+                k = next[k];
+        }
+        return next;
+    }
+
+</code></pre>
+
+<h1 id="encode-string-with-shortest-length:cdddce7445004a283bb5a182f0d88bd4">Encode String with Shortest Length</h1>
+
+<ul>
+<li><a href="https://leetcode.com/problems/encode-string-with-shortest-length/">LeetCode 471</a></li>
+</ul>
+
+<h2 id="solution:cdddce7445004a283bb5a182f0d88bd4">Solution</h2>
+
+<p>dp[i][j] = string from index i to index j in encoded form.</p>
+
+<p>We can write the following formula as:-
+dp[i][j] = min(dp[i][j], dp[i][k] + dp[k+1][j]) or if we can find some pattern in string from i to j which will result in more less length.</p>
+
+<p>Time Complexity = O(n^3)</p>
+
+<pre><code>    public String encode(String s) {
+        if(s == null || s.length() &lt; 5) return s;
+        int len = s.length();
+        String[][] dp = new String[len][len];
+        
+        for(int l = 0; l &lt; len; l ++) {
+            for(int i = 0; i &lt; len-l; i ++) {
+                int j = i + l;
+                String str = s.substring(i, j + 1);
+                dp[i][j] = str;
+                if(l &lt; 4) continue;
+                for(int k = i; k &lt; j; k ++) {
+                    if(dp[i][k].length() + dp[k+1][j].length() &lt; dp[i][j].length())
+                        dp[i][j] = dp[i][k] + dp[k+1][j];
+                }
+                String pattern = kmp(str);
+                if(pattern.length() == str.length()) continue;  // no repeat pattern found
+                String patternEncode = str.length()/pattern.length() + &quot;[&quot; + dp[i][i+pattern.length()-1] + &quot;]&quot;;
+                if(patternEncode.length() &lt; dp[i][j].length())
+                    dp[i][j] = patternEncode;
+            }
+        }
+        System.out.println(dp[0][7]);
+        return dp[0][len-1];
+    }
+    
+    public String kmp(String str) {
+        int len = str.length();
+        int[] LPS = new int[len];
+        LPS[0] = 0;
+        int k = 0, j = 1;
+        while(j &lt; len) {
+            if(str.charAt(k) == str.charAt(j))
+                LPS[j ++] = ++ k;
+            else if(k == 0)
+                LPS[j ++] = 0;
+            else
+                k = LPS[k-1];
+        }
+        String pattern = str.substring(LPS[len-1]);
+        if(pattern.length() != len &amp;&amp; len % pattern.length() == 0)
+            return pattern;
+        return str;
+    }
+
+</code></pre>
+
+  </div>
+  
+  <div class="post">
+    <h1 class="post-title">
+      <a href="http://yjn93.github.io/dev/LeetCodeHard/">
+        LeetCodeHard
+      </a>
+    </h1>
+
+    <span class="post-date">Fri, Jan 13, 2017</span>
+
+    
+
+<h1 id="best-meeting-point:76dac5b6b228718d148e25520d85376a">Best Meeting Point</h1>
+
+<p>A group of two or more people wants to meet and minimize the total travel distance. You are given a 2D grid of values 0 or 1, where each 1 marks the home of someone in the group. The distance is calculated using Manhattan Distance, where distance(p1, p2) = |p2.x - p1.x| + |p2.y - p1.y|.</p>
+
+<p>For example, given three people living at (0,0), (0,4), and (2,2)</p>
+
+<pre><code>1 - 0 - 0 - 0 - 1
+|   |   |   |   |
+0 - 0 - 0 - 0 - 0
+|   |   |   |   |
+0 - 0 - 1 - 0 - 0
+
+</code></pre>
+
+<p>The point (0,2) is an ideal meeting point, as the total travel distance of 2+2+2=6 is minimal. So return 6.</p>
+
+<h2 id="solution:76dac5b6b228718d148e25520d85376a">Solution</h2>
+
+<p>Try to solve it in one dimension first. Similar to the problem <em>Minimum Moves to Equal Array Elements</em></p>
+
+<pre><code>    public int minTotalDistance(int[][] grid) {
+        if(grid == null || grid.length == 0 || grid[0].length == 0)
+            return 0;
+        int m = grid.length, n = grid[0].length;
+        List&lt;Integer&gt; rows = new ArrayList();
+        List&lt;Integer&gt; cols = new ArrayList();
+        for(int i = 0; i &lt; m; i ++) {
+            for(int j = 0; j &lt; n; j ++) {
+                if(grid[i][j] == 1)
+                    rows.add(i);
+            }
+        }
+        for(int j = 0; j &lt; n; j ++) {
+            for(int i = 0; i &lt; m; i ++) {
+                if(grid[i][j] == 1)
+                    cols.add(j);
+            }
+        }
+        
+        return getMin(rows) + getMin(cols);
+    }
+    
+    public int getMin(List&lt;Integer&gt; list) {
+        int left = 0, right = list.size() - 1;
+        int sum = 0;
+        while(left &lt; right)
+            sum += list.get(right --) - list.get(left ++);
+        return sum;
+    }
+
+</code></pre>
+
+<h1 id="smallest-rectangle-enclosing-black-pixels:76dac5b6b228718d148e25520d85376a">Smallest Rectangle Enclosing Black Pixels</h1>
+
+<p>An image is represented by a binary matrix with 0 as a white pixel and 1 as a black pixel. The black pixels are connected, i.e., there is only one black region. Pixels are connected horizontally and vertically. Given the location (x, y) of one of the black pixels, return the area of the smallest (axis-aligned) rectangle that encloses all black pixels.</p>
+
+<h2 id="example:76dac5b6b228718d148e25520d85376a">Example</h2>
+
+<pre><code>[
+  &quot;0010&quot;,
+  &quot;0110&quot;,
+  &quot;0100&quot;
+]
+and x = 0, y = 2,
+Return 6.
+
+</code></pre>
+
+<h2 id="solution-1:76dac5b6b228718d148e25520d85376a">Solution</h2>
+
+<p>I used dfs to find the boundary, but we don&rsquo;t need to search every black cell. All the black cells are connected, in a projected 1D array all the black pixels are also connected.</p>
+
+<p>We can use binary search to search boundaries.</p>
+
+<pre><code>    public int minArea(char[][] image, int x, int y) {
+        if(image == null || image.length == 0 || image[0].length == 0)
+            return 0;
+        int y_min = searchCols(image, 0, y, true);
+        int y_max = searchCols(image, y + 1, image[0].length, false);
+        int x_min = searchRows(image, 0, x, true);
+        int x_max = searchRows(image, x + 1, image.length, false);
+        
+        return (x_max - x_min) * (y_max - y_min);
+    }
+    
+    public int searchCols(char[][] image, int left, int right, boolean leftPart) {
+        int m = image.length;
+        while(left &lt; right) {
+            int mid = (right - left) /2 + left;
+            int k = 0;
+            while(k &lt; m &amp;&amp; image[k][mid] == '0') k ++;
+            if((k &lt; m) == leftPart)
+                right = mid;
+            else
+                left = mid + 1;
+        }
+        return left;
+    }
+    
+    public int searchRows(char[][] image, int top, int bottom, boolean topPart) {
+        int n = image[0].length;
+        while(top &lt; bottom) {
+            int mid = (bottom - top) /2 + top;
+            int k = 0;
+            while(k &lt; n &amp;&amp; image[mid][k] == '0') k ++;
+            if((k &lt; n) == topPart)
+                bottom = mid;
+            else
+                top = mid + 1;
+        }
+        return top;
+    }
+
+</code></pre>
+
+<h1 id="valid-word-square-easy:76dac5b6b228718d148e25520d85376a">Valid Word Square (easy)</h1>
+
+<p>Given a sequence of words, check whether it forms a valid word square.</p>
+
+<p>A sequence of words forms a valid word square if the kth row and column read the exact same string, where 0 ≤ k &lt; max(numRows, numColumns).</p>
+
+<p>Note:
+1. The number of words given is at least 1 and does not exceed 500.
+2. Word length will be at least 1 and does not exceed 500.
+3. Each word contains only lowercase English alphabet a-z.</p>
+
+<h2 id="example-1:76dac5b6b228718d148e25520d85376a">Example</h2>
+
+<pre><code>Input:
+[
+  &quot;abcd&quot;,
+  &quot;bnrt&quot;,
+  &quot;crmy&quot;,
+  &quot;dtye&quot;
+]
+
+Output:
+true
+
+Input:
+[
+  &quot;abcd&quot;,
+  &quot;bnrt&quot;,
+  &quot;crm&quot;,
+  &quot;dt&quot;
+]
+
+Output:
+true
+
+Input:
+[
+  &quot;ball&quot;,
+  &quot;area&quot;,
+  &quot;read&quot;,
+  &quot;lady&quot;
+]
+
+Output:
+false
+
+</code></pre>
+
+<h2 id="solution-2:76dac5b6b228718d148e25520d85376a">Solution</h2>
+
+<p>Simple compare every symmetric char.</p>
+
+<p>I failed on this case: [&ldquo;ball&rdquo;,&ldquo;asee&rdquo;,&ldquo;let&rdquo;,&ldquo;lep&rdquo;]</p>
+
+<pre><code>    public boolean validWordSquare(List&lt;String&gt; words) {
+        if(words == null || words.size() == 0) return true;
+        int len = words.size();
+        for(int i = 0; i &lt; len; i ++) {
+            if(words.get(i).length() &gt; len) return false;
+            for(int j = 0; j &lt; words.get(i).length(); j ++) {
+                if(words.get(j).length() &lt;= i || words.get(j).charAt(i) != words.get(i).charAt(j))
+                    return false;
+            }
+        }
+        return true;
+    }
+
+</code></pre>
+
+<h1 id="word-squares:76dac5b6b228718d148e25520d85376a">Word Squares</h1>
+
+<p>Given a set of words (without duplicates), find all word squares you can build from them.</p>
+
+<h2 id="example-2:76dac5b6b228718d148e25520d85376a">Example</h2>
+
+<pre><code>Input:
+[&quot;area&quot;,&quot;lead&quot;,&quot;wall&quot;,&quot;lady&quot;,&quot;ball&quot;]
+
+Output:
+[
+  [ &quot;wall&quot;,
+    &quot;area&quot;,
+    &quot;lead&quot;,
+    &quot;lady&quot;
+  ],
+  [ &quot;ball&quot;,
+    &quot;area&quot;,
+    &quot;lead&quot;,
+    &quot;lady&quot;
+  ]
+]
+
+Input:
+[&quot;abat&quot;,&quot;baba&quot;,&quot;atan&quot;,&quot;atal&quot;]
+
+Output:
+[
+  [ &quot;baba&quot;,
+    &quot;abat&quot;,
+    &quot;baba&quot;,
+    &quot;atan&quot;
+  ],
+  [ &quot;baba&quot;,
+    &quot;abat&quot;,
+    &quot;baba&quot;,
+    &quot;atal&quot;
+  ]
+]
+
+</code></pre>
+
+<h2 id="solution-3:76dac5b6b228718d148e25520d85376a">Solution</h2>
+
+<p>We know that the sequence contains 4 words because the length of each word is 4.</p>
+
+<p>Every word can be the first word of the sequence, let&rsquo;s take &ldquo;wall&rdquo; for example.</p>
+
+<p>Which word could be the second word? Must be a word start with &ldquo;a&rdquo; (therefore &ldquo;area&rdquo;), because it has to match the second letter of word &ldquo;wall&rdquo;.</p>
+
+<p>Which word could be the third word? Must be a word start with &ldquo;le&rdquo; (therefore &ldquo;lead&rdquo;), because it has to match the third letter of word &ldquo;wall&rdquo; and the third letter of word &ldquo;area&rdquo;.</p>
+
+<p>What about the last word? Must be a word start with &ldquo;lad&rdquo; (therefore &ldquo;lady&rdquo;). For the same reason above.</p>
+
+<pre><code>    class TrieNode {
+        List&lt;String&gt; startWith;
+        TrieNode[] children;
+        
+        public TrieNode() {
+            startWith = new ArrayList();
+            children = new TrieNode[26];
+        }
+    }
+    
+    class Trie {
+        TrieNode root;
+        
+        public Trie(String[] words) {
+            root = new TrieNode();
+            for(String word: words) {
+                TrieNode cur = root;
+                for(char ch: word.toCharArray()) {
+                    int idx = ch - 'a';
+                    if(cur.children[idx] == null)
+                        cur.children[idx] = new TrieNode();
+                    cur.children[idx].startWith.add(word);
+                    cur = cur.children[idx];
+                } 
+            }
+        }
+        
+        public List&lt;String&gt; findPrefix(String prefix) {
+            List&lt;String&gt; result = new ArrayList();
+            TrieNode cur = root;
+            for(char ch: prefix.toCharArray()) {
+                int idx = ch - 'a';
+                if(cur.children[idx] == null)
+                    return result;
+                cur = cur.children[idx];
+            }
+            return cur.startWith;
+        }
+    }
+    
+    public List&lt;List&lt;String&gt;&gt; wordSquares(String[] words) {
+        List&lt;List&lt;String&gt;&gt; result = new ArrayList();
+        if(words == null || words.length == 0) return result;
+        int len = words[0].length();
+        Trie trie = new Trie(words);
+        List&lt;String&gt; cur = new ArrayList();
+        for(String word: words) {
+            cur.add(word);
+            dfs(result, cur, trie, len);
+            cur.remove(cur.size()-1);
+        }
+        return result;
+    }
+    
+    public void dfs(List&lt;List&lt;String&gt;&gt; result, List&lt;String&gt; cur, Trie trie, int len) {
+        if(cur.size() == len) {
+            result.add(new ArrayList(cur));
+            return;
+        }
+        int index = cur.size();
+        StringBuilder prefix = new StringBuilder();
+        for(String w: cur)
+            prefix.append(w.charAt(index));
+        List&lt;String&gt; startWith = trie.findPrefix(prefix.toString());
+        for(String s: startWith) {
+            cur.add(s);
+            dfs(result, cur, trie, len);
+            cur.remove(cur.size()-1);
+        }
+    }
+</code></pre>
+
+<h1 id="longest-substring-with-at-most-two-distinct-characters:76dac5b6b228718d148e25520d85376a">Longest Substring with At Most Two Distinct Characters</h1>
+
+<p>Given a string, find the length of the longest substring T that contains at most 2 distinct characters.</p>
+
+<p>For example, Given s = “eceba”,</p>
+
+<p>T is &ldquo;ece&rdquo; which its length is 3.</p>
+
+<h2 id="solution-4:76dac5b6b228718d148e25520d85376a">Solution</h2>
+
+<pre><code>    public int lengthOfLongestSubstringTwoDistinct(String s) {
+        int start = 0, next = -1;
+        int result = 0;
+        for(int end = 1; end &lt; s.length(); end ++) {
+            if(s.charAt(end) == s.charAt(end-1)) continue;
+            if(next &gt; -1 &amp;&amp; s.charAt(end) != s.charAt(next-1))
+            {
+                result = Math.max(result, end - start);
+                start = next;
+            }
+            next = end;
+        }
+        return result &gt; s.length() - start ? result : s.length() - start;
+    }
+
+</code></pre>
+
+<h1 id="longest-substring-with-at-most-k-distinct-characters:76dac5b6b228718d148e25520d85376a">Longest Substring with At Most K Distinct Characters</h1>
+
+<p>Given a string, find the length of the longest substring T that contains at most k distinct characters.</p>
+
+<p>For example, Given s = “eceba” and k = 2,</p>
+
+<p>T is &ldquo;ece&rdquo; which its length is 3.</p>
+
+<h2 id="solution-using-hashmap:76dac5b6b228718d148e25520d85376a">Solution using HashMap</h2>
+
+<pre><code>    public int lengthOfLongestSubstringKDistinct(String s, int k) {
+        HashMap&lt;Character, Integer&gt; map = new HashMap();
+        int start = 0;
+        int result = 0;
+        for(int end = 0; end &lt; s.length(); end ++) {
+            map.put(s.charAt(end), end);
+            if(map.size() &gt; k) {
+                int leftMost = end;
+                for(int value: map.values()) {
+                    leftMost = Math.min(leftMost, value);
+                }
+                map.remove(s.charAt(leftMost));
+                start = leftMost + 1;
+            }
+            result = Math.max(result, end - start + 1);
+        }
+        return result;
+    }
+
+</code></pre>
+
+<h2 id="solution-using-sliding-window:76dac5b6b228718d148e25520d85376a">Solution using Sliding Window</h2>
+
+<pre><code>    public int lengthOfLongestSubstringKDistinct(String s, int k) {
+        int[] count = new int[256];
+        int num = 0, start = 0, result = 0;
+        for(int i = 0; i &lt; s.length(); i ++) {
+            if(count[s.charAt(i)] ++ == 0) num ++;
+            if(num &gt; k) {
+                while(-- count[s.charAt(start++)] &gt; 0);
+                num --;
+            }
+            result = Math.max(result, i - start + 1);
+        }
+        return result;
+    }
+
+</code></pre>
+
+<h1 id="word-pattern:76dac5b6b228718d148e25520d85376a">Word Pattern</h1>
+
+<p>Given a pattern and a string str, find if str follows the same pattern.</p>
+
+<p>Here follow means a full match, such that there is a bijection between a letter in pattern and a non-empty substring in str.</p>
+
+<h2 id="examples:76dac5b6b228718d148e25520d85376a">Examples:</h2>
+
+<pre><code>pattern = &quot;abab&quot;, str = &quot;redblueredblue&quot; should return true.
+pattern = &quot;aaaa&quot;, str = &quot;asdasdasdasd&quot; should return true.
+pattern = &quot;aabb&quot;, str = &quot;xyzabcxzyabc&quot; should return false.
+</code></pre>
+
+<h2 id="solution-5:76dac5b6b228718d148e25520d85376a">Solution</h2>
+
+<p>Backtracking</p>
+
+<pre><code>    public boolean wordPatternMatch(String pattern, String str) {
+        HashMap&lt;Character, String&gt; map = new HashMap();
+        HashSet&lt;String&gt; used = new HashSet();
+        return helper(map, used, pattern, 0, str, 0);
+    }
+    
+    public boolean helper(HashMap&lt;Character, String&gt; map, HashSet&lt;String&gt; used, String pattern, int idx, String str, int pos) {
+        if(pos == str.length() &amp;&amp; idx == pattern.length())
+            return true;
+        if(pos == str.length() || idx == pattern.length())
+            return false;
+        char ch = pattern.charAt(idx);
+        if(map.containsKey(ch)) {
+            String temp = map.get(ch);
+            if(!str.startsWith(temp, pos))
+                return false;
+            return helper(map, used, pattern, idx+1, str, pos + temp.length());
+        }
+        for(int i = pos; i &lt; str.length(); i ++) {
+            String s = str.substring(pos, i+1);
+            if(used.contains(s)) continue;
+            map.put(ch, s);
+            used.add(s);
+            if(helper(map, used, pattern, idx+1, str, i+1))
+                return true;
+            map.remove(ch);
+            used.remove(s);
+        }
+        return false;
+    }
+
+</code></pre>
+
+<h1 id="closest-binary-search-tree-value-ii:76dac5b6b228718d148e25520d85376a">Closest Binary Search Tree Value II</h1>
+
+<p>Given a non-empty binary search tree and a target value, find k values in the BST that are closest to the target.</p>
+
+<p>Note:
+- Given target value is a floating point.
+- You may assume k is always valid, that is: k ≤ total nodes.
+- You are guaranteed to have only one unique set of k values in the BST that are closest to the target.
+- Follow up: assume that the BST is balanced, could you solve it in less than O(n) runtime (where n = total nodes)?</p>
+
+<h2 id="solution-6:76dac5b6b228718d148e25520d85376a">Solution</h2>
+
+<ol>
+<li>Consider implement these two helper functions:
+
+<ul>
+<li>getPredecessor(N), which returns the next smaller node to N.</li>
+<li>getSuccessor(N), which returns the next larger node to N.</li>
+</ul></li>
+<li>Try to assume that each node has a parent pointer, it makes the problem much easier.</li>
+<li>Without parent pointer we just need to keep track of the path from the root to the current node using a stack.</li>
+<li>You would need two stacks to track the path in finding predecessor and successor node separately.</li>
+</ol>
+
+<pre><code>    public List&lt;Integer&gt; closestKValues(TreeNode root, double target, int k) {
+        Stack&lt;TreeNode&gt; pred = new Stack();
+        Stack&lt;TreeNode&gt; succ = new Stack();
+        initialStack(root, target, pred, succ);
+        
+        List&lt;Integer&gt; result = new ArrayList();
+        
+        while((!pred.isEmpty() || !succ.isEmpty()) &amp;&amp; k -- &gt; 0) {
+            if(pred.isEmpty())
+                result.add(getSucc(succ));
+            else if(succ.isEmpty())
+                result.add(getPred(pred));
+            else if(Math.abs(succ.peek().val-target) &lt; Math.abs(pred.peek().val-target))
+                result.add(getSucc(succ));
+            else
+                result.add(getPred(pred));
+        }
+        return result;
+    }
+    
+    public void initialStack(TreeNode root, double target, Stack&lt;TreeNode&gt; pred, Stack&lt;TreeNode&gt; succ) {
+        TreeNode cur = root;
+        while(cur != null) {
+            if(cur.val &gt; target) {
+                succ.push(cur);
+                cur = cur.left;
+            } else {
+                pred.push(cur);
+                cur = cur.right;
+            }
+        } 
+    }
+    
+    public int getPred(Stack&lt;TreeNode&gt; pred) {
+        TreeNode res = pred.pop();
+        TreeNode cur = res.left;
+        while(cur != null) {
+            pred.push(cur);
+            cur = cur.right;
+        }
+        return res.val;
+    }
+    
+    public int getSucc(Stack&lt;TreeNode&gt; succ) {
+        TreeNode res = succ.pop();
+        TreeNode cur = res.right;
+        while(cur != null) {
+            succ.push(cur);
+            cur = cur.left;
+        }
+        return res.val;
+    } 
+
+</code></pre>
+
+<h1 id="shortest-distance-from-all-buildings:76dac5b6b228718d148e25520d85376a">Shortest Distance from All Buildings</h1>
+
+<p>You want to build a house on an empty land which reaches all buildings in the shortest amount of distance. You can only move up, down, left and right. You are given a 2D grid of values 0, 1 or 2, where:</p>
+
+<ul>
+<li>Each 0 marks an empty land which you can pass by freely.</li>
+<li>Each 1 marks a building which you cannot pass through.</li>
+<li>Each 2 marks an obstacle which you cannot pass through.</li>
+</ul>
+
+<p>For example, given three buildings at (0,0), (0,4), (2,2), and an obstacle at (0,2):</p>
+
+<pre><code>1 - 0 - 2 - 0 - 1
+|   |   |   |   |
+0 - 0 - 0 - 0 - 0
+|   |   |   |   |
+0 - 0 - 1 - 0 - 0
+</code></pre>
+
+<p>The point (1,2) is an ideal empty land to build a house, as the total travel distance of 3+3+1=7 is minimal. So return 7.</p>
+
+<p>There will be at least one building. If it is not possible to build such house according to the above rules, return -1.</p>
+
+<h2 id="solution-7:76dac5b6b228718d148e25520d85376a">Solution</h2>
+
+<p>Walk only onto the cells that were reachable from all previous buildings. From the first building I only walk onto cells where grid is 0, and make them -1. From the second building I only walk onto cells where grid is -1, and I make them -2. And so on.</p>
+
+<p>Use a distance matrix to record the total distance from each cell to all the buildings.</p>
+
+<pre><code>    int[] delta = {-1, 0, 1, 0, -1};
+    int min = Integer.MAX_VALUE;
+    
+    public int shortestDistance(int[][] grid) {
+        if(grid == null || grid.length == 0 || grid[0].length == 0)
+            return 0;
+        int m = grid.length, n = grid[0].length;
+        int[][] dis = new int[m][n];
+        int start = 0;
+        for(int i = 0; i &lt; m; i ++) {
+            for(int j = 0; j &lt; n; j ++) {
+                if(grid[i][j] == 1) {
+                    bfs(grid, dis, i, j, start --);
+                }
+            }
+        }
+        return min == Integer.MAX_VALUE ? -1 : min;
+    }
+
+    public void bfs(int[][] grid, int[][] dis, int row, int col, int start) {
+        Queue&lt;int[]&gt; queue = new LinkedList();
+        queue.offer(new int[]{row, col});
+        int level = 0;
+        min = Integer.MAX_VALUE;
+        while(!queue.isEmpty()) {
+            int size = queue.size();
+            level ++;
+            while(size -- &gt; 0) {
+                int[] cur = queue.poll();
+                for(int i = 1; i &lt; delta.length; i ++) {
+                    int x = cur[0] + delta[i-1];
+                    int y = cur[1] + delta[i];
+                    if(x &lt; 0 || x == grid.length || y &lt; 0 || y == grid[0].length || grid[x][y] != start)
+                        continue;
+                    dis[x][y] += level;
+                    grid[x][y] --;
+                    queue.offer(new int[]{x, y});
+                    min = Math.min(min, dis[x][y]);
+                }
+            }
+        }
+    }
+
+</code></pre>
+
+<h1 id="rearrange-string-k-distance-apart:76dac5b6b228718d148e25520d85376a">Rearrange String k Distance Apart</h1>
+
+<p>Given a non-empty string str and an integer k, rearrange the string such that the same characters are at least distance k from each other.</p>
+
+<p>All input strings are given in lowercase letters. If it is not possible to rearrange the string, return an empty string &ldquo;&rdquo;.</p>
+
+<h2 id="example-3:76dac5b6b228718d148e25520d85376a">Example</h2>
+
+<pre><code>str = &quot;aabbcc&quot;, k = 3
+
+Result: &quot;abcabc&quot;
+
+The same letters are at least distance 3 from each other.
+
+str = &quot;aaabc&quot;, k = 3 
+
+Answer: &quot;&quot;
+
+It is not possible to rearrange the string.
+
+str = &quot;aaadbbcc&quot;, k = 2
+
+Answer: &quot;abacabcd&quot;
+
+Another possible answer is: &quot;abcabcda&quot;
+
+The same letters are at least distance 2 from each other.
+
+</code></pre>
+
+<h2 id="solution-8:76dac5b6b228718d148e25520d85376a">Solution</h2>
+
+<p>Use a hashMap to record the count for every character. Use a max heap to sort characters according to frequency. Use a waitQueue to freeze characters which are currently in the k size window.</p>
+
+<pre><code>    public String rearrangeString(String str, int k) {
+        if(k &lt; 2 || str.length() &lt; 2) return str;
+        HashMap&lt;Character, Integer&gt; map = new HashMap();
+        StringBuilder sb = new StringBuilder();
+        for(char ch: str.toCharArray()) {
+            if(!map.containsKey(ch))
+                map.put(ch, 0);
+            map.put(ch, map.get(ch)+1);
+        }
+        
+		// Both ways are correct to create a priorityqueue.
+        // Queue&lt;Map.Entry&lt;Character, Integer&gt;&gt; maxHeap 
+        //     = new PriorityQueue(new Comparator&lt;Map.Entry&lt;Character, Integer&gt;&gt;() {
+        //         public int compare(Map.Entry&lt;Character, Integer&gt; e1, Map.Entry&lt;Character, Integer&gt; e2) {
+        //             return e2.getValue() - e1.getValue();
+        //         }
+        //         });
+        PriorityQueue&lt;Map.Entry&lt;Character, Integer&gt;&gt; maxHeap 
+            = new PriorityQueue&lt;&gt;((a, b) -&gt; (b.getValue() - a.getValue()));
+        
+        maxHeap.addAll(map.entrySet());
+        Queue&lt;Map.Entry&lt;Character, Integer&gt;&gt; waitQueue = new LinkedList&lt;&gt;();
+        
+        while(!maxHeap.isEmpty()) {
+            Map.Entry&lt;Character, Integer&gt; cur = maxHeap.poll();
+            sb.append(cur.getKey());
+            cur.setValue(cur.getValue()-1);
+            waitQueue.offer(cur);
+            
+            if(waitQueue.size() &lt; k) continue;
+            
+            Map.Entry&lt;Character, Integer&gt; front = waitQueue.poll();
+            if(front.getValue() &gt; 0)
+                maxHeap.offer(front);
+        }
+        
+        return sb.length() == str.length() ? sb.toString() : &quot;&quot;;
+    }
+
+</code></pre>
+
+<h1 id="alien-dictionary:76dac5b6b228718d148e25520d85376a">Alien Dictionary</h1>
+
+<p>There is a new alien language which uses the latin alphabet. However, the order among letters are unknown to you. You receive a list of words from the dictionary, where words are sorted lexicographically by the rules of this new language. Derive the order of letters in this language.</p>
+
+<ol>
+<li>You may assume all letters are in lowercase.</li>
+<li>If the order is invalid, return an empty string.</li>
+<li>There may be multiple valid order of letters, return any one of them is fine.</li>
+</ol>
+
+<h2 id="example-4:76dac5b6b228718d148e25520d85376a">Example</h2>
+
+<pre><code>Given the following words in dictionary,
+[
+  &quot;wrt&quot;,
+  &quot;wrf&quot;,
+  &quot;er&quot;,
+  &quot;ett&quot;,
+  &quot;rftt&quot;
+]
+The correct order is: &quot;wertf&quot;.
+
+</code></pre>
+
+<h2 id="solution-9:76dac5b6b228718d148e25520d85376a">Solution</h2>
+
+<pre><code>    public String alienOrder(String[] words) {
+        Map&lt;Character, Set&lt;Character&gt;&gt; map = new HashMap();
+        Map&lt;Character, Integer&gt; degree = new HashMap();
+        for(String w: words) {
+            for(char ch: w.toCharArray())
+                degree.put(ch, 0);
+        }
+        
+        for(int i = 1; i &lt; words.length; i ++) {
+            String w1 = words[i-1];
+            String w2 = words[i];
+			//if dictionary is [&quot;wtfkj&quot;, &quot;wtf&quot;], should return &quot; &quot;
+            if (w1.length() &gt; w2.length() &amp;&amp; w2.equals(w1.substring(0, w2.length()))) 
+                return &quot;&quot;;
+            int len = Math.min(w1.length(), w2.length());
+            for(int j = 0; j &lt; len; j ++) {
+                char c1 = w1.charAt(j);
+                char c2 = w2.charAt(j);
+                if(c1 != c2) {
+                    if(!map.containsKey(c1))
+                        map.put(c1, new HashSet());
+                    if(map.get(c1).add(c2)) {
+                        degree.put(c2, degree.get(c2) + 1);
+                    }
+                    break;
+                }
+            }
+        }
+        
+        Queue&lt;Character&gt; queue = new LinkedList();
+        for(Map.Entry&lt;Character, Integer&gt; entry: degree.entrySet()) {
+            if(entry.getValue() == 0) queue.offer(entry.getKey());
+        }
+        StringBuilder res = new StringBuilder();
+        
+        while(!queue.isEmpty()) {
+            char cur = queue.poll();
+            res.append(cur);
+            if(map.containsKey(cur)){
+                for(char next: map.get(cur)) {
+                    degree.put(next, degree.get(next)-1);
+                    if(degree.get(next) == 0)
+                        queue.offer(next);
+                }
+            }
+        }
+        if(res.length() != degree.size()) return &quot;&quot;;
+        return res.toString();
+    }
+
+</code></pre>
+
+  </div>
+  
+  <div class="post">
+    <h1 class="post-title">
       <a href="http://yjn93.github.io/dev/LeetCodeLocked/">
         LeetCodeLocked
       </a>
@@ -191,7 +1346,7 @@ After applying operation [0, 2, -2]:
         }
         return min;
     }
-}
+}EEEEEEE
 </code></pre>
 
 <h2 id="follow-up-2:391bf8c2ccd1748d42853cd47f55ff11">Follow up 2</h2>
@@ -343,6 +1498,115 @@ public class ZigzagIterator {
 
 </code></pre>
 
+<h1 id="minimum-unique-word-abbreviation-hard:391bf8c2ccd1748d42853cd47f55ff11">Minimum Unique Word Abbreviation (Hard)</h1>
+
+<p>Given a target string and a set of strings in a dictionary, find an abbreviation of this target string with the smallest possible length such that it does not conflict with abbreviations of the strings in the dictionary.</p>
+
+<p>Each number or letter in the abbreviation is considered length = 1. For example, the abbreviation &ldquo;a32bc&rdquo; has length = 4.</p>
+
+<h2 id="example-2:391bf8c2ccd1748d42853cd47f55ff11">Example</h2>
+
+<pre><code>&quot;apple&quot;, [&quot;blade&quot;] -&gt; &quot;a4&quot; (because &quot;5&quot; or &quot;4e&quot; conflicts with &quot;blade&quot;)
+
+&quot;apple&quot;, [&quot;plain&quot;, &quot;amber&quot;, &quot;blade&quot;] -&gt; &quot;1p3&quot; (other valid answers include &quot;ap3&quot;, &quot;a3e&quot;, &quot;2p2&quot;, &quot;3le&quot;, &quot;3l1&quot;).
+
+</code></pre>
+
+<h2 id="solution-7:391bf8c2ccd1748d42853cd47f55ff11">Solution</h2>
+
+<p>Bit manipulation + DFS</p>
+
+<p>The key idea of my solution is to preprocess the dictionary to transfer all the words to bit sequences (int):</p>
+
+<p>Pick the words with same length as target string from the dictionary and compare the characters with target. If the characters are different, set the corresponding bit to 1, otherwise, set to 0.</p>
+
+<p>Ex: &ldquo;abcde&rdquo;, [&ldquo;abxdx&rdquo;, &ldquo;xbcdx&rdquo;] =&gt; [00101, 10001]</p>
+
+<p>The problem is now converted to find a bit mask that can represent the shortest abbreviation, so that for all the bit sequences in dictionary, mask &amp; bit sequence &gt; 0.</p>
+
+<p>Ex: for [00101, 10001], the mask should be [00001]. if we mask the target string with it, we get &ldquo;4e&rdquo;, which is the abbreviation we are looking for.</p>
+
+<p>To find the bit mask, we need to perform DFS with some optimizations. But which bits should be checked? We can perform &ldquo;or&rdquo; operation for all the bit sequences in the dictionary and do DFS for the &ldquo;1&rdquo; bits in the result.</p>
+
+<p>Ex: 00101 | 10001 = 10101, so we only need to take care of the 1st, 3rd, and 5th bit.</p>
+
+<pre><code>    int cand;  // candidate bits in mask that can be set to 1
+    int n, bn;  
+    int minLen, minAbbr;
+    List&lt;Integer&gt; dict = new ArrayList(); //store reversed bit representation of words
+    
+    public String minAbbreviation(String target, String[] dictionary) {
+        n = target.length();
+        bn = 1 &lt;&lt; n;
+        minLen = Integer.MAX_VALUE;
+        buildBitDict(target, dictionary);
+        
+        dfs(1, 0);
+        
+        //Reconstruct from minAbbr (minAbbr is a reversed representation of abbr) 
+        int count = 0;
+        StringBuilder res = new StringBuilder();
+        for(int i = 0; i &lt; n; i ++) {
+            if(((1 &lt;&lt; i) &amp; minAbbr) == 0) 
+                count ++;
+            else {
+                if(count &gt; 0)
+                    res.append(count);
+                res.append(target.charAt(i));
+                count = 0;
+            }
+        }
+        if(count &gt; 0) res.append(count);
+        return res.toString();
+        
+    }
+    
+    public void dfs(int bit, int mask) {
+        int len = abbrLen(mask);
+        if(len &gt;= minLen) return;
+        boolean match = true;
+        for(int word: dict) {
+            if((word &amp; mask) == 0){
+                match = false;
+                break;
+            }
+        }
+        if(match) {
+            minLen = len;
+            minAbbr = mask;
+        } else {
+            for(int b = bit; b &lt; bn; b &lt;&lt;= 1) {
+                if((b &amp; cand) != 0)
+                    dfs(b &lt;&lt; 1, mask + b);
+            }
+        }
+    }
+    
+    public int abbrLen(int mask) {
+        int count = n;
+        for(int b = 3; b &lt; bn; b &lt;&lt;= 1) {
+            if((b &amp; mask) == 0)
+                count --;
+        }
+        return count;
+    }
+    
+    public void buildBitDict(String target, String[] dictionary) {
+        cand = 0;
+        for(String s: dictionary) {
+            if(s.length() != n) continue;
+            int word = 0;
+            for(int i = 0; i &lt; n; i ++) {
+                if(s.charAt(i) != target.charAt(i))
+                    word |= 1 &lt;&lt; i;
+            }
+            dict.add(word);
+            cand |= word;
+        }        
+    }
+
+</code></pre>
+
 <h1 id="maximum-size-subarray-sum-equals-k:391bf8c2ccd1748d42853cd47f55ff11">Maximum Size Subarray Sum Equals k</h1>
 
 <p>Given an array nums and a target value k, find the maximum length of a subarray that sums to k. If there isn&rsquo;t one, return 0 instead.</p>
@@ -358,7 +1622,7 @@ return 2. (because the subarray [-1, 2] sums to 1 and is the longest
 
 </code></pre>
 
-<h2 id="solution-7:391bf8c2ccd1748d42853cd47f55ff11">Solution</h2>
+<h2 id="solution-8:391bf8c2ccd1748d42853cd47f55ff11">Solution</h2>
 
 <p>I didn&rsquo;t come up with the idea of using map.</p>
 
@@ -383,7 +1647,7 @@ return 2. (because the subarray [-1, 2] sums to 1 and is the longest
 
 <p>Numbers can be regarded as product of its factors. Write a function that takes an integer n and return all possible combinations of its factors,</p>
 
-<h2 id="example-2:391bf8c2ccd1748d42853cd47f55ff11">Example</h2>
+<h2 id="example-3:391bf8c2ccd1748d42853cd47f55ff11">Example</h2>
 
 <pre><code>input: 1
 output: []
@@ -412,7 +1676,7 @@ output:
 
 </code></pre>
 
-<h2 id="solution-8:391bf8c2ccd1748d42853cd47f55ff11">Solution</h2>
+<h2 id="solution-9:391bf8c2ccd1748d42853cd47f55ff11">Solution</h2>
 
 <p>Backtracking, similar to combination sum.</p>
 
@@ -445,7 +1709,7 @@ output:
 
 <p>Note that you can only put the bomb at an empty cell.</p>
 
-<h2 id="example-3:391bf8c2ccd1748d42853cd47f55ff11">Example</h2>
+<h2 id="example-4:391bf8c2ccd1748d42853cd47f55ff11">Example</h2>
 
 <pre><code>For the given grid
 
@@ -456,7 +1720,7 @@ E 0 W E
 return 3. (Placing a bomb at (1,1) kills 3 enemies)
 </code></pre>
 
-<h2 id="solution-9:391bf8c2ccd1748d42853cd47f55ff11">Solution</h2>
+<h2 id="solution-10:391bf8c2ccd1748d42853cd47f55ff11">Solution</h2>
 
 <p>Using dp, only need to record number of enemies in current row and every column. If encounter a wall, update the values.</p>
 
@@ -495,7 +1759,7 @@ return 3. (Placing a bomb at (1,1) kills 3 enemies)
 
 <p>Note: If the given node has no in-order successor in the tree, return null.</p>
 
-<h2 id="solution-10:391bf8c2ccd1748d42853cd47f55ff11">Solution</h2>
+<h2 id="solution-11:391bf8c2ccd1748d42853cd47f55ff11">Solution</h2>
 
 <pre><code>	//Iterative
     public TreeNode inorderSuccessor(TreeNode root, TreeNode p) {
@@ -536,7 +1800,7 @@ return 3. (Placing a bomb at (1,1) kills 3 enemies)
 
 <p>Note: There will be exactly one celebrity if he/she is in the party. Return the celebrity&rsquo;s label if there is a celebrity in the party. If there is no celebrity, return -1.</p>
 
-<h2 id="solution-11:391bf8c2ccd1748d42853cd47f55ff11">Solution</h2>
+<h2 id="solution-12:391bf8c2ccd1748d42853cd47f55ff11">Solution</h2>
 
 <pre><code>    public int findCelebrity(int n) {
         if(n &lt;= 1) return n-1;
@@ -553,6 +1817,534 @@ return 3. (Placing a bomb at (1,1) kills 3 enemies)
         return cur;
     }
 
+</code></pre>
+
+<h1 id="palindrome-permutation:391bf8c2ccd1748d42853cd47f55ff11">Palindrome Permutation</h1>
+
+<p>Given a string, determine if a permutation of the string could form a palindrome.</p>
+
+<p>For example,
+&ldquo;code&rdquo; -&gt; False, &ldquo;aab&rdquo; -&gt; True, &ldquo;carerac&rdquo; -&gt; True.</p>
+
+<h2 id="solution-13:391bf8c2ccd1748d42853cd47f55ff11">Solution</h2>
+
+<p>Use a set.</p>
+
+<pre><code>    public boolean canPermutePalindrome(String s) {
+        Set&lt;Character&gt; set = new HashSet();
+        for(int i = 0; i &lt; s.length(); i ++) {
+            if(!set.add(s.charAt(i)))
+                set.remove(s.charAt(i));
+        }
+        return set.size() == 0 || set.size() == 1;
+    }
+
+</code></pre>
+
+<h1 id="palindrome-permutation-ii:391bf8c2ccd1748d42853cd47f55ff11">Palindrome Permutation II</h1>
+
+<p>Given a string s, return all the palindromic permutations (without duplicates) of it. Return an empty list if no palindromic permutation could be form.</p>
+
+<p>For example:</p>
+
+<p>Given s = &ldquo;aabb&rdquo;, return [&ldquo;abba&rdquo;, &ldquo;baab&rdquo;].</p>
+
+<p>Given s = &ldquo;abc&rdquo;, return [].</p>
+
+<h2 id="solution-14:391bf8c2ccd1748d42853cd47f55ff11">Solution</h2>
+
+<pre><code>    public List&lt;String&gt; generatePalindromes(String s) {
+        List&lt;String&gt; result = new ArrayList();
+        if(s == null || s.length() == 0)
+            return result;
+        Set&lt;Character&gt; set = new HashSet();
+        List&lt;Character&gt; sb = new ArrayList();
+        for(int i = 0; i &lt; s.length(); i ++) {
+            if(!set.add(s.charAt(i))) {
+                set.remove(s.charAt(i));
+                sb.add(s.charAt(i));
+            }
+        }
+        System.out.println(sb.toString());
+        if(set.size() != 0 &amp;&amp; set.size() != 1)
+            return result;
+        String mid = set.size() == 1 ? set.iterator().next().toString() : &quot;&quot;;
+        Collections.sort(sb);
+        helper(result, new StringBuilder(), mid, sb, new boolean[sb.size()]);
+        return result;        
+    }
+    
+    public void helper(List&lt;String&gt; result, StringBuilder cur, String mid, List&lt;Character&gt; sb, boolean[] used) {
+        if(cur.length() == sb.size()) {
+            result.add(cur.toString() + mid + cur.reverse().toString());
+            // reverse back is very important!!!
+            cur.reverse();
+            return;
+        }
+        for(int i = 0; i &lt; sb.size(); i ++) {
+            if(used[i]) continue;
+            if(i &gt; 0 &amp;&amp; sb.get(i) == sb.get(i-1) &amp;&amp; !used[i-1]) continue;
+            cur.append(sb.get(i));
+            used[i] = true;
+            helper(result, cur, mid, sb, used);
+            cur.deleteCharAt(cur.length()-1);
+            used[i] = false;
+        }
+    }
+
+</code></pre>
+
+<h1 id="one-edit-distance:391bf8c2ccd1748d42853cd47f55ff11">One Edit Distance</h1>
+
+<p>Given two strings S and T, determine if they are both one edit distance apart.</p>
+
+<h2 id="solution-15:391bf8c2ccd1748d42853cd47f55ff11">Solution</h2>
+
+<pre><code>
+//  There're 3 possibilities to satisfy one edit distance apart: 
+  
+//  1) Replace 1 char:
+// 	  s: a B c
+// 	  t: a D c
+//  2) Delete 1 char from s: 
+//	  s: a D  b c
+//	  t: a    b c
+//  3) Delete 1 char from t
+//	  s: a   b c
+//	  t: a D b c
+ 
+
+    public boolean isOneEditDistance(String s, String t) {
+        if(Math.abs(s.length() - t.length()) &gt; 1)
+            return false;
+        for(int i = 0; i &lt; Math.min(s.length(), t.length()); i ++) {
+            if(s.charAt(i) != t.charAt(i)) {
+                if(s.length() == t.length()) 
+                    return s.substring(i+1).equals(t.substring(i+1));
+                else if(s.length() &gt; t.length())
+                    return s.substring(i+1).equals(t.substring(i));
+                else 
+                    return s.substring(i).equals(t.substring(i+1));
+            }
+        }
+		//All previous chars are the same, the only possibility is deleting the end char in the longer one of s and t 
+        return Math.abs(s.length() - t.length()) == 1;
+    }
+</code></pre>
+
+<h1 id="line-reflection:391bf8c2ccd1748d42853cd47f55ff11">Line Reflection</h1>
+
+<p>Given n points on a 2D plane, find if there is such a line parallel to y-axis that reflect the given points.</p>
+
+<p>Example 1:
+Given points = [[1,1],[-1,1]], return true.</p>
+
+<p>Example 2:
+Given points = [[1,1],[-1,-1]], return false.</p>
+
+<h2 id="solution-16:391bf8c2ccd1748d42853cd47f55ff11">Solution</h2>
+
+<ol>
+<li>Find the smallest and largest x-value for all points.</li>
+<li>If there is a line then it should be at y = (minX + maxX) / 2.</li>
+<li>For each point, make sure that it has a reflected point in the opposite side.</li>
+</ol>
+
+<p>I used HashMap because I didn&rsquo;t consider the case that several points can share the same x-index.</p>
+
+<p>For example: [[1,2],[2,2],[1,4],[2,4]]</p>
+
+<pre><code>    public boolean isReflected(int[][] points) {
+        HashSet&lt;Integer&gt; set = new HashSet();
+        int min = Integer.MAX_VALUE, max = Integer.MIN_VALUE;
+        for(int[] point: points) {
+            set.add(Arrays.hashCode(point));
+            min = Math.min(min, point[0]);
+            max = Math.max(max, point[0]);
+        }
+        int sum = max + min;
+        for(int[] point: points) {
+            if(!set.contains(Arrays.hashCode(new int[]{sum - point[0], point[1]})))
+                return false;
+        }
+        return true;
+    }
+
+</code></pre>
+
+<h1 id="largest-bst-subtree:391bf8c2ccd1748d42853cd47f55ff11">Largest BST Subtree</h1>
+
+<p>Given a binary tree, find the largest subtree which is a Binary Search Tree (BST), where largest means subtree with largest number of nodes in it.</p>
+
+<h2 id="solution-17:391bf8c2ccd1748d42853cd47f55ff11">Solution</h2>
+
+<p>Similar to LeetCode 98. Validate Binary Search Tree</p>
+
+<pre><code>    int max = 0;
+    
+    class TreeNodeBound {
+        int size;
+        int left;
+        int right;
+        
+        public TreeNodeBound(int size, int left, int right) {
+            this.size = size;
+            this.left = left;
+            this.right = right;
+        }
+    }
+    
+    public int largestBSTSubtree(TreeNode root) {
+        dfs(root);
+        return max;
+    }
+    
+    public TreeNodeBound dfs(TreeNode root) {
+        if(root == null) return new TreeNodeBound(0, Integer.MAX_VALUE, Integer.MIN_VALUE);
+        TreeNodeBound left = dfs(root.left);
+        TreeNodeBound right = dfs(root.right);
+        if(left.size == -1 || right.size == -1 || left.right &gt;= root.val || right.left &lt;= root.val)
+            return new TreeNodeBound(-1, 0, 0);
+        int size = left.size + right.size + 1;
+        max = Math.max(max, size);
+        return new TreeNodeBound(size, Math.min(left.left, root.val), Math.max(right.right, root.val));
+    }
+
+</code></pre>
+
+<h1 id="sentence-screen-fitting:391bf8c2ccd1748d42853cd47f55ff11">Sentence Screen Fitting</h1>
+
+<p>Given a rows x cols screen and a sentence represented by a list of non-empty words, find how many times the given sentence can be fitted on the screen.</p>
+
+<p>Note:</p>
+
+<ol>
+<li>A word cannot be split into two lines.</li>
+<li>The order of words in the sentence must remain unchanged.</li>
+<li>Two consecutive words in a line must be separated by a single space.</li>
+<li>Total words in the sentence won&rsquo;t exceed 100.</li>
+<li>Length of each word is greater than 0 and won&rsquo;t exceed 10.</li>
+<li>1 ≤ rows, cols ≤ 20,000.</li>
+</ol>
+
+<h2 id="solution-18:391bf8c2ccd1748d42853cd47f55ff11">Solution</h2>
+
+<p>I used brute force which exceeds time limit. We can use a dp like solution which keep track of the row  starting with every index of the sentence.</p>
+
+<pre><code>    public int wordsTyping(String[] sentence, int rows, int cols) {
+        int[] nextIdx = new int[sentence.length];
+        int[] times = new int[sentence.length];
+        for(int i = 0; i &lt; sentence.length; i ++) {
+            int cur = i;
+            int j = 0;
+            while(j + sentence[cur].length() &lt;= cols) {
+                j += sentence[cur].length() + 1;
+                cur ++;
+                if(cur == sentence.length){
+                    cur = 0;
+                    times[i] ++;
+                }
+            }
+            nextIdx[i] = cur;
+        }
+        int count = 0;
+        int index = 0;
+        for(int i = 0; i &lt; rows; i ++) {
+            count += times[index];
+            index = nextIdx[index];
+        }
+
+        return count;
+    }
+
+</code></pre>
+
+<h1 id="encode-and-decode-strings:391bf8c2ccd1748d42853cd47f55ff11">Encode and Decode Strings</h1>
+
+<p>Design an algorithm to encode a list of strings to a string. The encoded string is then sent over the network and is decoded back to the original list of strings.</p>
+
+<h2 id="solution-19:391bf8c2ccd1748d42853cd47f55ff11">Solution</h2>
+
+<pre><code>    // Encodes a list of strings to a single string.
+    public String encode(List&lt;String&gt; strs) {
+        StringBuilder sb = new StringBuilder();
+        for(String str: strs) {
+            sb.append(str.length() + &quot;/&quot; + str);
+        }
+        return sb.toString();
+    }
+
+    // Decodes a single string to a list of strings.
+    public List&lt;String&gt; decode(String s) {
+        List&lt;String&gt; result = new ArrayList();
+        int index = 0;
+        while(index &lt; s.length()) {
+            int slash = s.indexOf(&quot;/&quot;, index);
+            int len = Integer.valueOf(s.substring(index, slash));
+            result.add(s.substring(slash + 1, slash + len + 1));
+            index = slash + len + 1;
+        }
+        return result;
+    }
+
+</code></pre>
+
+<h1 id="sequence-reconstruction:391bf8c2ccd1748d42853cd47f55ff11">Sequence Reconstruction</h1>
+
+<p>Check whether the original sequence org can be uniquely reconstructed from the sequences in seqs. The org sequence is a permutation of the integers from 1 to n, with 1 ≤ n ≤ 104. Reconstruction means building a shortest common supersequence of the sequences in seqs (i.e., a shortest sequence so that all sequences in seqs are subsequences of it). Determine whether there is only one sequence that can be reconstructed from seqs and it is the org sequence.</p>
+
+<h2 id="example-5:391bf8c2ccd1748d42853cd47f55ff11">Example</h2>
+
+<pre><code>Input:
+org: [1,2,3], seqs: [[1,2],[1,3]]
+
+Output:
+false
+
+Explanation:
+[1,2,3] is not the only one sequence that can be reconstructed, because [1,3,2] is also a valid sequence that can be reconstructed.
+
+Input:
+org: [1,2,3], seqs: [[1,2]]
+
+Output:
+false
+
+Explanation:
+The reconstructed sequence can only be [1,2].
+
+Input:
+org: [1,2,3], seqs: [[1,2],[1,3],[2,3]]
+
+Output:
+true
+
+Explanation:
+The sequences [1,2], [1,3], and [2,3] can uniquely reconstruct the original sequence [1,2,3].
+
+Input:
+org: [4,1,5,2,6,3], seqs: [[5,2,6,3],[4,1,5,2]]
+
+Output:
+true
+
+</code></pre>
+
+<h2 id="solution-20:391bf8c2ccd1748d42853cd47f55ff11">Solution</h2>
+
+<p>BFS topological sort</p>
+
+<pre><code>    public boolean sequenceReconstruction(int[] org, List&lt;List&lt;Integer&gt;&gt; seqs) {
+        Map&lt;Integer, Set&lt;Integer&gt;&gt; adjs = new HashMap();
+        Map&lt;Integer, Integer&gt; inDegree = new HashMap();
+        
+        for(List&lt;Integer&gt; seq: seqs) {
+            if(seq.size() == 1) {
+                if(!adjs.containsKey(seq.get(0))) {
+                    adjs.put(seq.get(0), new HashSet());
+                    inDegree.put(seq.get(0), 0);
+                }
+            } 
+            for(int i = 0; i &lt; seq.size()-1; i ++) {
+                if(!adjs.containsKey(seq.get(i))) {
+                    adjs.put(seq.get(i), new HashSet());
+                    inDegree.put(seq.get(i), 0);
+                }
+                if(!adjs.containsKey(seq.get(i+1))) {
+                    adjs.put(seq.get(i+1), new HashSet());
+                    inDegree.put(seq.get(i+1), 0);
+                }
+                if(adjs.get(seq.get(i)).add(seq.get(i+1)))
+                    inDegree.put(seq.get(i+1), inDegree.get(seq.get(i+1))+1);
+            }
+        }
+        
+        Queue&lt;Integer&gt; queue = new LinkedList();
+        for(Map.Entry&lt;Integer, Integer&gt; entry: inDegree.entrySet()) {
+            if(entry.getValue() == 0)
+                queue.offer(entry.getKey());
+        }
+        
+        int index = 0;
+        
+        while(!queue.isEmpty()) {
+            if(queue.size() &gt; 1) return false;
+            int cur = queue.poll();
+            if(index == org.length || org[index ++] != cur)
+                return false;
+            for(int next: adjs.get(cur)) {
+                inDegree.put(next, inDegree.get(next)-1);
+                if(inDegree.get(next) == 0)
+                    queue.offer(next);
+            }
+        }
+        return org.length == index &amp;&amp; index == adjs.size();
+    }
+
+</code></pre>
+
+<h1 id="strobogrammatic-number:391bf8c2ccd1748d42853cd47f55ff11">Strobogrammatic Number</h1>
+
+<p>A strobogrammatic number is a number that looks the same when rotated 180 degrees (looked at upside down).</p>
+
+<p>Write a function to determine if a number is strobogrammatic. The number is represented as a string.</p>
+
+<p>For example, the numbers &ldquo;69&rdquo;, &ldquo;88&rdquo;, and &ldquo;818&rdquo; are all strobogrammatic.</p>
+
+<h2 id="solution-21:391bf8c2ccd1748d42853cd47f55ff11">Solution</h2>
+
+<pre><code>    public boolean isStrobogrammatic(String num) {
+        for(int i = 0, j = num.length()-1; i &lt;= j; i++, j--) {
+            if(!&quot;00 11 88 696&quot;.contains(num.charAt(i) + &quot;&quot; + num.charAt(j)))
+                return false;
+        }
+        return true;
+    }
+
+</code></pre>
+
+<h1 id="strobogrammatic-number-ii:391bf8c2ccd1748d42853cd47f55ff11">Strobogrammatic Number II</h1>
+
+<p>Find all strobogrammatic numbers that are of length = n.</p>
+
+<p>For example,</p>
+
+<p>Given n = 2, return [&ldquo;11&rdquo;,&ldquo;69&rdquo;,&ldquo;88&rdquo;,&ldquo;96&rdquo;].</p>
+
+<h2 id="solution-22:391bf8c2ccd1748d42853cd47f55ff11">Solution</h2>
+
+<pre><code>    int[][] map = {{0,0},{1,1},{8,8},{6,9},{9,6}};
+    
+    public List&lt;String&gt; findStrobogrammatic(int n) {
+        List&lt;String&gt; result = new ArrayList();
+        if(n == 0) return result;
+        if(n == 1) {
+            result.add(&quot;0&quot;);
+            result.add(&quot;1&quot;);
+            result.add(&quot;8&quot;);
+            return result;
+        }
+        if(n % 2 == 0)
+            helper(result, &quot;&quot;, n);
+        else {
+            helper(result, &quot;0&quot;, n - 1);
+            helper(result, &quot;1&quot;, n - 1);
+            helper(result, &quot;8&quot;, n - 1);
+        }
+        return result;
+    }
+    
+    public void helper(List&lt;String&gt; result, String cur, int n) {
+        if(n == 0) {
+            if(cur.charAt(0) != '0')
+                result.add(cur);
+            return;
+        }
+        int len = cur.length();
+        for(int[] num: map) {
+            cur = num[0] + cur + num[1];
+            helper(result, cur, n - 2);
+            cur = cur.substring(1, len+1);
+        }
+    }
+
+</code></pre>
+
+<h1 id="strobogrammatic-number-iii:391bf8c2ccd1748d42853cd47f55ff11">Strobogrammatic Number III</h1>
+
+<p>Write a function to count the total strobogrammatic numbers that exist in the range of low &lt;= num &lt;= high.</p>
+
+<p>For example,</p>
+
+<p>Given low = &ldquo;50&rdquo;, high = &ldquo;100&rdquo;, return 3. Because 69, 88, and 96 are three strobogrammatic numbers.</p>
+
+<h2 id="solution-23:391bf8c2ccd1748d42853cd47f55ff11">Solution</h2>
+
+<pre><code>    int[][] map = {{0,0}, {1,1}, {8,8}, {6,9}, {9,6}};
+    int count = 0;
+    
+    public int strobogrammaticInRange(String low, String high) {
+        int min = low.length(), max = high.length();
+        for(int n = min; n &lt;= max; n ++) {
+            if(n % 2 == 0)
+                helper(&quot;&quot;, low, high, n);
+            else {
+                helper(&quot;0&quot;, low, high, n-1);
+                helper(&quot;1&quot;, low, high, n-1);
+                helper(&quot;8&quot;, low, high, n-1);
+            }
+        }
+        return count;
+    }
+    
+    public void helper(String cur, String low, String high, int n) {
+        int len = cur.length();
+        if(n == 0) {
+            if(len &gt; 1 &amp;&amp; cur.charAt(0) == '0') return;
+            if((len == low.length() &amp;&amp; cur.compareTo(low) &lt; 0) ||
+                (len == high.length() &amp;&amp; cur.compareTo(high) &gt; 0))
+                return;
+            count ++;
+            return;
+        }
+        for(int[] num: map) {
+            cur = num[0] + cur + num[1];
+            helper(cur, low, high, n-2);
+            cur = cur.substring(1, len+1);
+        }
+    }
+
+</code></pre>
+
+<h1 id="read-n-characters-given-read4:391bf8c2ccd1748d42853cd47f55ff11">Read N Characters Given Read4</h1>
+
+<p>The API: int read4(char *buf) reads 4 characters at a time from a file.</p>
+
+<p>The return value is the actual number of characters read. For example, it returns 3 if there is only 3 characters left in the file.</p>
+
+<p>By using the read4 API, implement the function int read(char *buf, int n) that reads n characters from the file.</p>
+
+<h2 id="solution-24:391bf8c2ccd1748d42853cd47f55ff11">Solution</h2>
+
+<pre><code>    public int read(char[] buf, int n) {
+        char[] temp = new char[4];
+        int count = 0;
+        boolean eof = false;
+        while(count &lt; n &amp;&amp; !eof) {
+            int cur = read4(temp);
+            eof = cur &lt; 4;
+            int len = Math.min(cur, n - count);
+            for(int i = 0; i &lt; len; i ++) {
+                buf[count ++] = temp[i];
+            }
+        }
+        return count;
+    }
+
+</code></pre>
+
+<h1 id="read-n-characters-given-read4-ii-call-multiple-times:391bf8c2ccd1748d42853cd47f55ff11">Read N Characters Given Read4 II - Call multiple times</h1>
+
+<p>The read function may be called multiple times.</p>
+
+<h2 id="solution-25:391bf8c2ccd1748d42853cd47f55ff11">Solution</h2>
+
+<pre><code>     int index = 0;
+     int count = 0;
+     char[] next = new char[4];
+     
+    public int read(char[] buf, int n) {
+        int p = 0;
+        while(p &lt; n) {
+            if(index == 0)
+                count = read4(next);
+            if(count == 0) break;
+            while(p &lt; n &amp;&amp; index &lt; count)
+                buf[p ++] = next[index ++];
+            if(index == count) index = 0;
+        }
+        return p;
+    }
 </code></pre>
 
   </div>
@@ -889,6 +2681,85 @@ Answer: 3
 
 </code></pre>
 
+<h1 id="number-of-island-2:7b5dfc6ca8814f1e54ab64455253b7f0">Number of Island 2</h1>
+
+<p>A 2d grid map of m rows and n columns is initially filled with water. We may perform an addLand operation which turns the water at position (row, col) into a land. Given a list of positions to operate, count the number of islands after each addLand operation. An island is surrounded by water and is formed by connecting adjacent lands horizontally or vertically. You may assume all four edges of the grid are all surrounded by water.</p>
+
+<h2 id="example-3:7b5dfc6ca8814f1e54ab64455253b7f0">Example</h2>
+
+<pre><code>Given m = 3, n = 3, positions = [[0,0], [0,1], [1,2], [2,1]].
+
+Initially, the 2d grid grid is filled with water. (Assume 0 represents water and 1 represents land).
+
+Operation #1: addLand(0, 0) turns the water at grid[0][0] into a land.
+
+1 0 0
+0 0 0   Number of islands = 1
+0 0 0
+
+Operation #2: addLand(0, 1) turns the water at grid[0][1] into a land.
+
+1 1 0
+0 0 0   Number of islands = 1
+0 0 0
+
+Operation #3: addLand(1, 2) turns the water at grid[1][2] into a land.
+
+1 1 0
+0 0 1   Number of islands = 2
+0 0 0
+
+Operation #4: addLand(2, 1) turns the water at grid[2][1] into a land.
+
+1 1 0
+0 0 1   Number of islands = 3
+0 1 0
+
+We return the result as an array: [1, 1, 2, 3]
+
+</code></pre>
+
+<h2 id="solution:7b5dfc6ca8814f1e54ab64455253b7f0">Solution</h2>
+
+<pre><code>    int[][] dirs = {{-1, 0}, {1, 0}, {0, 1}, {0, -1}};
+    
+    public List&lt;Integer&gt; numIslands2(int m, int n, int[][] positions) {
+        List&lt;Integer&gt; result = new ArrayList();
+        if(positions == null || positions.length == 0)
+            return result;
+        int[] unionSet = new int[m*n];
+        for(int i = 0; i &lt; m*n; i ++)
+            unionSet[i] = -1;
+            
+        int count = 0;
+        for(int[] pos: positions) {
+            int idx = pos[0] * n + pos[1];
+            count ++;
+            unionSet[idx] = idx;
+            for(int[] dir: dirs) {
+                int x = pos[0] + dir[0];
+                int y = pos[1] + dir[1];
+                if(x &lt; 0 || x == m || y &lt; 0 || y == n || unionSet[x*n+y] == -1)
+                    continue;
+                int root = find(unionSet, x*n+y);
+                if(idx != root) {
+                    unionSet[root] = idx;
+                    count --;
+                }
+            }
+            result.add(count);
+        }
+        return result;
+    }
+    
+    public int find(int[] unionSet, int p) {
+        if(unionSet[p] == p) return p;
+        unionSet[p] = find(unionSet, unionSet[p]);
+        return unionSet[p];
+    }
+
+</code></pre>
+
 <h1 id="graph-valid-tree:7b5dfc6ca8814f1e54ab64455253b7f0">Graph Valid Tree</h1>
 
 <p>Given n nodes labeled from 0 to n - 1 and a list of undirected edges (each edge is a pair of nodes), write a function to check whether these edges make up a valid tree.</p>
@@ -899,7 +2770,7 @@ Answer: 3
 
 <p>Given n = 5 and edges = [[0, 1], [1, 2], [2, 3], [1, 3], [1, 4]], return false.</p>
 
-<h2 id="solution:7b5dfc6ca8814f1e54ab64455253b7f0">Solution</h2>
+<h2 id="solution-1:7b5dfc6ca8814f1e54ab64455253b7f0">Solution</h2>
 
 <p>For the graph to be a tree, it should satisfy 2 conditions:</p>
 
@@ -1252,6 +3123,59 @@ We get the following sequence (ie, for n = 3):</p>
         }
         return sb.toString();
     }
+</code></pre>
+
+<h1 id="palindrome-permutation-ii:ae5fadc6fef33d3a20be0c4537ee7524">Palindrome Permutation II</h1>
+
+<p>Given a string s, return all the palindromic permutations (without duplicates) of it. Return an empty list if no palindromic permutation could be form.</p>
+
+<p>For example:</p>
+
+<p>Given s = &ldquo;aabb&rdquo;, return [&ldquo;abba&rdquo;, &ldquo;baab&rdquo;].</p>
+
+<p>Given s = &ldquo;abc&rdquo;, return [].</p>
+
+<h2 id="solution-2:ae5fadc6fef33d3a20be0c4537ee7524">Solution</h2>
+
+<pre><code>    public List&lt;String&gt; generatePalindromes(String s) {
+        List&lt;String&gt; result = new ArrayList();
+        if(s == null || s.length() == 0)
+            return result;
+        Set&lt;Character&gt; set = new HashSet();
+        List&lt;Character&gt; sb = new ArrayList();
+        for(int i = 0; i &lt; s.length(); i ++) {
+            if(!set.add(s.charAt(i))) {
+                set.remove(s.charAt(i));
+                sb.add(s.charAt(i));
+            }
+        }
+        System.out.println(sb.toString());
+        if(set.size() != 0 &amp;&amp; set.size() != 1)
+            return result;
+        String mid = set.size() == 1 ? set.iterator().next().toString() : &quot;&quot;;
+        Collections.sort(sb);
+        helper(result, new StringBuilder(), mid, sb, new boolean[sb.size()]);
+        return result;        
+    }
+    
+    public void helper(List&lt;String&gt; result, StringBuilder cur, String mid, List&lt;Character&gt; sb, boolean[] used) {
+        if(cur.length() == sb.size()) {
+            result.add(cur.toString() + mid + cur.reverse().toString());
+            // reverse back is very important!!!
+            cur.reverse();
+            return;
+        }
+        for(int i = 0; i &lt; sb.size(); i ++) {
+            if(used[i]) continue;
+            if(i &gt; 0 &amp;&amp; sb.get(i) == sb.get(i-1) &amp;&amp; !used[i-1]) continue;
+            cur.append(sb.get(i));
+            used[i] = true;
+            helper(result, cur, mid, sb, used);
+            cur.deleteCharAt(cur.length()-1);
+            used[i] = false;
+        }
+    }
+
 </code></pre>
 
   </div>

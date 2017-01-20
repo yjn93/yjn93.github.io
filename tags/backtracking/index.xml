@@ -212,6 +212,59 @@ We get the following sequence (ie, for n = 3):&lt;/p&gt;
         return sb.toString();
     }
 &lt;/code&gt;&lt;/pre&gt;
+
+&lt;h1 id=&#34;palindrome-permutation-ii:ae5fadc6fef33d3a20be0c4537ee7524&#34;&gt;Palindrome Permutation II&lt;/h1&gt;
+
+&lt;p&gt;Given a string s, return all the palindromic permutations (without duplicates) of it. Return an empty list if no palindromic permutation could be form.&lt;/p&gt;
+
+&lt;p&gt;For example:&lt;/p&gt;
+
+&lt;p&gt;Given s = &amp;ldquo;aabb&amp;rdquo;, return [&amp;ldquo;abba&amp;rdquo;, &amp;ldquo;baab&amp;rdquo;].&lt;/p&gt;
+
+&lt;p&gt;Given s = &amp;ldquo;abc&amp;rdquo;, return [].&lt;/p&gt;
+
+&lt;h2 id=&#34;solution-2:ae5fadc6fef33d3a20be0c4537ee7524&#34;&gt;Solution&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;    public List&amp;lt;String&amp;gt; generatePalindromes(String s) {
+        List&amp;lt;String&amp;gt; result = new ArrayList();
+        if(s == null || s.length() == 0)
+            return result;
+        Set&amp;lt;Character&amp;gt; set = new HashSet();
+        List&amp;lt;Character&amp;gt; sb = new ArrayList();
+        for(int i = 0; i &amp;lt; s.length(); i ++) {
+            if(!set.add(s.charAt(i))) {
+                set.remove(s.charAt(i));
+                sb.add(s.charAt(i));
+            }
+        }
+        System.out.println(sb.toString());
+        if(set.size() != 0 &amp;amp;&amp;amp; set.size() != 1)
+            return result;
+        String mid = set.size() == 1 ? set.iterator().next().toString() : &amp;quot;&amp;quot;;
+        Collections.sort(sb);
+        helper(result, new StringBuilder(), mid, sb, new boolean[sb.size()]);
+        return result;        
+    }
+    
+    public void helper(List&amp;lt;String&amp;gt; result, StringBuilder cur, String mid, List&amp;lt;Character&amp;gt; sb, boolean[] used) {
+        if(cur.length() == sb.size()) {
+            result.add(cur.toString() + mid + cur.reverse().toString());
+            // reverse back is very important!!!
+            cur.reverse();
+            return;
+        }
+        for(int i = 0; i &amp;lt; sb.size(); i ++) {
+            if(used[i]) continue;
+            if(i &amp;gt; 0 &amp;amp;&amp;amp; sb.get(i) == sb.get(i-1) &amp;amp;&amp;amp; !used[i-1]) continue;
+            cur.append(sb.get(i));
+            used[i] = true;
+            helper(result, cur, mid, sb, used);
+            cur.deleteCharAt(cur.length()-1);
+            used[i] = false;
+        }
+    }
+
+&lt;/code&gt;&lt;/pre&gt;
 </description>
     </item>
     

@@ -3,8 +3,23 @@
   
   <url>
     <loc>http://yjn93.github.io/</loc>
-    <lastmod>2017-01-05T14:34:10-05:00</lastmod>
+    <lastmod>2017-01-20T00:15:59-05:00</lastmod>
     <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>http://yjn93.github.io/dev/BIT/</loc>
+    <lastmod>2017-01-20T00:15:59-05:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://yjn93.github.io/dev/KMP/</loc>
+    <lastmod>2017-01-13T17:12:53-05:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://yjn93.github.io/dev/LeetCodeHard/</loc>
+    <lastmod>2017-01-13T10:44:08-05:00</lastmod>
   </url>
   
   <url>

@@ -65,6 +65,45 @@
     
         <article class="post">
     <header>
+      <h2><a href="http://yjn93.github.io/dev/BIT/">Binary Indexed Trees </a> </h2>
+      <div class="post-meta">Fri, Jan 20, 2017 </div>
+    </header>
+
+    BIT Binary Indexed Trees is often used for storing frequencies and manipulating cumulative frequency tables. TopCoder explanation Init tree void init(int[] nums) { maxIdx = nums.length; //The index of BIT starts from 1 BIT = new int[maxIdx + 1]; for(int i = 0; i &lt; maxIdx; i ++) updateBIT(i+1, nums[i]); } Read int readBIT(int idx) { int sum = 0; while(idx &gt; 0) { sum += BIT[idx]; idx -= (idx &amp; -idx); } return sum; } Update void updateBIT(int idx, int diff) { while(idx &lt;= maxIdx) { BIT[idx] += diff; idx += (idx &amp; -idx); } } Range Sum Query - Mutable Given an integer array nums, find the sum of the elements between indices i and j (i ≤ j), inclusive.
+    <footer>
+        <a href='http://yjn93.github.io/dev/BIT/'><nobr>Read more →</nobr></a>
+    </footer>
+</article>
+
+    
+        <article class="post">
+    <header>
+      <h2><a href="http://yjn93.github.io/dev/KMP/">KMP-String Pattern Match </a> </h2>
+      <div class="post-meta">Fri, Jan 13, 2017 </div>
+    </header>
+
+    KMP KMP is a string searching algorithm searches for occurrences of a &ldquo;word&rdquo; W within a main &ldquo;text string&rdquo; S by employing the observation that when a mismatch occurs, the word itself embodies sufficient information to determine where the next match could begin, thus bypassing re-examination of previously matched characters. A link with detailed explanation Calculate Longest Prefix Suffix (LPS) Array public int[] kmp(String str) { int len = str.length(); int[] LPS = new int[len]; LPS[0] = 0; int k = 0, j = 1; while(j &lt; len) { if(str.charAt(k) == str.charAt(j)) LPS[j ++] = ++ k; else if(k == 0) LPS[j ++] = 0; else k = LPS[k-1]; } return LPS; } Calculate Next Array public int[] kmp(String str) { int len = str.length(); int[] next = new int[len]; next[0] = -1; int k = -1, j = 0; while(j &lt; len-1) { if(k == -1 || str.charAt(k) == str.charAt(j)) next[++ j] = ++ k; else k = next[k]; } return next; } Optimised Next Array public int[] kmp(String str) { int len = str.length(); int[] next = new int[len]; next[0] = -1; int k = -1, j = 0; while(j &lt; len-1) { if(k == -1 || str.charAt(k) == str.charAt(j)) { if(str.charAt(++ k) == str.charAt(++ j)) next[j] = next[k]; //make sure str(j) != str(next[j]) else next[j] = k; } else k = next[k]; } return next; } Encode String with Shortest Length LeetCode 471 Solution dp[i][j] = string from index i to index j in encoded form.
+    <footer>
+        <a href='http://yjn93.github.io/dev/KMP/'><nobr>Read more →</nobr></a>
+    </footer>
+</article>
+
+    
+        <article class="post">
+    <header>
+      <h2><a href="http://yjn93.github.io/dev/LeetCodeHard/">LeetCodeHard </a> </h2>
+      <div class="post-meta">Fri, Jan 13, 2017 </div>
+    </header>
+
+    Best Meeting Point A group of two or more people wants to meet and minimize the total travel distance. You are given a 2D grid of values 0 or 1, where each 1 marks the home of someone in the group. The distance is calculated using Manhattan Distance, where distance(p1, p2) = |p2.x - p1.x| + |p2.y - p1.y|. For example, given three people living at (0,0), (0,4), and (2,2) 1 - 0 - 0 - 0 - 1 | | | | | 0 - 0 - 0 - 0 - 0 | | | | | 0 - 0 - 1 - 0 - 0 The point (0,2) is an ideal meeting point, as the total travel distance of 2+2+2=6 is minimal.
+    <footer>
+        <a href='http://yjn93.github.io/dev/LeetCodeHard/'><nobr>Read more →</nobr></a>
+    </footer>
+</article>
+
+    
+        <article class="post">
+    <header>
       <h2><a href="http://yjn93.github.io/dev/LeetCodeLocked/">LeetCodeLocked </a> </h2>
       <div class="post-meta">Thu, Jan 5, 2017 </div>
     </header>

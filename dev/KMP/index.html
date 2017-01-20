@@ -1,0 +1,204 @@
+	<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-us" lang="en-us">
+<head>
+  <link href="http://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="generator" content="Hugo 0.15" />
+
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+
+  <title> KMP-String Pattern Match &middot; 木秀于南 </title>
+
+  
+  <link rel="stylesheet" href="http://yjn93.github.io/css/poole.css">
+  <link rel="stylesheet" href="http://yjn93.github.io/css/syntax.css">
+  <link rel="stylesheet" href="http://yjn93.github.io/css/hyde.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700|Abril+Fatface">
+
+  
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/apple-touch-icon-144-precomposed.png">
+  <link rel="shortcut icon" href="/favicon.png">
+
+  
+  <link href="" rel="alternate" type="application/rss+xml" title="木秀于南" />
+</head>
+
+	<body class="">
+		<div class="sidebar">
+    <div class="sidebar-about">
+      <a href="http://yjn93.github.io/"><h1>木秀于南</h1></a>
+      <p class="lead">
+	   Jianan Yue  
+      </p>
+    </div>
+
+	        <ul class ="sidebar-nav">
+             <li>
+                <a href="/">Home</a>
+            </li>
+            <li>
+                <a href="/blog/">Blog</a>
+            </li>
+            <li>
+            	<a href="/dev/">Dev</a>
+            </li>
+            <li>
+            	<a href="/gallery/">Gallery</a>
+            </li>
+            <li>
+				<a href="/about">About</a>
+            </li>
+        </ul>
+
+
+	<p class = "copyright">
+		powered by <a href = "http://gohugo.io">Hugo</a>
+		<br>© 2016 Jianan Yue. All right reserved.
+	</p>
+</div>
+
+
+		<div class="content container">
+			<div class="post">
+			 	<h1>KMP-String Pattern Match</h1>
+			  <span class="post-date">Fri, Jan 13, 2017</span>
+			      
+
+<h1 id="kmp:cdddce7445004a283bb5a182f0d88bd4">KMP</h1>
+
+<p>KMP is a string searching algorithm searches for occurrences of a &ldquo;word&rdquo; W within a main &ldquo;text string&rdquo; S by employing the observation that when a mismatch occurs, the word itself embodies sufficient information to determine where the next match could begin, thus bypassing re-examination of previously matched characters.</p>
+
+<ul>
+<li><a href="http://blog.csdn.net/v_july_v/article/details/7041827">A link with detailed explanation</a></li>
+</ul>
+
+<h2 id="calculate-longest-prefix-suffix-lps-array:cdddce7445004a283bb5a182f0d88bd4">Calculate Longest Prefix Suffix (LPS) Array</h2>
+
+<pre><code>    public int[] kmp(String str) {
+        int len = str.length();
+        int[] LPS = new int[len];
+        LPS[0] = 0;
+        int k = 0, j = 1;
+        while(j &lt; len) {
+            if(str.charAt(k) == str.charAt(j))
+                LPS[j ++] = ++ k;
+            else if(k == 0)
+                LPS[j ++] = 0;
+            else
+                k = LPS[k-1];
+        }
+		return LPS;
+    }
+
+</code></pre>
+
+<h2 id="calculate-next-array:cdddce7445004a283bb5a182f0d88bd4">Calculate Next Array</h2>
+
+<pre><code>    public int[] kmp(String str) {
+        int len = str.length();
+        int[] next = new int[len];
+        next[0] = -1;
+        int k = -1, j = 0;
+        while(j &lt; len-1) {
+            if(k == -1 || str.charAt(k) == str.charAt(j))
+                next[++ j] = ++ k;
+            else 
+                k = next[k];
+        }
+        return next;
+    }
+
+</code></pre>
+
+<h2 id="optimised-next-array:cdddce7445004a283bb5a182f0d88bd4">Optimised Next Array</h2>
+
+<pre><code>    public int[] kmp(String str) {
+        int len = str.length();
+        int[] next = new int[len];
+        next[0] = -1;
+        int k = -1, j = 0;
+        while(j &lt; len-1) {
+            if(k == -1 || str.charAt(k) == str.charAt(j)) {
+                if(str.charAt(++ k) == str.charAt(++ j))
+                    next[j] = next[k];  //make sure str(j) != str(next[j])
+                else    
+                    next[j] = k;
+            }
+            else 
+                k = next[k];
+        }
+        return next;
+    }
+
+</code></pre>
+
+<h1 id="encode-string-with-shortest-length:cdddce7445004a283bb5a182f0d88bd4">Encode String with Shortest Length</h1>
+
+<ul>
+<li><a href="https://leetcode.com/problems/encode-string-with-shortest-length/">LeetCode 471</a></li>
+</ul>
+
+<h2 id="solution:cdddce7445004a283bb5a182f0d88bd4">Solution</h2>
+
+<p>dp[i][j] = string from index i to index j in encoded form.</p>
+
+<p>We can write the following formula as:-
+dp[i][j] = min(dp[i][j], dp[i][k] + dp[k+1][j]) or if we can find some pattern in string from i to j which will result in more less length.</p>
+
+<p>Time Complexity = O(n^3)</p>
+
+<pre><code>    public String encode(String s) {
+        if(s == null || s.length() &lt; 5) return s;
+        int len = s.length();
+        String[][] dp = new String[len][len];
+        
+        for(int l = 0; l &lt; len; l ++) {
+            for(int i = 0; i &lt; len-l; i ++) {
+                int j = i + l;
+                String str = s.substring(i, j + 1);
+                dp[i][j] = str;
+                if(l &lt; 4) continue;
+                for(int k = i; k &lt; j; k ++) {
+                    if(dp[i][k].length() + dp[k+1][j].length() &lt; dp[i][j].length())
+                        dp[i][j] = dp[i][k] + dp[k+1][j];
+                }
+                String pattern = kmp(str);
+                if(pattern.length() == str.length()) continue;  // no repeat pattern found
+                String patternEncode = str.length()/pattern.length() + &quot;[&quot; + dp[i][i+pattern.length()-1] + &quot;]&quot;;
+                if(patternEncode.length() &lt; dp[i][j].length())
+                    dp[i][j] = patternEncode;
+            }
+        }
+        System.out.println(dp[0][7]);
+        return dp[0][len-1];
+    }
+    
+    public String kmp(String str) {
+        int len = str.length();
+        int[] LPS = new int[len];
+        LPS[0] = 0;
+        int k = 0, j = 1;
+        while(j &lt; len) {
+            if(str.charAt(k) == str.charAt(j))
+                LPS[j ++] = ++ k;
+            else if(k == 0)
+                LPS[j ++] = 0;
+            else
+                k = LPS[k-1];
+        }
+        String pattern = str.substring(LPS[len-1]);
+        if(pattern.length() != len &amp;&amp; len % pattern.length() == 0)
+            return pattern;
+        return str;
+    }
+
+</code></pre>
+
+			</div>
+
+			
+		</div>
+
+  </body>
+</html>
