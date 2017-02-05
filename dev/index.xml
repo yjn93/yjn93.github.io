@@ -1153,6 +1153,93 @@ The correct order is: &amp;quot;wertf&amp;quot;.
     }
 
 &lt;/code&gt;&lt;/pre&gt;
+
+&lt;h1 id=&#34;optimal-account-balancing:76dac5b6b228718d148e25520d85376a&#34;&gt;Optimal Account Balancing&lt;/h1&gt;
+
+&lt;p&gt;A group of friends went on holiday and sometimes lent each other money. For example, Alice paid for Bill&amp;rsquo;s lunch for $10. Then later Chris gave Alice $5 for a taxi ride. We can model each transaction as a tuple (x, y, z) which means person x gave person y $z. Assuming Alice, Bill, and Chris are person 0, 1, and 2 respectively (0, 1, 2 are the person&amp;rsquo;s ID), the transactions can be represented as [[0, 1, 10], [2, 0, 5]].&lt;/p&gt;
+
+&lt;p&gt;Given a list of transactions between a group of people, return the minimum number of transactions required to settle the debt.&lt;/p&gt;
+
+&lt;p&gt;Note:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;A transaction will be given as a tuple (x, y, z). Note that x ≠ y and z &amp;gt; 0.&lt;/li&gt;
+&lt;li&gt;Person&amp;rsquo;s IDs may not be linear, e.g. we could have the persons 0, 1, 2 or we could also have the persons 0, 2, 6.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2 id=&#34;example-5:76dac5b6b228718d148e25520d85376a&#34;&gt;Example&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;Input:
+[[0,1,10], [1,0,1], [1,2,5], [2,0,5]]
+
+Output:
+1
+
+Explanation:
+Person #0 gave person #1 $10.
+Person #1 gave person #0 $1.
+Person #1 gave person #2 $5.
+Person #2 gave person #0 $5.
+
+Therefore, person #1 only need to give person #0 $4, and all debt is settled.
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;solution-10:76dac5b6b228718d148e25520d85376a&#34;&gt;Solution&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;    public int minTransfers(int[][] transactions) {
+        HashMap&amp;lt;Integer, Integer&amp;gt; map = new HashMap();
+        for(int[] trans: transactions) {
+            map.put(trans[0], map.getOrDefault(trans[0], 0) - trans[2]);
+            map.put(trans[1], map.getOrDefault(trans[1], 0) + trans[2]);
+        }
+        List&amp;lt;Integer&amp;gt; balance = new ArrayList();
+        int index = 0;
+        for(int v: map.values()) {
+            if(v != 0)
+                balance.add(v);
+        }
+        return cleanBalance(balance) + minMatch(balance, 0);
+        
+        
+    }
+    
+    public int cleanBalance(List&amp;lt;Integer&amp;gt; balance) {
+        Collections.sort(balance);
+        int left = 0, right = balance.size()-1;
+        int count = 0;
+        while(left &amp;lt; right) {
+            if(- balance.get(left) == balance.get(right)) {
+                count ++;
+                balance.remove(right);
+                balance.remove(left);
+                right -= 2;
+            } else if(- balance.get(left) &amp;gt; balance.get(right))
+                left ++;
+            else
+                right --;
+        }
+        return count;
+    }
+    
+    public int minMatch(List&amp;lt;Integer&amp;gt; balance, int start) {
+        int min = Integer.MAX_VALUE;
+        while(start &amp;lt; balance.size() &amp;amp;&amp;amp; balance.get(start) == 0)
+            start ++;
+        if(start == balance.size())
+            return 0;
+        int cur = balance.get(start);
+        for(int i = start + 1; i &amp;lt; balance.size(); i ++) {
+            if(balance.get(i) * cur &amp;lt; 0) {
+                balance.set(i, balance.get(i) + cur);
+                min = Math.min(min, 1 + minMatch(balance, start + 1));
+                balance.set(i, balance.get(i) - cur);
+            }
+        }
+        return min;
+    }
+
+&lt;/code&gt;&lt;/pre&gt;
 </description>
     </item>
     
@@ -2278,6 +2365,53 @@ true
             if(index == count) index = 0;
         }
         return p;
+    }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h1 id=&#34;group-shifted-strings:391bf8c2ccd1748d42853cd47f55ff11&#34;&gt;Group Shifted Strings&lt;/h1&gt;
+
+&lt;p&gt;Given a string, we can &amp;ldquo;shift&amp;rdquo; each of its letter to its successive letter, for example: &amp;ldquo;abc&amp;rdquo; -&amp;gt; &amp;ldquo;bcd&amp;rdquo;. We can keep &amp;ldquo;shifting&amp;rdquo; which forms the sequence:&lt;/p&gt;
+
+&lt;p&gt;&amp;ldquo;abc&amp;rdquo; -&amp;gt; &amp;ldquo;bcd&amp;rdquo; -&amp;gt; &amp;hellip; -&amp;gt; &amp;ldquo;xyz&amp;rdquo;&lt;/p&gt;
+
+&lt;p&gt;Given a list of strings which contains only lowercase alphabets, group all strings that belong to the same shifting sequence.&lt;/p&gt;
+
+&lt;h2 id=&#34;example-6:391bf8c2ccd1748d42853cd47f55ff11&#34;&gt;Example&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;[&amp;quot;abc&amp;quot;, &amp;quot;bcd&amp;quot;, &amp;quot;acef&amp;quot;, &amp;quot;xyz&amp;quot;, &amp;quot;az&amp;quot;, &amp;quot;ba&amp;quot;, &amp;quot;a&amp;quot;, &amp;quot;z&amp;quot;]
+
+[
+  [&amp;quot;abc&amp;quot;,&amp;quot;bcd&amp;quot;,&amp;quot;xyz&amp;quot;],
+  [&amp;quot;az&amp;quot;,&amp;quot;ba&amp;quot;],
+  [&amp;quot;acef&amp;quot;],
+  [&amp;quot;a&amp;quot;,&amp;quot;z&amp;quot;]
+]
+Show Company Tags
+Show Tags
+Show Similar Problems
+
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;solution-26:391bf8c2ccd1748d42853cd47f55ff11&#34;&gt;Solution&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;    public List&amp;lt;List&amp;lt;String&amp;gt;&amp;gt; groupStrings(String[] strings) {
+        Map&amp;lt;String, List&amp;lt;String&amp;gt;&amp;gt; map = new HashMap();
+        Arrays.sort(strings);
+        for(String cur: strings) {
+            int offset = cur.charAt(0) - &#39;a&#39;;
+            String key = &amp;quot;&amp;quot;;
+            for(int i = 0; i &amp;lt; cur.length(); i ++) {
+                char c = (char)(cur.charAt(i) - offset);
+                if(c &amp;lt; &#39;a&#39;)
+                    c += 26;
+                key += c;
+            }
+            if(!map.containsKey(key))
+                map.put(key, new ArrayList());
+            map.get(key).add(cur);
+        }
+        return new ArrayList(map.values());
     }
 &lt;/code&gt;&lt;/pre&gt;
 </description>

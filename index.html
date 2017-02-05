@@ -1217,6 +1217,93 @@ The correct order is: &quot;wertf&quot;.
 
 </code></pre>
 
+<h1 id="optimal-account-balancing:76dac5b6b228718d148e25520d85376a">Optimal Account Balancing</h1>
+
+<p>A group of friends went on holiday and sometimes lent each other money. For example, Alice paid for Bill&rsquo;s lunch for $10. Then later Chris gave Alice $5 for a taxi ride. We can model each transaction as a tuple (x, y, z) which means person x gave person y $z. Assuming Alice, Bill, and Chris are person 0, 1, and 2 respectively (0, 1, 2 are the person&rsquo;s ID), the transactions can be represented as [[0, 1, 10], [2, 0, 5]].</p>
+
+<p>Given a list of transactions between a group of people, return the minimum number of transactions required to settle the debt.</p>
+
+<p>Note:</p>
+
+<ol>
+<li>A transaction will be given as a tuple (x, y, z). Note that x ≠ y and z &gt; 0.</li>
+<li>Person&rsquo;s IDs may not be linear, e.g. we could have the persons 0, 1, 2 or we could also have the persons 0, 2, 6.</li>
+</ol>
+
+<h2 id="example-5:76dac5b6b228718d148e25520d85376a">Example</h2>
+
+<pre><code>Input:
+[[0,1,10], [1,0,1], [1,2,5], [2,0,5]]
+
+Output:
+1
+
+Explanation:
+Person #0 gave person #1 $10.
+Person #1 gave person #0 $1.
+Person #1 gave person #2 $5.
+Person #2 gave person #0 $5.
+
+Therefore, person #1 only need to give person #0 $4, and all debt is settled.
+
+</code></pre>
+
+<h2 id="solution-10:76dac5b6b228718d148e25520d85376a">Solution</h2>
+
+<pre><code>    public int minTransfers(int[][] transactions) {
+        HashMap&lt;Integer, Integer&gt; map = new HashMap();
+        for(int[] trans: transactions) {
+            map.put(trans[0], map.getOrDefault(trans[0], 0) - trans[2]);
+            map.put(trans[1], map.getOrDefault(trans[1], 0) + trans[2]);
+        }
+        List&lt;Integer&gt; balance = new ArrayList();
+        int index = 0;
+        for(int v: map.values()) {
+            if(v != 0)
+                balance.add(v);
+        }
+        return cleanBalance(balance) + minMatch(balance, 0);
+        
+        
+    }
+    
+    public int cleanBalance(List&lt;Integer&gt; balance) {
+        Collections.sort(balance);
+        int left = 0, right = balance.size()-1;
+        int count = 0;
+        while(left &lt; right) {
+            if(- balance.get(left) == balance.get(right)) {
+                count ++;
+                balance.remove(right);
+                balance.remove(left);
+                right -= 2;
+            } else if(- balance.get(left) &gt; balance.get(right))
+                left ++;
+            else
+                right --;
+        }
+        return count;
+    }
+    
+    public int minMatch(List&lt;Integer&gt; balance, int start) {
+        int min = Integer.MAX_VALUE;
+        while(start &lt; balance.size() &amp;&amp; balance.get(start) == 0)
+            start ++;
+        if(start == balance.size())
+            return 0;
+        int cur = balance.get(start);
+        for(int i = start + 1; i &lt; balance.size(); i ++) {
+            if(balance.get(i) * cur &lt; 0) {
+                balance.set(i, balance.get(i) + cur);
+                min = Math.min(min, 1 + minMatch(balance, start + 1));
+                balance.set(i, balance.get(i) - cur);
+            }
+        }
+        return min;
+    }
+
+</code></pre>
+
   </div>
   
   <div class="post">
@@ -2344,6 +2431,53 @@ true
             if(index == count) index = 0;
         }
         return p;
+    }
+</code></pre>
+
+<h1 id="group-shifted-strings:391bf8c2ccd1748d42853cd47f55ff11">Group Shifted Strings</h1>
+
+<p>Given a string, we can &ldquo;shift&rdquo; each of its letter to its successive letter, for example: &ldquo;abc&rdquo; -&gt; &ldquo;bcd&rdquo;. We can keep &ldquo;shifting&rdquo; which forms the sequence:</p>
+
+<p>&ldquo;abc&rdquo; -&gt; &ldquo;bcd&rdquo; -&gt; &hellip; -&gt; &ldquo;xyz&rdquo;</p>
+
+<p>Given a list of strings which contains only lowercase alphabets, group all strings that belong to the same shifting sequence.</p>
+
+<h2 id="example-6:391bf8c2ccd1748d42853cd47f55ff11">Example</h2>
+
+<pre><code>[&quot;abc&quot;, &quot;bcd&quot;, &quot;acef&quot;, &quot;xyz&quot;, &quot;az&quot;, &quot;ba&quot;, &quot;a&quot;, &quot;z&quot;]
+
+[
+  [&quot;abc&quot;,&quot;bcd&quot;,&quot;xyz&quot;],
+  [&quot;az&quot;,&quot;ba&quot;],
+  [&quot;acef&quot;],
+  [&quot;a&quot;,&quot;z&quot;]
+]
+Show Company Tags
+Show Tags
+Show Similar Problems
+
+
+</code></pre>
+
+<h2 id="solution-26:391bf8c2ccd1748d42853cd47f55ff11">Solution</h2>
+
+<pre><code>    public List&lt;List&lt;String&gt;&gt; groupStrings(String[] strings) {
+        Map&lt;String, List&lt;String&gt;&gt; map = new HashMap();
+        Arrays.sort(strings);
+        for(String cur: strings) {
+            int offset = cur.charAt(0) - 'a';
+            String key = &quot;&quot;;
+            for(int i = 0; i &lt; cur.length(); i ++) {
+                char c = (char)(cur.charAt(i) - offset);
+                if(c &lt; 'a')
+                    c += 26;
+                key += c;
+            }
+            if(!map.containsKey(key))
+                map.put(key, new ArrayList());
+            map.get(key).add(cur);
+        }
+        return new ArrayList(map.values());
     }
 </code></pre>
 
